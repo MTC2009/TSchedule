@@ -14,11 +14,11 @@
 
 <p align="center">
   <a href="#快速开始">快速开始</a> ·
-  <a href="docs/tschedule-promo/Meet-TSchedule.mp4">观看 75 秒介绍</a> ·
+  <a href="docs/tschedule-promo/Meet-TSchedule.mp4?raw=1">观看 75 秒宣传片 · 转屏版</a> ·
   <a href="docs/tschedule-app-store/02-artwork/ipad-13-inch/README.md">浏览界面截图</a>
 </p>
 
-[![TSchedule 的「今日」界面：iPad 显示正在上的课、教室、距离下课的时间，以及当天的课程时间轴。](docs/tschedule-promo/TSchedule-preview.jpg)](docs/tschedule-promo/Meet-TSchedule.mp4)
+[![点击观看宣传片：iPad 转到横屏，「计划」从一天展开为整周。](docs/tschedule-promo/TSchedule-preview.jpg)](docs/tschedule-promo/Meet-TSchedule.mp4?raw=1)
 
 ## 在 iPad 上
 
@@ -70,6 +70,10 @@ TSchedule 是独立学生项目，并非学校或校宝的官方客户端。界�
 swift test --package-path Xiaobao-iPadOS
 cargo test --locked --manifest-path xiaobao-backend/Cargo.toml
 ```
+
+## 致谢
+
+感谢清澜山学校。特别感谢 [Peter Li 学长（@Haoxuan1016）](https://github.com/Haoxuan1016)、[Lanbin07（@lanbinshijie）](https://github.com/lanbinshijie) 和 [Leo Huo（@lanbinleo）](https://github.com/lanbinleo)。
 
 ## 联系
 

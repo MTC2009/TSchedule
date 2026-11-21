@@ -1,8 +1,14 @@
 # TSchedule iPad 宣传片分镜
 
-[播放《Meet TSchedule.》](tschedule-promo/Meet-TSchedule.mp4) · 75 秒 · 1920 × 1080，30 fps，立体声。横版画面中 iPad 保持竖放。[分屏剧照](tschedule-promo/TSchedule-preview.jpg)
+[观看 75 秒转屏版](tschedule-promo/Meet-TSchedule.mp4?raw=1) · 1920 × 1080，30 fps，立体声 · [横屏周计划剧照](tschedule-promo/TSchedule-preview.jpg)
 
-## 时间线
+**当前剪辑（2026-11-21）**：约第 34 秒，iPad 随「计划」从竖屏转到横屏，同一天的位置保留，画面展开成一周；约第 49 秒，设备再转回竖屏，点开一项作业。天气段先淡出控件，晴空回来后才恢复界面。片尾由校园建筑轮廓收成 TSchedule 自己的图标。横屏周计划是实录，不是把竖屏拉宽。
+
+课表、作业与 GPA 均取自模拟器的虚构资料；没有使用学生账号或真实成绩。配乐与拟音为本片制作。宣传片展示操作方式，不代表学校或校宝对项目的认可。
+
+## 初版分镜（制作记录）
+
+下表记录最初的竖屏剪辑，不是转屏版的逐镜说明。[查看此前的成片](https://github.com/MTC2009/TSchedule/blob/5eb257c1a2bc0d9b3b6441dcf49922a11e9eba53/docs/tschedule-promo/Meet-TSchedule.mp4)。
 
 | 时间 | 画面、动作与声音 | 屏幕文字 |
 | --- | --- | --- |
@@ -26,4 +32,4 @@
 
 录制依据：[今日时间轴与天气预览](../Xiaobao-iPadOS/README.md) · [计划创建与保存](../Xiaobao-iPadOS/Sources/Native/Planner/README.md) · [作业列表与详情](../Xiaobao-iPadOS/Sources/Native/Tasks/README.md) · [GPA 读数与演示资料限制](../Xiaobao-iPadOS/Sources/Native/GPA/README.md)。
 
-**2026-11-21 · 出片记录：** 取景于上课日 11 月 18 日（周三，Day 2）。从 A205 的英语文学拖到 A301 的微积分；真实划选并保存 16:10–16:55 的个人计划；展示当晚 20:00 截止的物理作业和详情，再进入 GPA 与单科成绩。全部学生资料为虚构样例。五种天气出自同一个原生渲染器，只有最后晴空恢复组件。作业段的镜头向下移以阅读要求，并非模拟提交。片尾选用字标；本片没有设置、学校网页或真人戏份。
+**初版出片记录（2026-11-21）：** 取景于上课日 11 月 18 日（周三，Day 2）。从 A205 的英语文学拖到 A301 的微积分；真实划选并保存 16:10–16:55 的个人计划；展示当晚 20:00 截止的物理作业和详情，再进入 GPA 与单科成绩。全部学生资料为虚构样例。五种天气出自同一个原生渲染器，只有最后晴空恢复组件。作业段的镜头向下移以阅读要求，并非模拟提交。初版片尾选用字标，没有设置、学校网页或真人戏份。

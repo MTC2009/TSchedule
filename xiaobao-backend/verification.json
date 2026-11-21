@@ -1,0 +1,198 @@
+{
+  "environment": "Linux x86_64, loopback, demo-b",
+  "rustc": "1.100.0",
+  "recorded_at": "2026-11-18T10:14:35.401332+00:00",
+  "tests_passed": 23,
+  "validation": [
+    "cargo fmt --all --check",
+    "cargo test --locked",
+    "cargo clippy --locked --all-targets -- -D warnings",
+    "cargo build --release --locked"
+  ],
+  "cache_and_device_sessions": {
+    "environment": "Linux x86_64, loopback, demo-b",
+    "rust_tests": 23,
+    "swift_tests": 49,
+    "account": "demo-b",
+    "date": "2026-11-18",
+    "release_binary_bytes": 3840808,
+    "reads": {
+      "courses": {
+        "full_body_bytes": 635,
+        "unchanged_status": 304,
+        "unchanged_body_bytes": 0
+      },
+      "schedule": {
+        "full_body_bytes": 1001,
+        "unchanged_status": 304,
+        "unchanged_body_bytes": 0
+      },
+      "grades": {
+        "full_body_bytes": 3685,
+        "unchanged_status": 304,
+        "unchanged_body_bytes": 0
+      },
+      "attendance": {
+        "full_body_bytes": 13364,
+        "unchanged_status": 304,
+        "unchanged_body_bytes": 0
+      }
+    },
+    "offline_sync": {
+      "modules": 9,
+      "initial_manifest_body_bytes": 918,
+      "ordinary_module_bundle_bytes": 16960,
+      "unchanged_status": 304,
+      "unchanged_body_bytes": 0,
+      "attendance_only_body_bytes": 12611,
+      "complete_grades_body_bytes": 4638
+    },
+    "legacy_incremental_grade_checks": {
+      "first_response_bytes": 4540,
+      "first_course_records": 6,
+      "unchanged_status": 204,
+      "unchanged_response_bytes": 0,
+      "one_stale_course_response_bytes": 1625,
+      "one_stale_course_records": 1
+    },
+    "manual_grade_page_network_requests": 0,
+    "warm_home_network_requests": 0,
+    "process_restart_and_revoke": true,
+    "apple_ui_build": "requires Xcode 26 on macOS",
+    "verified_at": "2026-11-18T10:49:03.526460+00:00"
+  },
+  "previous_serialization_release": {
+    "environment": "Linux x86_64, release build, two demo students",
+    "rustc": "1.100.0",
+    "recorded_at": "2026-11-18T08:46:42.140604+00:00",
+    "tests_passed": 16,
+    "validation": [
+      "cargo fmt --all --check",
+      "cargo test --locked",
+      "cargo clippy --locked --all-targets -- -D warnings",
+      "cargo build --release --locked"
+    ],
+    "http_compatibility": {
+      "cases": 158,
+      "compared": [
+        "status code",
+        "content type and cache, CORS and method headers",
+        "parsed response JSON including array order"
+      ],
+      "normalized": [
+        "meta.generated_at",
+        "issued session tokens and expiry timestamps"
+      ]
+    },
+    "benchmark": {
+      "script": "scripts/bench.py",
+      "build": "cargo build --release --locked",
+      "setup": "Local HTTP/1.1 keep-alive, a single sequential client and alternating demo-a/demo-b. Dates are relative to the Shanghai reference week. Each cycle reads a Wednesday schedule, a Monday–Sunday calendar, grades and the full 30-day attendance window.",
+      "runs_per_version": 6,
+      "alternating_binary_order": true,
+      "warmup_requests_per_route_per_run": 20,
+      "measured_requests_per_route_per_run": 500,
+      "latency": "Microseconds from request start until the Python client has read the entire body. P50 and P95 use all measured samples per route.",
+      "rss": "Median server RSS in KiB from ps after the last measured request in each run.",
+      "before": {
+        "binary_bytes": 1532616,
+        "requests_per_route": 3000,
+        "routes": {
+          "schedule": {
+            "p50_us": 76.2,
+            "p95_us": 155.1
+          },
+          "calendar_week": {
+            "p50_us": 102.1,
+            "p95_us": 200.5
+          },
+          "grades": {
+            "p50_us": 88.1,
+            "p95_us": 177.1
+          },
+          "attendance": {
+            "p50_us": 149.6,
+            "p95_us": 275.3
+          }
+        },
+        "median_warm_rss_kib": 2670.0,
+        "binary_sha256": "d3c94023792a3a5413a80c7e2cbee4e90d2fe7c1d67eba6e4836336cb4f4f4e0"
+      },
+      "after": {
+        "binary_bytes": 1529512,
+        "requests_per_route": 3000,
+        "routes": {
+          "schedule": {
+            "p50_us": 55.9,
+            "p95_us": 114.0
+          },
+          "calendar_week": {
+            "p50_us": 68.2,
+            "p95_us": 138.3
+          },
+          "grades": {
+            "p50_us": 57.3,
+            "p95_us": 111.1
+          },
+          "attendance": {
+            "p50_us": 72.4,
+            "p95_us": 139.7
+          }
+        },
+        "median_warm_rss_kib": 2384.0,
+        "binary_sha256": "7b1d353795d845224e35b733f3ddb221765170e4f10ce91b1c9172fbcfccbdf8"
+      }
+    }
+  },
+  "calendar_lesson_id_reuse": {
+    "environment": "macOS arm64, Apple M3 Max on AC power, local demo JSON service",
+    "rustc": "1.93.0",
+    "reference_date_shanghai": "2026-11-18",
+    "change": "Reuse the formatted date suffix for all lessons on the same teaching day and allocate each lesson ID at its exact length.",
+    "isolated_42d_generation": {
+      "lessons": 180,
+      "iterations_per_run": 12000,
+      "runs_per_version": 3,
+      "mean_us_each_run_before": [31.62, 31.33, 33.74],
+      "mean_us_each_run_after": [16.09, 16.12, 16.42],
+      "note": "Pure lesson generation; JSON serialization is separately measured and remains about 48–51 microseconds. No manual timestamp formatting implemented."
+    },
+    "benchmark": {
+      "script": "scripts/bench.py --calendar-42d --runs 8 --samples 750",
+      "build": "cargo build --release --locked --offline",
+      "setup": "One sequential HTTP/1.1 connection per run on loopback, alternating demo-a and demo-b on identical generated data. Baseline and candidate alternate execution order. Responses are read in full.",
+      "runs_per_version": 8,
+      "warmup_requests_per_route_per_run": 20,
+      "measured_requests_per_route_per_version": 6000,
+      "routes": {
+        "schedule": {"p50_us_before": 66.1, "p50_us_after": 64.8, "p95_us_before": 73.5, "p95_us_after": 70.8},
+        "calendar_week": {"p50_us_before": 81.9, "p50_us_after": 76.9, "p95_us_before": 93.0, "p95_us_after": 86.9},
+        "grades": {"p50_us_before": 66.7, "p50_us_after": 65.8, "p95_us_before": 77.5, "p95_us_after": 75.3},
+        "attendance": {"p50_us_before": 85.5, "p50_us_after": 84.3, "p95_us_before": 95.7, "p95_us_after": 92.4},
+        "calendar_42d": {"p50_us_before": 154.1, "p50_us_after": 135.0, "p95_us_before": 181.5, "p95_us_after": 154.2}
+      },
+      "binary_bytes_before_and_after": 3470064,
+      "median_warm_rss_kib_before": 9544,
+      "median_warm_rss_kib_after": 9576,
+      "binary_sha256_before": "5ffcd9c2efff009346db45755f23a1fe563fc9ba1016bf55ebb64e262bb019b6",
+      "binary_sha256_after": "9f4b7eb5ac5b59bfb52dfbea7749996b8afccefaac76435520bff2ac0d993ec8"
+    },
+    "independent_http_check": {
+      "routes_and_conditions_per_account": 12,
+      "accounts": 2,
+      "samples_per_route_per_version": 6000,
+      "calendar_42d_p50_us_before": 153.67,
+      "calendar_42d_p50_us_after": 136.08,
+      "calendar_42d_p50_improved_in_all_8_rounds": true,
+      "compatibility": "Equal complete parsed 200 JSON ignoring only meta.generated_at; conditional requests return 304 with an empty body."
+    },
+    "tests_passed": 33,
+    "validation": [
+      "cargo fmt --all --check",
+      "cargo test --locked --offline",
+      "cargo clippy --locked --offline --all-targets -- -D warnings",
+      "cargo build --release --locked --offline"
+    ],
+    "scope": "No interface, cache, database, dependency, or UI changes. Control endpoints are not claimed as performance gains. Local synthetic results do not account for remote traffic, school upstream, or client rendering."
+  }
+}

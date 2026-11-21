@@ -1,0 +1,10 @@
+.DS_Store
+
+# Keep retired work and local credentials off the public remote.
+/Trash/
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.mobileprovision

@@ -1,0 +1,119 @@
+@baseUrl = http://127.0.0.1:3001
+@token = paste_access_token_here
+@refresh = paste_refresh_token_here
+@etag = paste_response_etag_here
+
+### Health
+GET {{baseUrl}}/health
+
+### Available demo students
+GET {{baseUrl}}/api/v1/demo/profiles
+
+### Create a demo session; copy data.access_token into the token variable
+POST {{baseUrl}}/api/v1/demo/sessions
+Content-Type: application/json
+
+{"profile":"demo-a","remember":true}
+
+### Silently renew a remembered device
+POST {{baseUrl}}/api/v1/session/refresh
+Content-Type: application/json
+
+{"refresh_token":"{{refresh}}"}
+
+### Today's Shanghai schedule and rotation day
+GET {{baseUrl}}/api/v1/schedule
+Authorization: Bearer {{token}}
+
+### Courses / display labels
+GET {{baseUrl}}/api/v1/courses
+Authorization: Bearer {{token}}
+
+### Current week
+GET {{baseUrl}}/api/v1/calendar
+Authorization: Bearer {{token}}
+
+### All available grades and assessment records
+GET {{baseUrl}}/api/v1/grades
+Authorization: Bearer {{token}}
+
+### Check all module versions (also accepts If-None-Match)
+GET {{baseUrl}}/api/v1/offline/versions
+Authorization: Bearer {{token}}
+
+### Download a complete changed attendance dataset
+POST {{baseUrl}}/api/v1/offline/data
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"version":"paste_data_version_from_manifest","parts":["attendance"]}
+
+### Per-course grade check for earlier clients
+POST {{baseUrl}}/api/v1/grades/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+### Recheck using the saved version and per-course revisions
+POST {{baseUrl}}/api/v1/grades/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"version":"paste_saved_book_version","known":{"demo-a-c0":"paste_saved_course_revision"}}
+
+### Attendance in the available demo window
+GET {{baseUrl}}/api/v1/attendance
+Authorization: Bearer {{token}}
+
+### Daily attendance
+GET {{baseUrl}}/api/v1/attendance?category=daily
+Authorization: Bearer {{token}}
+
+### Activity attendance
+GET {{baseUrl}}/api/v1/attendance?category=activity
+Authorization: Bearer {{token}}
+
+### Tasks
+GET {{baseUrl}}/api/v1/work?kind=task&work_type=practice&task_mode=online&limit=30
+Authorization: Bearer {{token}}
+
+### Exams
+GET {{baseUrl}}/api/v1/work?kind=exam
+Authorization: Bearer {{token}}
+
+### Calculated task score rates
+GET {{baseUrl}}/api/v1/work-statistics?kind=task
+Authorization: Bearer {{token}}
+
+### Exam rates per subject; select a term from grades.data.available_terms
+GET {{baseUrl}}/api/v1/work-statistics?kind=exam
+Authorization: Bearer {{token}}
+
+### Evaluations
+GET {{baseUrl}}/api/v1/work?kind=evaluation
+Authorization: Bearer {{token}}
+
+### Shared resources
+GET {{baseUrl}}/api/v1/resources?scope=shared
+Authorization: Bearer {{token}}
+
+### Personal resources
+GET {{baseUrl}}/api/v1/resources?scope=personal
+Authorization: Bearer {{token}}
+
+### Revalidate the same grades snapshot using its ETag
+GET {{baseUrl}}/api/v1/grades
+Authorization: Bearer {{token}}
+If-None-Match: {{etag}}
+
+### Hypothetical percentage; no school grade changes
+POST {{baseUrl}}/api/v1/grades/project-score
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"current":88,"assessment":95,"weight":0.3}
+
+### Revoke this session
+DELETE {{baseUrl}}/api/v1/session
+Authorization: Bearer {{token}}

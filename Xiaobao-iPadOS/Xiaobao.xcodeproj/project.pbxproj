@@ -1,0 +1,2029 @@
+// !$*UTF8*$!
+{
+	"archiveVersion" = 1;
+	"classes" = {
+	};
+	"objectVersion" = 56;
+	"objects" = {
+		"A87047F451332B9668825828" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "Atmosphere.swift";
+			"path" = "Atmosphere/Atmosphere.swift";
+			"sourceTree" = "<group>";
+		};
+		"87E18FF5C98FD7AC0E601FE4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A87047F451332B9668825828";
+		};
+		"D93520D5111992AD523AAD77" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyPalette.swift";
+			"path" = "Atmosphere/SkyPalette.swift";
+			"sourceTree" = "<group>";
+		};
+		"5B4C1EED35C0526244603168" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D93520D5111992AD523AAD77";
+		};
+		"818BE728D803DE280AA06E26" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyPlaybackClock.swift";
+			"path" = "Atmosphere/SkyPlaybackClock.swift";
+			"sourceTree" = "<group>";
+		};
+		"349FB338B46A222DDD41E6E0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "818BE728D803DE280AA06E26";
+		};
+		"6BEFCD9976DE5DB9D3672131" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyTime.swift";
+			"path" = "Atmosphere/SkyTime.swift";
+			"sourceTree" = "<group>";
+		};
+		"88070E69CB8DFFA1B79A5738" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6BEFCD9976DE5DB9D3672131";
+		};
+		"0E21456B63F1F1438DBBDB71" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "Weather.swift";
+			"path" = "Atmosphere/Weather.swift";
+			"sourceTree" = "<group>";
+		};
+		"B809D879FD9758EAF5FEA47D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0E21456B63F1F1438DBBDB71";
+		};
+		"9C738056BEDF641785E144D0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "WeatherStyle.swift";
+			"path" = "Atmosphere/WeatherStyle.swift";
+			"sourceTree" = "<group>";
+		};
+		"F9FB786B2E07BFE0B5291549" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "9C738056BEDF641785E144D0";
+		};
+		"2BF519E8C1230ED7A2B8A2C7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "Attendance.swift";
+			"path" = "Attendance.swift";
+			"sourceTree" = "<group>";
+		};
+		"91EE8CC48DAFFEBEE24F7BA1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2BF519E8C1230ED7A2B8A2C7";
+		};
+		"F45502A08F05524E2F64459D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusConnection.swift";
+			"path" = "CampusConnection.swift";
+			"sourceTree" = "<group>";
+		};
+		"D697B8BD82397BE62DBFB3A9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F45502A08F05524E2F64459D";
+		};
+		"41C85F4BB12E07AAA1D36544" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusGradeSync.swift";
+			"path" = "CampusGradeSync.swift";
+			"sourceTree" = "<group>";
+		};
+		"415AD4A0ED9B12F184327886" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "41C85F4BB12E07AAA1D36544";
+		};
+		"0E39B49544F95925BF5E6E26" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusOffline.swift";
+			"path" = "CampusOffline.swift";
+			"sourceTree" = "<group>";
+		};
+		"ACA42B6650C1CD0D7E8B9528" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0E39B49544F95925BF5E6E26";
+		};
+		"1EDD9FAF019D5536278293C5" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusPage.swift";
+			"path" = "CampusPage.swift";
+			"sourceTree" = "<group>";
+		};
+		"921C01855D4DF6CB62BD1975" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1EDD9FAF019D5536278293C5";
+		};
+		"AAEE2E636F6AFC33311667F8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CityWeather.swift";
+			"path" = "CityWeather/CityWeather.swift";
+			"sourceTree" = "<group>";
+		};
+		"5EB63BA6667E77B77A127B33" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AAEE2E636F6AFC33311667F8";
+		};
+		"4C8C2FBCFDD0E2A7BB3ED8DE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CityWeatherStore.swift";
+			"path" = "CityWeather/CityWeatherStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"A8C3FEEC4D620DA6DD26AD42" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4C8C2FBCFDD0E2A7BB3ED8DE";
+		};
+		"2A81419A1658F8F03D20A0C8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OpenMeteoClient.swift";
+			"path" = "CityWeather/OpenMeteoClient.swift";
+			"sourceTree" = "<group>";
+		};
+		"20D9967789E3F97B65C2E7F9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2A81419A1658F8F03D20A0C8";
+		};
+		"243B0C7ED6947B716B4D5A40" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusGPA.swift";
+			"path" = "GPA/CampusGPA.swift";
+			"sourceTree" = "<group>";
+		};
+		"AAFBB00D5DDE4112250C8F4B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "243B0C7ED6947B716B4D5A40";
+		};
+		"E202422C051418E074B03A0F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseForecast.swift";
+			"path" = "GPA/CourseForecast.swift";
+			"sourceTree" = "<group>";
+		};
+		"CF52685E09FC2E57CB068A18" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E202422C051418E074B03A0F";
+		};
+		"1CB694E8D5640DDB31823DE8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "GradePresentation.swift";
+			"path" = "GPA/GradePresentation.swift";
+			"sourceTree" = "<group>";
+		};
+		"B0C8C6C780C10C44AE78F02E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1CB694E8D5640DDB31823DE8";
+		};
+		"22711C34AEC87ED1F367423F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "Gradebook.swift";
+			"path" = "Gradebook.swift";
+			"sourceTree" = "<group>";
+		};
+		"576ABF2EB2C17B299F14F030" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "22711C34AEC87ED1F367423F";
+		};
+		"03856BD2CD4CAD55DB4F5D7A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "Grades.swift";
+			"path" = "Grades.swift";
+			"sourceTree" = "<group>";
+		};
+		"E04420E90BABF93A92D4B4B4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "03856BD2CD4CAD55DB4F5D7A";
+		};
+		"DFDD44ED2852D10A736F643F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityPlan.swift";
+			"path" = "LessonActivity/LessonActivityPlan.swift";
+			"sourceTree" = "<group>";
+		};
+		"B46B488EEA64417CE66B9AE3" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DFDD44ED2852D10A736F643F";
+		};
+		"B02DA3EFA680905F8B6CE281" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OtherItemsCatalog.swift";
+			"path" = "OtherItemsCatalog.swift";
+			"sourceTree" = "<group>";
+		};
+		"2F4D5BD2889998574EF38AF3" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B02DA3EFA680905F8B6CE281";
+		};
+		"F7E725CB475653E8F5FE4F74" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LocalPersonalization.swift";
+			"path" = "Personalization/LocalPersonalization.swift";
+			"sourceTree" = "<group>";
+		};
+		"FA8E4682A966BDA915BF5CF7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F7E725CB475653E8F5FE4F74";
+		};
+		"49C34381BB71A96301137A55" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F7E725CB475653E8F5FE4F74";
+		};
+		"FFCE891629BCCD92C63CFEFA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PersonalPlan.swift";
+			"path" = "Planner/PersonalPlan.swift";
+			"sourceTree" = "<group>";
+		};
+		"38BB76C3CBA3676C12E6A597" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FFCE891629BCCD92C63CFEFA";
+		};
+		"6C9FD695C83792CC4D9C8BF0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlanBubble.swift";
+			"path" = "Planner/PlanBubble.swift";
+			"sourceTree" = "<group>";
+		};
+		"D525ECFAD5191EF797228861" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6C9FD695C83792CC4D9C8BF0";
+		};
+		"F00EBE5E8E051D509840BCE1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlanEditHistory.swift";
+			"path" = "Planner/PlanEditHistory.swift";
+			"sourceTree" = "<group>";
+		};
+		"FBAF094482B2A9B56E3AC659" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F00EBE5E8E051D509840BCE1";
+		};
+		"B4C93F41BD80FE744A0EED60" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlanReminderPlanner.swift";
+			"path" = "Planner/PlanReminderPlanner.swift";
+			"sourceTree" = "<group>";
+		};
+		"0297A80C4B5D80DAED4553CC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4C93F41BD80FE744A0EED60";
+		};
+		"4FE18D7A6CC722EA50F810AA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlanStore.swift";
+			"path" = "Planner/PlanStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"0A94372077BDE8CC68EE0DC9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4FE18D7A6CC722EA50F810AA";
+		};
+		"58B2202939767A1B092EA0A6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerCalendarMonth.swift";
+			"path" = "Planner/PlannerCalendarMonth.swift";
+			"sourceTree" = "<group>";
+		};
+		"D9A75F2F29B0247197C27C40" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "58B2202939767A1B092EA0A6";
+		};
+		"7400A21B78491DC9E7D7E1C9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerDay.swift";
+			"path" = "Planner/PlannerDay.swift";
+			"sourceTree" = "<group>";
+		};
+		"EBD476EF83F6B2DEEA284899" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7400A21B78491DC9E7D7E1C9";
+		};
+		"C2A90344468C87DE38326F54" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerPlacement.swift";
+			"path" = "Planner/PlannerPlacement.swift";
+			"sourceTree" = "<group>";
+		};
+		"43C86E32022001A8D1B9B672" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C2A90344468C87DE38326F54";
+		};
+		"033C79EE862041180061F2BB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerSchoolDay.swift";
+			"path" = "Planner/PlannerSchoolDay.swift";
+			"sourceTree" = "<group>";
+		};
+		"78E1BF12123D48198D0B667D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "033C79EE862041180061F2BB";
+		};
+		"A4223078B99E9299B191C767" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerTimelineLayout.swift";
+			"path" = "Planner/PlannerTimelineLayout.swift";
+			"sourceTree" = "<group>";
+		};
+		"770D011C8E027C2702291818" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A4223078B99E9299B191C767";
+		};
+		"78B058D0458DBA24FEED5BC0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PublishedSchoolCalendar.swift";
+			"path" = "PublishedSchoolCalendar.swift";
+			"sourceTree" = "<group>";
+		};
+		"5959FA6E95E23B69C24C43CA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "78B058D0458DBA24FEED5BC0";
+		};
+		"63DF9FEB74F873B821BA1E21" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ReminderPlan.swift";
+			"path" = "ReminderPlan.swift";
+			"sourceTree" = "<group>";
+		};
+		"B547C807DC71AF021F440F35" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "63DF9FEB74F873B821BA1E21";
+		};
+		"D3D52B989C813102ACD8130E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolDay.swift";
+			"path" = "SchoolDay.swift";
+			"sourceTree" = "<group>";
+		};
+		"1F7896A44F2F3B9583226798" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D3D52B989C813102ACD8130E";
+		};
+		"11D36C75F7B04FB2A309E41B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalAccess.swift";
+			"path" = "SchoolPortalData/SchoolPortalAccess.swift";
+			"sourceTree" = "<group>";
+		};
+		"E4CFC2C361E9D42809064C2A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "11D36C75F7B04FB2A309E41B";
+		};
+		"FCFA88B538E9A589D0FB3E56" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalAttendance.swift";
+			"path" = "SchoolPortalData/SchoolPortalAttendance.swift";
+			"sourceTree" = "<group>";
+		};
+		"A5D05C5A9FC675BBF6FC28C9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FCFA88B538E9A589D0FB3E56";
+		};
+		"63A3E4A226237019DE07C113" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalData.swift";
+			"path" = "SchoolPortalData/SchoolPortalData.swift";
+			"sourceTree" = "<group>";
+		};
+		"CA6649F9E72C795679B5FBB4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "63A3E4A226237019DE07C113";
+		};
+		"CD7E9AB967F79836D93C8E5A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalStore.swift";
+			"path" = "SchoolPortalData/SchoolPortalStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"E663E1E1C06F7CB3A4D99092" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CD7E9AB967F79836D93C8E5A";
+		};
+		"F5189A5B4FBF0FA9F2A73A47" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "StudentCharts.swift";
+			"path" = "StudentCharts.swift";
+			"sourceTree" = "<group>";
+		};
+		"C63C66A2979449F3D528ED87" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F5189A5B4FBF0FA9F2A73A47";
+		};
+		"E4592B17F4FF8C6397EC5C13" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "StudentServices.swift";
+			"path" = "StudentServices.swift";
+			"sourceTree" = "<group>";
+		};
+		"2186AA106BF839B2381E1939" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E4592B17F4FF8C6397EC5C13";
+		};
+		"A8604C4758A4E7568F330FCA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "DemoTasks.swift";
+			"path" = "Tasks/DemoTasks.swift";
+			"sourceTree" = "<group>";
+		};
+		"74DA0F6D3C4D6CED7964976A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A8604C4758A4E7568F330FCA";
+		};
+		"DA5362D7CFF814ED69B80E6A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskCatalog.swift";
+			"path" = "Tasks/TaskCatalog.swift";
+			"sourceTree" = "<group>";
+		};
+		"B61C8D9903DAE517728927C6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DA5362D7CFF814ED69B80E6A";
+		};
+		"1798926737F4F3D722DBF8B1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskFilters.swift";
+			"path" = "Tasks/TaskFilters.swift";
+			"sourceTree" = "<group>";
+		};
+		"B1BF456B0D840B71751A6995" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1798926737F4F3D722DBF8B1";
+		};
+		"DB4E216CE40FA80997E59C07" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskPresentation.swift";
+			"path" = "Tasks/TaskPresentation.swift";
+			"sourceTree" = "<group>";
+		};
+		"B129B73AB537D82752DDC331" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DB4E216CE40FA80997E59C07";
+		};
+		"56ECE3FEC4C16AEF10D1E40E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TimelineTrackLayout.swift";
+			"path" = "TimelineTrackLayout.swift";
+			"sourceTree" = "<group>";
+		};
+		"3AA18F6520FF3E623AE9F068" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "56ECE3FEC4C16AEF10D1E40E";
+		};
+		"4E0CEEBB77F2011BE7607CD3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TimetableWeek.swift";
+			"path" = "TimetableWeek.swift";
+			"sourceTree" = "<group>";
+		};
+		"3D98692358048C432F2FADC1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4E0CEEBB77F2011BE7607CD3";
+		};
+		"68836C550EE20FAE0E06B299" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"A87047F451332B9668825828",
+				"D93520D5111992AD523AAD77",
+				"818BE728D803DE280AA06E26",
+				"6BEFCD9976DE5DB9D3672131",
+				"0E21456B63F1F1438DBBDB71",
+				"9C738056BEDF641785E144D0",
+				"2BF519E8C1230ED7A2B8A2C7",
+				"F45502A08F05524E2F64459D",
+				"41C85F4BB12E07AAA1D36544",
+				"0E39B49544F95925BF5E6E26",
+				"1EDD9FAF019D5536278293C5",
+				"AAEE2E636F6AFC33311667F8",
+				"4C8C2FBCFDD0E2A7BB3ED8DE",
+				"2A81419A1658F8F03D20A0C8",
+				"243B0C7ED6947B716B4D5A40",
+				"E202422C051418E074B03A0F",
+				"1CB694E8D5640DDB31823DE8",
+				"22711C34AEC87ED1F367423F",
+				"03856BD2CD4CAD55DB4F5D7A",
+				"DFDD44ED2852D10A736F643F",
+				"B02DA3EFA680905F8B6CE281",
+				"F7E725CB475653E8F5FE4F74",
+				"FFCE891629BCCD92C63CFEFA",
+				"6C9FD695C83792CC4D9C8BF0",
+				"F00EBE5E8E051D509840BCE1",
+				"B4C93F41BD80FE744A0EED60",
+				"4FE18D7A6CC722EA50F810AA",
+				"58B2202939767A1B092EA0A6",
+				"7400A21B78491DC9E7D7E1C9",
+				"C2A90344468C87DE38326F54",
+				"033C79EE862041180061F2BB",
+				"A4223078B99E9299B191C767",
+				"78B058D0458DBA24FEED5BC0",
+				"63DF9FEB74F873B821BA1E21",
+				"D3D52B989C813102ACD8130E",
+				"11D36C75F7B04FB2A309E41B",
+				"FCFA88B538E9A589D0FB3E56",
+				"63A3E4A226237019DE07C113",
+				"CD7E9AB967F79836D93C8E5A",
+				"F5189A5B4FBF0FA9F2A73A47",
+				"E4592B17F4FF8C6397EC5C13",
+				"A8604C4758A4E7568F330FCA",
+				"DA5362D7CFF814ED69B80E6A",
+				"1798926737F4F3D722DBF8B1",
+				"DB4E216CE40FA80997E59C07",
+				"56ECE3FEC4C16AEF10D1E40E",
+				"4E0CEEBB77F2011BE7607CD3",
+			);
+			"path" = "Core";
+			"sourceTree" = "<group>";
+		};
+		"03A66FD144583012DFD9AD6A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AppModel.swift";
+			"path" = "AppModel.swift";
+			"sourceTree" = "<group>";
+		};
+		"3D3DFED499EA796535E95508" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "03A66FD144583012DFD9AD6A";
+		};
+		"B2F06AEE1BDF7003E7D910C6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AtmosphereColors.swift";
+			"path" = "Atmosphere/AtmosphereColors.swift";
+			"sourceTree" = "<group>";
+		};
+		"08AF54FE1B9EFA272FAE4668" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B2F06AEE1BDF7003E7D910C6";
+		};
+		"FA955F78E782D8767C6A3BD1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AtmosphereView.swift";
+			"path" = "Atmosphere/AtmosphereView.swift";
+			"sourceTree" = "<group>";
+		};
+		"10BFF13D71F40CB314EC4089" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FA955F78E782D8767C6A3BD1";
+		};
+		"557EA23E570B4E9A44E2FDF0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SkyField.h";
+			"path" = "Atmosphere/Shaders/SkyField.h";
+			"sourceTree" = "<group>";
+		};
+		"A3DBB6B1CBB4D2AF06F90C5B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SkyLighting.h";
+			"path" = "Atmosphere/Shaders/SkyLighting.h";
+			"sourceTree" = "<group>";
+		};
+		"8ED60D5713D58FFE7C65AC41" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.metal";
+			"name" = "VolumetricSky.metal";
+			"path" = "Atmosphere/Shaders/VolumetricSky.metal";
+			"sourceTree" = "<group>";
+		};
+		"B698F49740C64950810EE196" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8ED60D5713D58FFE7C65AC41";
+		};
+		"CA013126C7050C516A795C11" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyBackdrop.swift";
+			"path" = "Atmosphere/SkyBackdrop.swift";
+			"sourceTree" = "<group>";
+		};
+		"44BF7EC1D5F3699231E4B76D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CA013126C7050C516A795C11";
+		};
+		"BA0E1924F951EDD229C9604D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyDetails.swift";
+			"path" = "Atmosphere/SkyDetails.swift";
+			"sourceTree" = "<group>";
+		};
+		"77886A277373109D1735631F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BA0E1924F951EDD229C9604D";
+		};
+		"937B292FF6456AE75CD03983" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkyParticles.swift";
+			"path" = "Atmosphere/SkyParticles.swift";
+			"sourceTree" = "<group>";
+		};
+		"508F2FE4CAF054C76EF2AF25" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "937B292FF6456AE75CD03983";
+		};
+		"D50CFA0DBCA1D9C39AB0EC05" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SkySurface.swift";
+			"path" = "Atmosphere/SkySurface.swift";
+			"sourceTree" = "<group>";
+		};
+		"8E550028757438DB8DA67E2D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D50CFA0DBCA1D9C39AB0EC05";
+		};
+		"6480F80F55CD0140E95F6744" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "VolumetricSky.swift";
+			"path" = "Atmosphere/VolumetricSky.swift";
+			"sourceTree" = "<group>";
+		};
+		"868B688746E79D11A3939CB0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6480F80F55CD0140E95F6744";
+		};
+		"2046442C15F9780A86EC3205" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "VolumetricSkyState.swift";
+			"path" = "Atmosphere/VolumetricSkyState.swift";
+			"sourceTree" = "<group>";
+		};
+		"A6AAC3D31AE66F74B213B949" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2046442C15F9780A86EC3205";
+		};
+		"880EBE620C08E9E27C76D596" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "WeatherOverlay.swift";
+			"path" = "Atmosphere/WeatherOverlay.swift";
+			"sourceTree" = "<group>";
+		};
+		"0C4416397FE3DE6BBFEB71D8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "880EBE620C08E9E27C76D596";
+		};
+		"5B7DFD9C84C99C701469BE0A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AttendanceRing.swift";
+			"path" = "AttendanceRing.swift";
+			"sourceTree" = "<group>";
+		};
+		"B9AE6AAF18443438B14364D0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5B7DFD9C84C99C701469BE0A";
+		};
+		"9F544018F6837A7A81494E12" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AttendanceView.swift";
+			"path" = "AttendanceView.swift";
+			"sourceTree" = "<group>";
+		};
+		"EEC8074E640AD883D7E28EB9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "9F544018F6837A7A81494E12";
+		};
+		"E0E34B17615983DAB7BEC049" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusView.swift";
+			"path" = "CampusView.swift";
+			"sourceTree" = "<group>";
+		};
+		"B1E81957F497A139A6EA4633" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E0E34B17615983DAB7BEC049";
+		};
+		"0CCFD473636EB3D377DFC94B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "EnvironmentView.swift";
+			"path" = "EnvironmentView.swift";
+			"sourceTree" = "<group>";
+		};
+		"580DAC0B859017B6A14D72D5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0CCFD473636EB3D377DFC94B";
+		};
+		"E5E5B2892955A92113A52656" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CampusGradebookView.swift";
+			"path" = "GPA/CampusGradebookView.swift";
+			"sourceTree" = "<group>";
+		};
+		"6CB6068EBC2C44043B7F2E2D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E5E5B2892955A92113A52656";
+		};
+		"847F891663CEF05DCA8090FB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseForecastSheet.swift";
+			"path" = "GPA/CourseForecastSheet.swift";
+			"sourceTree" = "<group>";
+		};
+		"2E873EE219D62A0BBDA0D569" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "847F891663CEF05DCA8090FB";
+		};
+		"8BB0DC9D76FBAB9247B7E82F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseGradeList.swift";
+			"path" = "GPA/CourseGradeList.swift";
+			"sourceTree" = "<group>";
+		};
+		"EF10284D576D9C925FEE15E0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8BB0DC9D76FBAB9247B7E82F";
+		};
+		"64607A693E8CD5BBFA0F6AE5" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseGradesView.swift";
+			"path" = "GPA/CourseGradesView.swift";
+			"sourceTree" = "<group>";
+		};
+		"1890AE80B7944A5AC47B5179" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "64607A693E8CD5BBFA0F6AE5";
+		};
+		"8AD5CA4B6EF5870757FBD8FF" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseHistorySheet.swift";
+			"path" = "GPA/CourseHistorySheet.swift";
+			"sourceTree" = "<group>";
+		};
+		"FC9B5C75F531C605F8202C01" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8AD5CA4B6EF5870757FBD8FF";
+		};
+		"84F1078200C7D6551FC93869" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseTaskList.swift";
+			"path" = "GPA/CourseTaskList.swift";
+			"sourceTree" = "<group>";
+		};
+		"E66CBCF2F8C285FB8F262497" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "84F1078200C7D6551FC93869";
+		};
+		"21788E9CF6BE1CC06574DC4B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "GPAOverviewView.swift";
+			"path" = "GPA/GPAOverviewView.swift";
+			"sourceTree" = "<group>";
+		};
+		"E35B757AED9DF0FAC20F0595" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "21788E9CF6BE1CC06574DC4B";
+		};
+		"306781116A88AD2A6E640C63" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "GlassComponents.swift";
+			"path" = "GlassComponents.swift";
+			"sourceTree" = "<group>";
+		};
+		"7657447C5FCDA3587363209A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "306781116A88AD2A6E640C63";
+		};
+		"AB7537836C9D9208F736457C" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "GradebookView.swift";
+			"path" = "GradebookView.swift";
+			"sourceTree" = "<group>";
+		};
+		"7D7B0621AB8186D550D4495D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AB7537836C9D9208F736457C";
+		};
+		"1983102D816D1E10F6D18516" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "GradesView.swift";
+			"path" = "GradesView.swift";
+			"sourceTree" = "<group>";
+		};
+		"435DF9DE623DA467AFFBD974" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1983102D816D1E10F6D18516";
+		};
+		"542932ED3960EE5F4ECDD8A3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "KeychainCampusVault.swift";
+			"path" = "KeychainCampusVault.swift";
+			"sourceTree" = "<group>";
+		};
+		"522B31B3FB37A533BAB23C74" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "542932ED3960EE5F4ECDD8A3";
+		};
+		"B25FBF60ABA5A4795077F2AC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityControl.swift";
+			"path" = "LessonActivity/LessonActivityControl.swift";
+			"sourceTree" = "<group>";
+		};
+		"692F80C2BFAD08D25F5B3FB1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B25FBF60ABA5A4795077F2AC";
+		};
+		"3CFBF4A7339D09B488C6BB28" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityController.swift";
+			"path" = "LessonActivity/LessonActivityController.swift";
+			"sourceTree" = "<group>";
+		};
+		"1D556BE7530AB90C8AA63B71" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3CFBF4A7339D09B488C6BB28";
+		};
+		"A824D5180B5097DD63DEBBB9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OtherItemsDetails.swift";
+			"path" = "OtherItems/OtherItemsDetails.swift";
+			"sourceTree" = "<group>";
+		};
+		"AAF58A457D40ADC798C7620F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A824D5180B5097DD63DEBBB9";
+		};
+		"1B927CA88B335AB151A639C1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OtherItemsFilterBar.swift";
+			"path" = "OtherItems/OtherItemsFilterBar.swift";
+			"sourceTree" = "<group>";
+		};
+		"D5C8AE3064D2E194BCA5028F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1B927CA88B335AB151A639C1";
+		};
+		"2172106FF124FBF42389B0F8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OtherItemsGrid.swift";
+			"path" = "OtherItems/OtherItemsGrid.swift";
+			"sourceTree" = "<group>";
+		};
+		"279A628C901BCE471C72571B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2172106FF124FBF42389B0F8";
+		};
+		"CEDCC21CC992A0CA0EE2A703" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlanEditorView.swift";
+			"path" = "Planner/PlanEditorView.swift";
+			"sourceTree" = "<group>";
+		};
+		"FDE98BED3252FD1DFEFFD586" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CEDCC21CC992A0CA0EE2A703";
+		};
+		"B6C3DA816E4B3352124B5EB4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerHoldGesture.swift";
+			"path" = "Planner/PlannerHoldGesture.swift";
+			"sourceTree" = "<group>";
+		};
+		"3F60376A554662E5CB41E529" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B6C3DA816E4B3352124B5EB4";
+		};
+		"2901B2ECCE48161A8DB18180" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerInboxView.swift";
+			"path" = "Planner/PlannerInboxView.swift";
+			"sourceTree" = "<group>";
+		};
+		"809B2E532C9091F5AF1611AD" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2901B2ECCE48161A8DB18180";
+		};
+		"7A3FFE6A2D96E909CC9D76C9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerMonthPicker.swift";
+			"path" = "Planner/PlannerMonthPicker.swift";
+			"sourceTree" = "<group>";
+		};
+		"6E961D3250981A9576838A2D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7A3FFE6A2D96E909CC9D76C9";
+		};
+		"F04D2B5902F3FDFD4F1CFD78" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerPlanAnnotations.swift";
+			"path" = "Planner/PlannerPlanAnnotations.swift";
+			"sourceTree" = "<group>";
+		};
+		"ECE57813CAD31A0F950B97C2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F04D2B5902F3FDFD4F1CFD78";
+		};
+		"4F7C5037B2A774FD31A2EA5D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerPlanCard.swift";
+			"path" = "Planner/PlannerPlanCard.swift";
+			"sourceTree" = "<group>";
+		};
+		"CA3BB2006E09D8F80851B01F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4F7C5037B2A774FD31A2EA5D";
+		};
+		"91C4A4FD3366EB455D1F351E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerScheduleCanvas.swift";
+			"path" = "Planner/PlannerScheduleCanvas.swift";
+			"sourceTree" = "<group>";
+		};
+		"4EE91BA8FB9742FE4451C3C2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "91C4A4FD3366EB455D1F351E";
+		};
+		"BC943FD3642160A6EAE716B3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerSchoolSource.swift";
+			"path" = "Planner/PlannerSchoolSource.swift";
+			"sourceTree" = "<group>";
+		};
+		"9318B3A6056EAC3D990EB40F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BC943FD3642160A6EAE716B3";
+		};
+		"5FE0874F3A15009B28D0B0DB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerTimelineDecoration.swift";
+			"path" = "Planner/PlannerTimelineDecoration.swift";
+			"sourceTree" = "<group>";
+		};
+		"F0E3ADCA63009AB300333867" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5FE0874F3A15009B28D0B0DB";
+		};
+		"2FABFD52A0516EFC4416E20A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerTimelineMarks.swift";
+			"path" = "Planner/PlannerTimelineMarks.swift";
+			"sourceTree" = "<group>";
+		};
+		"D59D1FD5DD880700F3BCF65E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2FABFD52A0516EFC4416E20A";
+		};
+		"A2F85DEC83EC1EE6E883E4EC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerTimelineView.swift";
+			"path" = "Planner/PlannerTimelineView.swift";
+			"sourceTree" = "<group>";
+		};
+		"D6DB204B0835AFE1849FAFAB" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A2F85DEC83EC1EE6E883E4EC";
+		};
+		"73B7E80E91196BF86B89B815" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerView.swift";
+			"path" = "Planner/PlannerView.swift";
+			"sourceTree" = "<group>";
+		};
+		"28B3BA3953B026AF65E6EF6B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "73B7E80E91196BF86B89B815";
+		};
+		"47595E4C7F4CFB201C17505B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerWeekView.swift";
+			"path" = "Planner/PlannerWeekView.swift";
+			"sourceTree" = "<group>";
+		};
+		"C049F922914068B2F0492D42" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "47595E4C7F4CFB201C17505B";
+		};
+		"3D2EE87A56F8281B14AB4341" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ReminderService.swift";
+			"path" = "ReminderService.swift";
+			"sourceTree" = "<group>";
+		};
+		"584BA2D0BC289ADA952B409B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3D2EE87A56F8281B14AB4341";
+		};
+		"C3C2A4DE974C102E6911B5B2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortal.swift";
+			"path" = "SchoolPortal.swift";
+			"sourceTree" = "<group>";
+		};
+		"10792F400454C259DD80CBF4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C3C2A4DE974C102E6911B5B2";
+		};
+		"8106D6B7DC62EB9E8A57FAAB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalLoginSettings.swift";
+			"path" = "SchoolPortalLogin/SchoolPortalLoginSettings.swift";
+			"sourceTree" = "<group>";
+		};
+		"7A650E3AAA385F121CF92C0E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8106D6B7DC62EB9E8A57FAAB";
+		};
+		"D3F7B2D407D40A32ABEF24C9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalLoginVault.swift";
+			"path" = "SchoolPortalLogin/SchoolPortalLoginVault.swift";
+			"sourceTree" = "<group>";
+		};
+		"79E2B1B517AA29B67B13A43A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D3F7B2D407D40A32ABEF24C9";
+		};
+		"DD03091CBD01F5C0C383A35F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalPasswordEntry.swift";
+			"path" = "SchoolPortalLogin/SchoolPortalPasswordEntry.swift";
+			"sourceTree" = "<group>";
+		};
+		"6065A98EF3FF3A369D48E462" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DD03091CBD01F5C0C383A35F";
+		};
+		"4E497AC0E9206054C3283E49" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalAttendancePage.swift";
+			"path" = "SchoolPortalSync/SchoolPortalAttendancePage.swift";
+			"sourceTree" = "<group>";
+		};
+		"CD46D1B5886327BC36224DA4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4E497AC0E9206054C3283E49";
+		};
+		"637664005F8E2855AD625DFA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalEntry.swift";
+			"path" = "SchoolPortalSync/SchoolPortalEntry.swift";
+			"sourceTree" = "<group>";
+		};
+		"EAF455AD1C6C80184EA71A96" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "637664005F8E2855AD625DFA";
+		};
+		"413F55C4B95C5428FA06B009" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalGradebook.swift";
+			"path" = "SchoolPortalSync/SchoolPortalGradebook.swift";
+			"sourceTree" = "<group>";
+		};
+		"457F13F4B55C74980AB41354" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "413F55C4B95C5428FA06B009";
+		};
+		"AD010FF52A6C224F3FA80BFF" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalPages.swift";
+			"path" = "SchoolPortalSync/SchoolPortalPages.swift";
+			"sourceTree" = "<group>";
+		};
+		"22DA7ABE837AFB22336B4CBF" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AD010FF52A6C224F3FA80BFF";
+		};
+		"353D5C051D0A74E2532B201E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalReader.swift";
+			"path" = "SchoolPortalSync/SchoolPortalReader.swift";
+			"sourceTree" = "<group>";
+		};
+		"04083CDB77715523830EAC94" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "353D5C051D0A74E2532B201E";
+		};
+		"E869004A1CAE7A1F81020C91" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AppearanceSettingsView.swift";
+			"path" = "Settings/AppearanceSettingsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"D4A24923919EFAAEF83F1670" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E869004A1CAE7A1F81020C91";
+		};
+		"5194E9EE7D1949B8F6CE0079" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivitySettingsView.swift";
+			"path" = "Settings/LessonActivitySettingsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"5359F559D433731B3AFCEC9D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5194E9EE7D1949B8F6CE0079";
+		};
+		"E3475266F73F847BFF61E2BD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PersonalInfoSettingsView.swift";
+			"path" = "Settings/PersonalInfoSettingsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"9282D29A8A1B888C86D38C6B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E3475266F73F847BFF61E2BD";
+		};
+		"3997C62C5522A075C6AE3461" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PrivacyPolicyView.swift";
+			"path" = "Settings/PrivacyPolicyView.swift";
+			"sourceTree" = "<group>";
+		};
+		"C1B90F3C0CAC7FC5A52F4672" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3997C62C5522A075C6AE3461";
+		};
+		"F1C17CBD57AABF30623DA2AE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ReminderSettingsView.swift";
+			"path" = "Settings/ReminderSettingsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"D30BCE533A782B2FE82DE113" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1C17CBD57AABF30623DA2AE";
+		};
+		"EF8879F2CFE9B9E08AAD1271" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsView.swift";
+			"path" = "Settings/SettingsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"0DE22F8761080494F6F03714" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "EF8879F2CFE9B9E08AAD1271";
+		};
+		"36F48ABAFF3AEB20DB15F656" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "StudentChartsView.swift";
+			"path" = "StudentChartsView.swift";
+			"sourceTree" = "<group>";
+		};
+		"ECB8373A1E43BB4907E8DBE8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "36F48ABAFF3AEB20DB15F656";
+		};
+		"CF3CF472DE1F23483B419FE3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "StudentComponents.swift";
+			"path" = "StudentComponents.swift";
+			"sourceTree" = "<group>";
+		};
+		"0919A4E5D79F6F825AF7AAC8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CF3CF472DE1F23483B419FE3";
+		};
+		"B4F85D8E8DEDC5CA0AEE68EA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "StudentServicesView.swift";
+			"path" = "StudentServicesView.swift";
+			"sourceTree" = "<group>";
+		};
+		"A66C0CED6C11EB908C2EF3F7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4F85D8E8DEDC5CA0AEE68EA";
+		};
+		"5647CD76155C8BCC62F13C04" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskCard.swift";
+			"path" = "Tasks/TaskCard.swift";
+			"sourceTree" = "<group>";
+		};
+		"3D4F0820644EEA45626CBB0A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5647CD76155C8BCC62F13C04";
+		};
+		"6CA49C8BC67CE7C97DE06A46" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskDetailView.swift";
+			"path" = "Tasks/TaskDetailView.swift";
+			"sourceTree" = "<group>";
+		};
+		"453D35EB5F9AE6465F7CC0FF" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6CA49C8BC67CE7C97DE06A46";
+		};
+		"503D6259CAECB32F74AE5F70" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TaskFilterBar.swift";
+			"path" = "Tasks/TaskFilterBar.swift";
+			"sourceTree" = "<group>";
+		};
+		"11C38356B9A35C60452C3DC3" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "503D6259CAECB32F74AE5F70";
+		};
+		"B9B64AEA3A2BE85231E635A3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TasksView.swift";
+			"path" = "Tasks/TasksView.swift";
+			"sourceTree" = "<group>";
+		};
+		"D3EE94ADADEFBF520ED989CB" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B9B64AEA3A2BE85231E635A3";
+		};
+		"12087B6D606B57833D4B3313" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TodayView.swift";
+			"path" = "TodayView.swift";
+			"sourceTree" = "<group>";
+		};
+		"D30C2F9BF0F14BAE75CE75E6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "12087B6D606B57833D4B3313";
+		};
+		"4451A046FD298D0381A14094" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "XiaobaoApp.swift";
+			"path" = "XiaobaoApp.swift";
+			"sourceTree" = "<group>";
+		};
+		"124EAE55256028E4A4DCBC56" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4451A046FD298D0381A14094";
+		};
+		"4FC6E7F740ABB8AF896EBEDE" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"03A66FD144583012DFD9AD6A",
+				"B2F06AEE1BDF7003E7D910C6",
+				"FA955F78E782D8767C6A3BD1",
+				"557EA23E570B4E9A44E2FDF0",
+				"A3DBB6B1CBB4D2AF06F90C5B",
+				"8ED60D5713D58FFE7C65AC41",
+				"CA013126C7050C516A795C11",
+				"BA0E1924F951EDD229C9604D",
+				"937B292FF6456AE75CD03983",
+				"D50CFA0DBCA1D9C39AB0EC05",
+				"6480F80F55CD0140E95F6744",
+				"2046442C15F9780A86EC3205",
+				"880EBE620C08E9E27C76D596",
+				"5B7DFD9C84C99C701469BE0A",
+				"9F544018F6837A7A81494E12",
+				"E0E34B17615983DAB7BEC049",
+				"0CCFD473636EB3D377DFC94B",
+				"E5E5B2892955A92113A52656",
+				"847F891663CEF05DCA8090FB",
+				"8BB0DC9D76FBAB9247B7E82F",
+				"64607A693E8CD5BBFA0F6AE5",
+				"8AD5CA4B6EF5870757FBD8FF",
+				"84F1078200C7D6551FC93869",
+				"21788E9CF6BE1CC06574DC4B",
+				"306781116A88AD2A6E640C63",
+				"AB7537836C9D9208F736457C",
+				"1983102D816D1E10F6D18516",
+				"542932ED3960EE5F4ECDD8A3",
+				"B25FBF60ABA5A4795077F2AC",
+				"3CFBF4A7339D09B488C6BB28",
+				"A824D5180B5097DD63DEBBB9",
+				"1B927CA88B335AB151A639C1",
+				"2172106FF124FBF42389B0F8",
+				"CEDCC21CC992A0CA0EE2A703",
+				"B6C3DA816E4B3352124B5EB4",
+				"2901B2ECCE48161A8DB18180",
+				"7A3FFE6A2D96E909CC9D76C9",
+				"F04D2B5902F3FDFD4F1CFD78",
+				"4F7C5037B2A774FD31A2EA5D",
+				"91C4A4FD3366EB455D1F351E",
+				"BC943FD3642160A6EAE716B3",
+				"5FE0874F3A15009B28D0B0DB",
+				"2FABFD52A0516EFC4416E20A",
+				"A2F85DEC83EC1EE6E883E4EC",
+				"73B7E80E91196BF86B89B815",
+				"47595E4C7F4CFB201C17505B",
+				"3D2EE87A56F8281B14AB4341",
+				"C3C2A4DE974C102E6911B5B2",
+				"8106D6B7DC62EB9E8A57FAAB",
+				"D3F7B2D407D40A32ABEF24C9",
+				"DD03091CBD01F5C0C383A35F",
+				"4E497AC0E9206054C3283E49",
+				"637664005F8E2855AD625DFA",
+				"413F55C4B95C5428FA06B009",
+				"AD010FF52A6C224F3FA80BFF",
+				"353D5C051D0A74E2532B201E",
+				"E869004A1CAE7A1F81020C91",
+				"5194E9EE7D1949B8F6CE0079",
+				"E3475266F73F847BFF61E2BD",
+				"3997C62C5522A075C6AE3461",
+				"F1C17CBD57AABF30623DA2AE",
+				"EF8879F2CFE9B9E08AAD1271",
+				"36F48ABAFF3AEB20DB15F656",
+				"CF3CF472DE1F23483B419FE3",
+				"B4F85D8E8DEDC5CA0AEE68EA",
+				"5647CD76155C8BCC62F13C04",
+				"6CA49C8BC67CE7C97DE06A46",
+				"503D6259CAECB32F74AE5F70",
+				"B9B64AEA3A2BE85231E635A3",
+				"12087B6D606B57833D4B3313",
+				"4451A046FD298D0381A14094",
+			);
+			"path" = "Native";
+			"sourceTree" = "<group>";
+		};
+		"6E6B2728134351ACE531E7BE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityAttributes.swift";
+			"path" = "LessonActivityAttributes.swift";
+			"sourceTree" = "<group>";
+		};
+		"11EAD93B12A408DB81B70618" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6E6B2728134351ACE531E7BE";
+		};
+		"D9C22592654DA1061B7F0DB4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6E6B2728134351ACE531E7BE";
+		};
+		"77142D002D7FEB37B62DC385" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityCard.swift";
+			"path" = "LessonActivityCard.swift";
+			"sourceTree" = "<group>";
+		};
+		"848DF07519C794164DDD9712" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "77142D002D7FEB37B62DC385";
+		};
+		"DF4CF7D29B3E9F023A01AEA0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "77142D002D7FEB37B62DC385";
+		};
+		"F3C4A6B34D82F2DF815B6593" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LessonActivityWidget.swift";
+			"path" = "LessonActivityWidget.swift";
+			"sourceTree" = "<group>";
+		};
+		"AF75CE3A8F9396FB1B747AA6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F3C4A6B34D82F2DF815B6593";
+		};
+		"EDFC4167B7589415F8AD2B23" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"6E6B2728134351ACE531E7BE",
+				"77142D002D7FEB37B62DC385",
+				"F3C4A6B34D82F2DF815B6593",
+			);
+			"path" = "ActivityWidget";
+			"sourceTree" = "<group>";
+		};
+		"2EB56BE3C2D93CDAB0C52E67" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"68836C550EE20FAE0E06B299",
+				"4FC6E7F740ABB8AF896EBEDE",
+				"EDFC4167B7589415F8AD2B23",
+			);
+			"path" = "Sources";
+			"sourceTree" = "<group>";
+		};
+		"20E338624CEE29D0EFFEAD85" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder.assetcatalog";
+			"path" = "Resources/Assets.xcassets";
+			"sourceTree" = "<group>";
+		};
+		"84A0394370EA938AEB05479A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "20E338624CEE29D0EFFEAD85";
+		};
+		"3DAA306F3B0B3A0054F6CA8B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.json";
+			"path" = "../xiaobao-backend/src/provider/academic-calendar-hs-2026-2027.json";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"9F3E6EA225CF2ED3C84526E7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3DAA306F3B0B3A0054F6CA8B";
+		};
+		"3235AA6BD26F1C1D90106358" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.javascript";
+			"path" = "Sources/Native/SchoolPortalSync/PortalProjection.js";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"618452BEDC7CEB861D246543" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.javascript";
+			"path" = "Sources/Native/SchoolPortalSync/PortalRead.js";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"A6E4EF2C154AA04042B65644" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.javascript";
+			"path" = "Sources/Native/SchoolPortalLogin/PortalLogin.js";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"AF47253B241AA601F3E7ED86" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3235AA6BD26F1C1D90106358";
+		};
+		"92E956CC37720608C0619D3F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "618452BEDC7CEB861D246543";
+		};
+		"D62900372D7737089E3A9680" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A6E4EF2C154AA04042B65644";
+		};
+		"4B631F69842530D659306C8F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.xml";
+			"path" = "Config/Info.plist";
+			"sourceTree" = "<group>";
+		};
+		"50A1D25268CCE0763D061FFD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.xml";
+			"path" = "Config/LessonActivity-Info.plist";
+			"sourceTree" = "<group>";
+		};
+		"69E27356EF629022720D868A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"path" = "README.md";
+			"sourceTree" = "<group>";
+		};
+		"DD3B86D1EF21B9FB2E1EDC30" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.application";
+			"includeInIndex" = 0;
+			"path" = "Xiaobao.app";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"D1808561B2914DF9D6FF785D" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.app-extension";
+			"includeInIndex" = 0;
+			"path" = "LessonActivityWidget.appex";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"FE0A091FDBFB3E9C31B7A1BD" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"DD3B86D1EF21B9FB2E1EDC30",
+				"D1808561B2914DF9D6FF785D",
+			);
+			"name" = "Products";
+			"sourceTree" = "<group>";
+		};
+		"62BCE9422FF2D14F69AB80A1" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"2EB56BE3C2D93CDAB0C52E67",
+				"20E338624CEE29D0EFFEAD85",
+				"3DAA306F3B0B3A0054F6CA8B",
+				"3235AA6BD26F1C1D90106358",
+				"618452BEDC7CEB861D246543",
+				"A6E4EF2C154AA04042B65644",
+				"4B631F69842530D659306C8F",
+				"50A1D25268CCE0763D061FFD",
+				"69E27356EF629022720D868A",
+				"FE0A091FDBFB3E9C31B7A1BD",
+			);
+			"sourceTree" = "<group>";
+		};
+		"C2F3E610EFAAD31893CA9EEA" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"87E18FF5C98FD7AC0E601FE4",
+				"5B4C1EED35C0526244603168",
+				"349FB338B46A222DDD41E6E0",
+				"88070E69CB8DFFA1B79A5738",
+				"B809D879FD9758EAF5FEA47D",
+				"F9FB786B2E07BFE0B5291549",
+				"91EE8CC48DAFFEBEE24F7BA1",
+				"D697B8BD82397BE62DBFB3A9",
+				"415AD4A0ED9B12F184327886",
+				"ACA42B6650C1CD0D7E8B9528",
+				"921C01855D4DF6CB62BD1975",
+				"5EB63BA6667E77B77A127B33",
+				"A8C3FEEC4D620DA6DD26AD42",
+				"20D9967789E3F97B65C2E7F9",
+				"AAFBB00D5DDE4112250C8F4B",
+				"CF52685E09FC2E57CB068A18",
+				"B0C8C6C780C10C44AE78F02E",
+				"576ABF2EB2C17B299F14F030",
+				"E04420E90BABF93A92D4B4B4",
+				"B46B488EEA64417CE66B9AE3",
+				"2F4D5BD2889998574EF38AF3",
+				"FA8E4682A966BDA915BF5CF7",
+				"38BB76C3CBA3676C12E6A597",
+				"D525ECFAD5191EF797228861",
+				"FBAF094482B2A9B56E3AC659",
+				"0297A80C4B5D80DAED4553CC",
+				"0A94372077BDE8CC68EE0DC9",
+				"D9A75F2F29B0247197C27C40",
+				"EBD476EF83F6B2DEEA284899",
+				"43C86E32022001A8D1B9B672",
+				"78E1BF12123D48198D0B667D",
+				"770D011C8E027C2702291818",
+				"5959FA6E95E23B69C24C43CA",
+				"B547C807DC71AF021F440F35",
+				"1F7896A44F2F3B9583226798",
+				"E4CFC2C361E9D42809064C2A",
+				"A5D05C5A9FC675BBF6FC28C9",
+				"CA6649F9E72C795679B5FBB4",
+				"E663E1E1C06F7CB3A4D99092",
+				"C63C66A2979449F3D528ED87",
+				"2186AA106BF839B2381E1939",
+				"74DA0F6D3C4D6CED7964976A",
+				"B61C8D9903DAE517728927C6",
+				"B1BF456B0D840B71751A6995",
+				"B129B73AB537D82752DDC331",
+				"3AA18F6520FF3E623AE9F068",
+				"3D98692358048C432F2FADC1",
+				"3D3DFED499EA796535E95508",
+				"08AF54FE1B9EFA272FAE4668",
+				"10BFF13D71F40CB314EC4089",
+				"B698F49740C64950810EE196",
+				"44BF7EC1D5F3699231E4B76D",
+				"77886A277373109D1735631F",
+				"508F2FE4CAF054C76EF2AF25",
+				"8E550028757438DB8DA67E2D",
+				"868B688746E79D11A3939CB0",
+				"A6AAC3D31AE66F74B213B949",
+				"0C4416397FE3DE6BBFEB71D8",
+				"B9AE6AAF18443438B14364D0",
+				"EEC8074E640AD883D7E28EB9",
+				"B1E81957F497A139A6EA4633",
+				"580DAC0B859017B6A14D72D5",
+				"6CB6068EBC2C44043B7F2E2D",
+				"2E873EE219D62A0BBDA0D569",
+				"EF10284D576D9C925FEE15E0",
+				"1890AE80B7944A5AC47B5179",
+				"FC9B5C75F531C605F8202C01",
+				"E66CBCF2F8C285FB8F262497",
+				"E35B757AED9DF0FAC20F0595",
+				"7657447C5FCDA3587363209A",
+				"7D7B0621AB8186D550D4495D",
+				"435DF9DE623DA467AFFBD974",
+				"522B31B3FB37A533BAB23C74",
+				"692F80C2BFAD08D25F5B3FB1",
+				"1D556BE7530AB90C8AA63B71",
+				"AAF58A457D40ADC798C7620F",
+				"D5C8AE3064D2E194BCA5028F",
+				"279A628C901BCE471C72571B",
+				"FDE98BED3252FD1DFEFFD586",
+				"3F60376A554662E5CB41E529",
+				"809B2E532C9091F5AF1611AD",
+				"6E961D3250981A9576838A2D",
+				"ECE57813CAD31A0F950B97C2",
+				"CA3BB2006E09D8F80851B01F",
+				"4EE91BA8FB9742FE4451C3C2",
+				"9318B3A6056EAC3D990EB40F",
+				"F0E3ADCA63009AB300333867",
+				"D59D1FD5DD880700F3BCF65E",
+				"D6DB204B0835AFE1849FAFAB",
+				"28B3BA3953B026AF65E6EF6B",
+				"C049F922914068B2F0492D42",
+				"584BA2D0BC289ADA952B409B",
+				"10792F400454C259DD80CBF4",
+				"7A650E3AAA385F121CF92C0E",
+				"79E2B1B517AA29B67B13A43A",
+				"6065A98EF3FF3A369D48E462",
+				"CD46D1B5886327BC36224DA4",
+				"EAF455AD1C6C80184EA71A96",
+				"457F13F4B55C74980AB41354",
+				"22DA7ABE837AFB22336B4CBF",
+				"04083CDB77715523830EAC94",
+				"D4A24923919EFAAEF83F1670",
+				"5359F559D433731B3AFCEC9D",
+				"9282D29A8A1B888C86D38C6B",
+				"C1B90F3C0CAC7FC5A52F4672",
+				"D30BCE533A782B2FE82DE113",
+				"0DE22F8761080494F6F03714",
+				"ECB8373A1E43BB4907E8DBE8",
+				"0919A4E5D79F6F825AF7AAC8",
+				"A66C0CED6C11EB908C2EF3F7",
+				"3D4F0820644EEA45626CBB0A",
+				"453D35EB5F9AE6465F7CC0FF",
+				"11C38356B9A35C60452C3DC3",
+				"D3EE94ADADEFBF520ED989CB",
+				"D30C2F9BF0F14BAE75CE75E6",
+				"124EAE55256028E4A4DCBC56",
+				"11EAD93B12A408DB81B70618",
+				"848DF07519C794164DDD9712",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"87DF60DE337FB58864343E39" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"84A0394370EA938AEB05479A",
+				"9F3E6EA225CF2ED3C84526E7",
+				"AF47253B241AA601F3E7ED86",
+				"92E956CC37720608C0619D3F",
+				"D62900372D7737089E3A9680",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"AF39DD055C3EF8226FBE929D" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"A4AC13949A8052DBCA4BD33A" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"49C34381BB71A96301137A55",
+				"D9C22592654DA1061B7F0DB4",
+				"DF4CF7D29B3E9F023A01AEA0",
+				"AF75CE3A8F9396FB1B747AA6",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"16E8B7FF6B7B70B915F44031" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "20E338624CEE29D0EFFEAD85";
+		};
+		"AA884D1D0AB2E9C136BBFA4D" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"16E8B7FF6B7B70B915F44031",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"AFA7FDFFB68DA2FEA421B2C5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D1808561B2914DF9D6FF785D";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"RemoveHeadersOnCopy",
+				);
+			};
+		};
+		"7921C633988C92494A798513" = {
+			"isa" = "PBXCopyFilesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"dstPath" = "";
+			"dstSubfolderSpec" = 13;
+			"files" = (
+				"AFA7FDFFB68DA2FEA421B2C5",
+			);
+			"name" = "Embed Foundation Extensions";
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"941798AECA264FECE6B7C45D" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"SDKROOT" = "iphoneos";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "26.0";
+				"SWIFT_VERSION" = "5.0";
+				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "cn.xiaobao.ipados.prototype";
+				"MARKETING_VERSION" = "0.3";
+				"CURRENT_PROJECT_VERSION" = "3";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+			};
+		};
+		"2D824FF6692BE809F73C3F57" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(TSCHEDULE_APP_BUNDLE_IDENTIFIER)";
+				"INFOPLIST_FILE" = "Config/Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"TARGETED_DEVICE_FAMILY" = "2";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"ENABLE_PREVIEWS" = "YES";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "AppIconLight AppIconDark";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited) DEBUG";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+			};
+		};
+		"1D22A32599F1A8B47362A911" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(TSCHEDULE_APP_BUNDLE_IDENTIFIER).lesson-activity";
+				"INFOPLIST_FILE" = "Config/LessonActivity-Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"TARGETED_DEVICE_FAMILY" = "2";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"SKIP_INSTALL" = "YES";
+				"APPLICATION_EXTENSION_API_ONLY" = "YES";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+		};
+		"38F03FCBDACA10AAD4143C88" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"SDKROOT" = "iphoneos";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "26.0";
+				"SWIFT_VERSION" = "5.0";
+				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "cn.xiaobao.ipados.prototype";
+				"MARKETING_VERSION" = "0.3";
+				"CURRENT_PROJECT_VERSION" = "3";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf-with-dsym";
+				"ENABLE_TESTABILITY" = "NO";
+				"ONLY_ACTIVE_ARCH" = "NO";
+			};
+		};
+		"1B967A81B74496AD31885A13" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(TSCHEDULE_APP_BUNDLE_IDENTIFIER)";
+				"INFOPLIST_FILE" = "Config/Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"TARGETED_DEVICE_FAMILY" = "2";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"ENABLE_PREVIEWS" = "YES";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "AppIconLight AppIconDark";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "$(inherited)";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+			};
+		};
+		"5E610BF04FA862D771AD62E2" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(TSCHEDULE_APP_BUNDLE_IDENTIFIER).lesson-activity";
+				"INFOPLIST_FILE" = "Config/LessonActivity-Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"TARGETED_DEVICE_FAMILY" = "2";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"SKIP_INSTALL" = "YES";
+				"APPLICATION_EXTENSION_API_ONLY" = "YES";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+			};
+		};
+		"8A7B7B41EC8EE64FC61CAC5C" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"941798AECA264FECE6B7C45D",
+				"38F03FCBDACA10AAD4143C88",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"1BE12817670C1181D666CE1A" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"2D824FF6692BE809F73C3F57",
+				"1B967A81B74496AD31885A13",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"4B8CA420FDC0E5AD78CABCC6" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"1D22A32599F1A8B47362A911",
+				"5E610BF04FA862D771AD62E2",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"34E856E1ADA618D1075A1159" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "4B8CA420FDC0E5AD78CABCC6";
+			"buildPhases" = (
+				"A4AC13949A8052DBCA4BD33A",
+				"AA884D1D0AB2E9C136BBFA4D",
+			);
+			"buildRules" = (
+			);
+			"dependencies" = (
+			);
+			"name" = "LessonActivityWidget";
+			"productName" = "LessonActivityWidget";
+			"productReference" = "D1808561B2914DF9D6FF785D";
+			"productType" = "com.apple.product-type.app-extension";
+		};
+		"DDC6E89C0ECEBCC70C534777" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "F6F4DA8D93E88A08220E03B7";
+			"proxyType" = 1;
+			"remoteGlobalIDString" = "34E856E1ADA618D1075A1159";
+			"remoteInfo" = "LessonActivityWidget";
+		};
+		"B8A3BAA4071977D90323EF39" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "34E856E1ADA618D1075A1159";
+			"targetProxy" = "DDC6E89C0ECEBCC70C534777";
+		};
+		"26AEB51702CFCE27E88A04ED" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "1BE12817670C1181D666CE1A";
+			"buildPhases" = (
+				"C2F3E610EFAAD31893CA9EEA",
+				"AF39DD055C3EF8226FBE929D",
+				"87DF60DE337FB58864343E39",
+				"7921C633988C92494A798513",
+			);
+			"buildRules" = (
+			);
+			"dependencies" = (
+				"B8A3BAA4071977D90323EF39",
+			);
+			"name" = "Xiaobao";
+			"productName" = "Xiaobao";
+			"productReference" = "DD3B86D1EF21B9FB2E1EDC30";
+			"productType" = "com.apple.product-type.application";
+		};
+		"F6F4DA8D93E88A08220E03B7" = {
+			"isa" = "PBXProject";
+			"attributes" = {
+				"LastSwiftUpdateCheck" = "2600";
+				"LastUpgradeCheck" = "2600";
+				"TargetAttributes" = {
+					"26AEB51702CFCE27E88A04ED" = {
+						"CreatedOnToolsVersion" = "26.0";
+					};
+					"34E856E1ADA618D1075A1159" = {
+						"CreatedOnToolsVersion" = "26.0";
+					};
+				};
+			};
+			"buildConfigurationList" = "8A7B7B41EC8EE64FC61CAC5C";
+			"compatibilityVersion" = "Xcode 14.0";
+			"developmentRegion" = "zh-Hans";
+			"hasScannedForEncodings" = 0;
+			"knownRegions" = (
+				"zh-Hans",
+				"en",
+				"Base",
+			);
+			"mainGroup" = "62BCE9422FF2D14F69AB80A1";
+			"productRefGroup" = "FE0A091FDBFB3E9C31B7A1BD";
+			"projectDirPath" = "";
+			"projectRoot" = "";
+			"targets" = (
+				"26AEB51702CFCE27E88A04ED",
+				"34E856E1ADA618D1075A1159",
+			);
+		};
+	};
+	"rootObject" = "F6F4DA8D93E88A08220E03B7";
+}

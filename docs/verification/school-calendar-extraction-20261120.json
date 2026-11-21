@@ -1,0 +1,4221 @@
+{
+  "status": "review_only_not_app_data",
+  "prepared_on": "2026-11-20",
+  "timezone": "Asia/Shanghai",
+  "read_me_zh": [
+    "只依据用户提供的两张校历图整理，未查验校方后续版本，也未导入应用。",
+    "printed_day 原样保留。null 仅表示格子没有印 Day：不等于全校放假，也不意味着无其他活动。",
+    "grid_fill 是底色证据，不是休校规则。全体学生不上课与分学部家长会分别保存在 notices。",
+    "考试、活动和学年结束日不自动当作停课；缺少时刻和教室时不补写。",
+    "两学年的日期和例外完全分开；未逐条录入 2025–26 的右侧活动清单或校会时段。未提取第三张个人课表截图。"
+  ],
+  "calendars": [
+    {
+      "academic_year": "2026-2027",
+      "campus": "Main Campus",
+      "source_title": "Tsinglan School Calendar For Students",
+      "source_attachment": 1,
+      "source_sha256": "b85d1d9160e5313ca6fe71a122c22d1180ff889732ecb0f583779290f7d63c9f",
+      "usage": "candidate_current_academic_year",
+      "coverage": {
+        "from": "2026-08-01",
+        "through": "2027-07-31"
+      },
+      "days": [
+        {
+          "date": "2026-08-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-23",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2026-08-24",
+          "printed_day": "C1-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 1
+        },
+        {
+          "date": "2026-08-25",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-08-26",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-08-27",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-08-28",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-08-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-08-31",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-09-01",
+          "printed_day": "C2-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 2
+        },
+        {
+          "date": "2026-09-02",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-09-03",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-09-04",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-09-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-07",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-09-08",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-09-09",
+          "printed_day": "C3-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 3
+        },
+        {
+          "date": "2026-09-10",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-09-11",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-09-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-14",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-09-15",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-09-16",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-09-17",
+          "printed_day": "C4-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 4
+        },
+        {
+          "date": "2026-09-18",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-09-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-21",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-09-22",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-09-23",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-09-24",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-09-25",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "中秋"
+        },
+        {
+          "date": "2026-09-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-09-28",
+          "printed_day": "C5-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 5
+        },
+        {
+          "date": "2026-09-29",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-09-30",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-10-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-08",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-10-09",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-10-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-12",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-10-13",
+          "printed_day": "C6-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 6
+        },
+        {
+          "date": "2026-10-14",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-10-15",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-10-16",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-10-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-19",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-10-20",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-10-21",
+          "printed_day": "C7-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 7
+        },
+        {
+          "date": "2026-10-22",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-10-23",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-10-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-10-26",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-10-27",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-10-28",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-10-29",
+          "printed_day": "C8-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 8
+        },
+        {
+          "date": "2026-10-30",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-10-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-02",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-11-03",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-11-04",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-11-05",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-11-06",
+          "printed_day": "C9-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 9
+        },
+        {
+          "date": "2026-11-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-09",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-11-10",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-11-11",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-11-12",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-11-13",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-11-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-16",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-11-17",
+          "printed_day": "C10-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 10
+        },
+        {
+          "date": "2026-11-18",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-11-19",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-11-20",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-11-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-23",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-11-24",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-11-25",
+          "printed_day": "C11-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 11
+        },
+        {
+          "date": "2026-11-26",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-11-27",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-11-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-11-30",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-12-01",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-12-02",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-12-03",
+          "printed_day": "C12-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 12
+        },
+        {
+          "date": "2026-12-04",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-12-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-07",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-12-08",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-12-09",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-12-10",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-12-11",
+          "printed_day": "C13-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 13
+        },
+        {
+          "date": "2026-12-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-14",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-12-15",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-12-16",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-12-17",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-12-18",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-12-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-12-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-04",
+          "printed_day": "C14-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 14
+        },
+        {
+          "date": "2027-01-05",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-01-06",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-01-07",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-01-08",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-01-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-11",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-01-12",
+          "printed_day": "C15-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 15
+        },
+        {
+          "date": "2027-01-13",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-01-14",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-01-15",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-01-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-18",
+          "printed_day": "C1-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 1
+        },
+        {
+          "date": "2027-01-19",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-01-20",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-01-21",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-01-22",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-01-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-25",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-01-26",
+          "printed_day": "C2-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 2
+        },
+        {
+          "date": "2027-01-27",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-01-28",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-01-29",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-01-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-01-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-06",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "年初一 / CNY"
+        },
+        {
+          "date": "2027-02-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-17",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-02-18",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-02-19",
+          "printed_day": "C3-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 3
+        },
+        {
+          "date": "2027-02-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-22",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-02-23",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-02-24",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-02-25",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-02-26",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-02-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-02-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-01",
+          "printed_day": "C4-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 4
+        },
+        {
+          "date": "2027-03-02",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-03-03",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-03-04",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-03-05",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-03-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-08",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-03-09",
+          "printed_day": "C5-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 5
+        },
+        {
+          "date": "2027-03-10",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-03-11",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-03-12",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-03-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-15",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-03-16",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-03-17",
+          "printed_day": "C6-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 6
+        },
+        {
+          "date": "2027-03-18",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-03-19",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-03-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-22",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-03-23",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-03-24",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-03-25",
+          "printed_day": "C7-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 7
+        },
+        {
+          "date": "2027-03-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-03-29",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-03-30",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-03-31",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-04-01",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-04-02",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-04-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-05",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "清明"
+        },
+        {
+          "date": "2027-04-06",
+          "printed_day": "C8-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 8
+        },
+        {
+          "date": "2027-04-07",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-04-08",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-04-09",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-04-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-12",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-04-13",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-04-14",
+          "printed_day": "C9-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 9
+        },
+        {
+          "date": "2027-04-15",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-04-16",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-04-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-19",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-04-20",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-04-21",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-04-22",
+          "printed_day": "C10-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 10
+        },
+        {
+          "date": "2027-04-23",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-04-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-04-26",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-04-27",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-04-28",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-04-29",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-04-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-05",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-05-06",
+          "printed_day": "C11-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 11
+        },
+        {
+          "date": "2027-05-07",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-05-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-10",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-05-11",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-05-12",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-05-13",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-05-14",
+          "printed_day": "C12-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 12
+        },
+        {
+          "date": "2027-05-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-17",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-05-18",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-05-19",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-05-20",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-05-21",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-05-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-24",
+          "printed_day": "C13-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 13
+        },
+        {
+          "date": "2027-05-25",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-05-26",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-05-27",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-05-28",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-05-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-05-31",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-06-01",
+          "printed_day": "C14-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 14
+        },
+        {
+          "date": "2027-06-02",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-06-03",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-06-04",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-06-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-07",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-06-08",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-06-09",
+          "printed_day": "C15-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 15
+        },
+        {
+          "date": "2027-06-10",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-06-11",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2027-06-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-14",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2027-06-15",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2027-06-16",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2027-06-17",
+          "printed_day": "C16-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 16
+        },
+        {
+          "date": "2027-06-18",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2027-06-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-06-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2027-07-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        }
+      ],
+      "notices": [
+        {
+          "from": "2026-08-23",
+          "through": "2026-08-23",
+          "kind": "milestone",
+          "title_zh": "学生报到日"
+        },
+        {
+          "from": "2026-08-24",
+          "through": "2026-08-24",
+          "kind": "milestone",
+          "title_zh": "第一学期上课日"
+        },
+        {
+          "from": "2026-08-25",
+          "through": "2026-08-27",
+          "kind": "assessment",
+          "title_zh": "国际部 G6–G8 MAP 测试",
+          "divisions": [
+            "MS"
+          ],
+          "grades": [
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "from": "2026-09-07",
+          "through": "2026-09-10",
+          "kind": "event",
+          "title_zh": "课程说明会"
+        },
+        {
+          "from": "2026-09-25",
+          "through": "2026-09-25",
+          "kind": "holiday",
+          "title_zh": "中秋假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2026-10-01",
+          "through": "2026-10-07",
+          "kind": "holiday",
+          "title_zh": "国庆假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2026-10-16",
+          "through": "2026-10-16",
+          "kind": "assessment",
+          "title_zh": "G8–G11 PSAT 测试",
+          "grades": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "from": "2026-10-29",
+          "through": "2026-10-30",
+          "kind": "assessment",
+          "title_zh": "双语部第一学期期中考试",
+          "divisions": [
+            "BS"
+          ]
+        },
+        {
+          "from": "2026-11-13",
+          "through": "2026-11-14",
+          "kind": "division_exception",
+          "title_zh": "小学部家长会（工作日）",
+          "no_class_divisions": [
+            "PS"
+          ],
+          "classes_as_usual": [
+            {
+              "date": "2026-11-13",
+              "divisions": [
+                "MS",
+                "BS",
+                "HS"
+              ]
+            }
+          ]
+        },
+        {
+          "from": "2026-11-15",
+          "through": "2026-11-16",
+          "kind": "division_exception",
+          "title_zh": "初高中家长会（工作日）",
+          "no_class_divisions": [
+            "MS",
+            "BS",
+            "HS"
+          ],
+          "classes_as_usual": [
+            {
+              "date": "2026-11-16",
+              "divisions": [
+                "PS"
+              ]
+            }
+          ]
+        },
+        {
+          "from": "2026-12-19",
+          "through": "2027-01-03",
+          "kind": "holiday",
+          "title_zh": "寒假及元旦假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2027-01-05",
+          "through": "2027-01-08",
+          "kind": "assessment",
+          "title_zh": "高中第一学期期末考试",
+          "divisions": [
+            "HS"
+          ]
+        },
+        {
+          "from": "2027-01-11",
+          "through": "2027-01-12",
+          "kind": "assessment",
+          "title_zh": "G3–G8 第一学期期末考试",
+          "grades": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "from": "2027-01-13",
+          "through": "2027-01-14",
+          "kind": "assessment",
+          "title_zh": "双语部第一学期期末考试及 G6–G8 MAP 测试",
+          "divisions": [
+            "BS"
+          ],
+          "map_test_grades": [
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "from": "2027-01-13",
+          "through": "2027-01-15",
+          "kind": "assessment",
+          "title_zh": "初中 G6–G8 MAP 测试",
+          "divisions": [
+            "MS"
+          ],
+          "grades": [
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "from": "2027-01-18",
+          "through": "2027-01-18",
+          "kind": "milestone",
+          "title_zh": "第二学期开学日"
+        },
+        {
+          "from": "2027-01-30",
+          "through": "2027-02-16",
+          "kind": "holiday",
+          "title_zh": "春节假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2027-02-17",
+          "through": "2027-02-17",
+          "kind": "milestone",
+          "title_zh": "学生返校日"
+        },
+        {
+          "from": "2027-03-26",
+          "through": "2027-03-26",
+          "kind": "faculty_workday",
+          "title_zh": "全体教职工培训，学生不上课",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2027-04-05",
+          "through": "2027-04-05",
+          "kind": "holiday",
+          "title_zh": "清明节假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2027-04-07",
+          "through": "2027-04-09",
+          "kind": "assessment",
+          "title_zh": "双语部第二学期期中考试",
+          "divisions": [
+            "BS"
+          ]
+        },
+        {
+          "from": "2027-04-07",
+          "through": "2027-04-15",
+          "kind": "assessment",
+          "title_zh": "高中第二学期模考／随堂考试",
+          "divisions": [
+            "HS"
+          ]
+        },
+        {
+          "from": "2027-04-15",
+          "through": "2027-04-15",
+          "kind": "assessment",
+          "title_zh": "初中部 G8 MAP 测试",
+          "divisions": [
+            "MS"
+          ],
+          "grades": [
+            8
+          ]
+        },
+        {
+          "from": "2027-04-23",
+          "through": "2027-04-24",
+          "kind": "division_exception",
+          "title_zh": "小学部家长会（工作日）",
+          "no_class_divisions": [
+            "PS"
+          ],
+          "classes_as_usual": [
+            {
+              "date": "2027-04-23",
+              "divisions": [
+                "MS",
+                "BS",
+                "HS"
+              ]
+            }
+          ]
+        },
+        {
+          "from": "2027-04-25",
+          "through": "2027-04-26",
+          "kind": "division_exception",
+          "title_zh": "初高中家长会（工作日）",
+          "no_class_divisions": [
+            "MS",
+            "BS",
+            "HS"
+          ],
+          "classes_as_usual": [
+            {
+              "date": "2027-04-26",
+              "divisions": [
+                "PS"
+              ]
+            }
+          ]
+        },
+        {
+          "from": "2027-04-30",
+          "through": "2027-05-04",
+          "kind": "holiday",
+          "title_zh": "劳动节假期",
+          "all_students_no_class": true
+        },
+        {
+          "from": "2027-06-01",
+          "through": "2027-06-03",
+          "kind": "assessment",
+          "title_zh": "G9–G11 第二学期期末考试",
+          "grades": [
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "from": "2027-06-04",
+          "through": "2027-06-04",
+          "kind": "assessment",
+          "title_zh": "初中 G6–G7 MAP 测试",
+          "divisions": [
+            "MS"
+          ],
+          "grades": [
+            6,
+            7
+          ]
+        },
+        {
+          "from": "2027-06-07",
+          "through": "2027-06-08",
+          "kind": "assessment",
+          "title_zh": "初中第二学期期末考试",
+          "divisions": [
+            "MS",
+            "BS"
+          ]
+        },
+        {
+          "from": "2027-06-09",
+          "through": "2027-06-09",
+          "kind": "assessment",
+          "title_zh": "双语部 G6–G8 MAP 测试",
+          "divisions": [
+            "BS"
+          ],
+          "grades": [
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "from": "2027-06-10",
+          "through": "2027-06-11",
+          "kind": "assessment",
+          "title_zh": "小学第二学期期末考试",
+          "divisions": [
+            "PS"
+          ]
+        },
+        {
+          "from": "2027-06-11",
+          "through": "2027-06-11",
+          "kind": "event",
+          "title_zh": "高中部毕业典礼",
+          "divisions": [
+            "HS"
+          ]
+        },
+        {
+          "from": "2027-06-14",
+          "through": "2027-06-16",
+          "kind": "assessment",
+          "title_zh": "G3–G5 MAP 测试",
+          "grades": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "from": "2027-06-16",
+          "through": "2027-06-16",
+          "kind": "event",
+          "title_zh": "初中 G8 升学典礼",
+          "divisions": [
+            "MS"
+          ],
+          "grades": [
+            8
+          ]
+        },
+        {
+          "from": "2027-06-17",
+          "through": "2027-06-17",
+          "kind": "event",
+          "title_zh": "双语部毕业典礼",
+          "divisions": [
+            "BS"
+          ]
+        },
+        {
+          "from": "2027-06-18",
+          "through": "2027-06-18",
+          "kind": "event",
+          "title_zh": "G5 升学典礼",
+          "grades": [
+            5
+          ]
+        },
+        {
+          "from": "2027-06-18",
+          "through": "2027-06-18",
+          "kind": "milestone",
+          "title_zh": "学生学年结束日"
+        },
+        {
+          "from": "2027-06-21",
+          "through": "2027-06-29",
+          "kind": "division_activity",
+          "title_zh": "双语部 G8–G9 上学日",
+          "divisions": [
+            "BS"
+          ],
+          "grades": [
+            8,
+            9
+          ]
+        },
+        {
+          "from": "2027-06-30",
+          "through": "2027-07-02",
+          "kind": "assessment",
+          "title_zh": "双语部 G8 生地会考与 G9 中考",
+          "divisions": [
+            "BS"
+          ],
+          "grades": [
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "academic_year": "2025-2026",
+      "source_title": "Tsinglan School Student Activities Calendar",
+      "source_attachment": 2,
+      "source_sha256": "74a2655d3466a960a96ddc25700802c90223c137f767e7d3e1b91fb258a401ff",
+      "source_printed_updated_through": "2025-09-01",
+      "usage": "historical_only",
+      "coverage": {
+        "from": "2025-09-01",
+        "through": "2026-06-30"
+      },
+      "days": [
+        {
+          "date": "2025-09-01",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-09-02",
+          "printed_day": "C2-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 2
+        },
+        {
+          "date": "2025-09-03",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-09-04",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-09-05",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-09-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-08",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-09-09",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-09-10",
+          "printed_day": "C3-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 3
+        },
+        {
+          "date": "2025-09-11",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-09-12",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-09-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-15",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-09-16",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-09-17",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-09-18",
+          "printed_day": "C4-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 4
+        },
+        {
+          "date": "2025-09-19",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-09-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-22",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-09-23",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-09-24",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-09-25",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-09-26",
+          "printed_day": "C5-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 5
+        },
+        {
+          "date": "2025-09-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-09-28",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-09-29",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-09-30",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-10-01",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "国庆"
+        },
+        {
+          "date": "2025-10-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-09",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-10-10",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-10-11",
+          "printed_day": "C6-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 6
+        },
+        {
+          "date": "2025-10-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-13",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-10-14",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-10-15",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-10-16",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-10-17",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-10-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-20",
+          "printed_day": "C7-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 7
+        },
+        {
+          "date": "2025-10-21",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-10-22",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-10-23",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-10-24",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-10-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-10-27",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-10-28",
+          "printed_day": "C8-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 8
+        },
+        {
+          "date": "2025-10-29",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-10-30",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-10-31",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-11-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-03",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-11-04",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-11-05",
+          "printed_day": "C9-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 9
+        },
+        {
+          "date": "2025-11-06",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-11-07",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-11-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-10",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-11-11",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-11-12",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-11-13",
+          "printed_day": "C10-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 10
+        },
+        {
+          "date": "2025-11-14",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-11-15",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2025-11-16",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2025-11-17",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-11-18",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-11-19",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-11-20",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-11-21",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-11-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-24",
+          "printed_day": "C11-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 11
+        },
+        {
+          "date": "2025-11-25",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-11-26",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-11-27",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-11-28",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-11-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-11-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-01",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-12-02",
+          "printed_day": "C12-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 12
+        },
+        {
+          "date": "2025-12-03",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-12-04",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-12-05",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-12-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-08",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-12-09",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-12-10",
+          "printed_day": "C13-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 13
+        },
+        {
+          "date": "2025-12-11",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-12-12",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2025-12-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-15",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2025-12-16",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2025-12-17",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2025-12-18",
+          "printed_day": "C14-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 14
+        },
+        {
+          "date": "2025-12-19",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2025-12-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2025-12-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-04",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-01-05",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-01-06",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-01-07",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-01-08",
+          "printed_day": "C15-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 15
+        },
+        {
+          "date": "2026-01-09",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-01-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-12",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-01-13",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-01-14",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-01-15",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-01-16",
+          "printed_day": "C16-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 16
+        },
+        {
+          "date": "2026-01-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-19",
+          "printed_day": "C1-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 1
+        },
+        {
+          "date": "2026-01-20",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-01-21",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-01-22",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-01-23",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-01-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-01-26",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-01-27",
+          "printed_day": "C2-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 2
+        },
+        {
+          "date": "2026-01-28",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-01-29",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-01-30",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-01-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-02",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-02-03",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-02-04",
+          "printed_day": "C3-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 3
+        },
+        {
+          "date": "2026-02-05",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-02-06",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-02-07",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-02-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-17",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "年初一"
+        },
+        {
+          "date": "2026-02-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-02-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-01",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2026-03-02",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-03-03",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-03-04",
+          "printed_day": "C4-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 4
+        },
+        {
+          "date": "2026-03-05",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-03-06",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-03-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-08",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-09",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-03-10",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-03-11",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-03-12",
+          "printed_day": "C5-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 5
+        },
+        {
+          "date": "2026-03-13",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-03-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-15",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-16",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-03-17",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-03-18",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-03-19",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-03-20",
+          "printed_day": "C6-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 6
+        },
+        {
+          "date": "2026-03-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-23",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-03-24",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-03-25",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-03-26",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-03-27",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2026-03-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-03-30",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-03-31",
+          "printed_day": "C7-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 7
+        },
+        {
+          "date": "2026-04-01",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-04-02",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-04-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-05",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "清明"
+        },
+        {
+          "date": "2026-04-06",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-04-07",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-04-08",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-04-09",
+          "printed_day": "C8-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 8
+        },
+        {
+          "date": "2026-04-10",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-04-11",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-12",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-13",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-04-14",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-04-15",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-04-16",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-04-17",
+          "printed_day": "C9-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 9
+        },
+        {
+          "date": "2026-04-18",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-19",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-04-20",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-04-21",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-04-22",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-04-23",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-04-24",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-04-25",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2026-04-26",
+          "printed_day": null,
+          "grid_fill": "white"
+        },
+        {
+          "date": "2026-04-27",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-04-28",
+          "printed_day": "C10-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 10
+        },
+        {
+          "date": "2026-04-29",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-04-30",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-05-01",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-02",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-03",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-04",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-05",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-06",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-05-07",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-05-08",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-05-09",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-10",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-11",
+          "printed_day": "C11-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 11
+        },
+        {
+          "date": "2026-05-12",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-05-13",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-05-14",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-05-15",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-05-16",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-17",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-18",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-05-19",
+          "printed_day": "C12-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 12
+        },
+        {
+          "date": "2026-05-20",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-05-21",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-05-22",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-05-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-25",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-05-26",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-05-27",
+          "printed_day": "C13-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 13
+        },
+        {
+          "date": "2026-05-28",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-05-29",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-05-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-05-31",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-01",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-06-02",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-06-03",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-06-04",
+          "printed_day": "C14-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 14
+        },
+        {
+          "date": "2026-06-05",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-06-06",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-07",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-08",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-06-09",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-06-10",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-06-11",
+          "printed_day": "D6",
+          "grid_fill": "white",
+          "day_number": 6
+        },
+        {
+          "date": "2026-06-12",
+          "printed_day": "C15-D1",
+          "grid_fill": "white",
+          "day_number": 1,
+          "printed_cycle_number": 15
+        },
+        {
+          "date": "2026-06-13",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-14",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-15",
+          "printed_day": "D2",
+          "grid_fill": "white",
+          "day_number": 2
+        },
+        {
+          "date": "2026-06-16",
+          "printed_day": "D3",
+          "grid_fill": "white",
+          "day_number": 3
+        },
+        {
+          "date": "2026-06-17",
+          "printed_day": "D4",
+          "grid_fill": "white",
+          "day_number": 4
+        },
+        {
+          "date": "2026-06-18",
+          "printed_day": "D5",
+          "grid_fill": "white",
+          "day_number": 5
+        },
+        {
+          "date": "2026-06-19",
+          "printed_day": null,
+          "grid_fill": "green",
+          "festival_mark": "端午"
+        },
+        {
+          "date": "2026-06-20",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-21",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-22",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-23",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-24",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-25",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-26",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-27",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-28",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-29",
+          "printed_day": null,
+          "grid_fill": "green"
+        },
+        {
+          "date": "2026-06-30",
+          "printed_day": null,
+          "grid_fill": "green"
+        }
+      ]
+    }
+  ]
+}

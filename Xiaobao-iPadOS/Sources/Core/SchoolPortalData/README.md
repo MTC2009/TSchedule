@@ -12,6 +12,11 @@ Session state is memory-only. `loadTerms()/selectTerm(_:)` share a server-issued
 
 ## Change History
 
+### 2026-11-21 — login-result-handoff
+Model: Codex · Keywords: login-outcomes / manual-handoff
+Changed: Distinguish an explicit refusal, a sign-in deadline and an interactive step. `SchoolPortalPage.canContinueManually(at:after:)` preserves a first-party document for review without proving identity. None of these three outcomes initiates another password attempt.
+Reason: Keep the school's response available rather than replacing it with a newly loaded form. Interfaces: local issue classification and page handoff only.
+
 ### 2026-11-21 — verified-session-cache
 Model: Codex · Keywords: verified-session-cache / term-selection
 Changed: Cache the verified student’s overview and semester selection, fence late responses and separate startup identity recovery from explicit grade reads.

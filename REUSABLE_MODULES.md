@@ -806,7 +806,7 @@ Relative path: `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/` · Repository pat
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | Construct/select store, queue one foreground grade visit, verify identity | selected = device preference; reader = SchoolPortalReader; reopen = PortalSession.reopenForGrades; signIn = opted-in explicit grade action only; expected owner = verified matching device binding | Choose the real source without creating a Rust account |
-| `Xiaobao-iPadOS/Sources/Native/SchoolPortal.swift` | Begin navigation, classify document and verify | current main-frame URL/loading; invalidate on reset/termination | Fence replies across website navigation |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortal.swift` | Classify navigation; `openSignIn(after:)` consults `SchoolPortalPage.canContinueManually(at:after:)` | current main-frame URL/loading; reason = account issue captured by AppModel | Fence reads while preserving a first-party page for manual review |
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Route and suspend school pages / consume foreground grade intent | tab, scenePhase, sheet visibility, pending reads, epoch and verified owner | Never route unavailable private records to demo |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalReader.swift` | Implement fixed SchoolPortalRead operations; gate on SchoolPortalPage | request = typed operation; includeScores = task read’s session scope; expected = current opaque owner; foreground/loading/URL = WebKit | Same-origin transport |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalPages.swift` | Select authentic waiting, recovery, interaction, failure and connected states; loadWeek | retry = current identity or grade request; date = current day; force = user refresh | Today and real-source destinations |
@@ -863,7 +863,7 @@ Entry: `SchoolPortalLoginVault.swift`. A single private Security.framework Keych
 
 | File | Usage and parameters |
 | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | Construct with defaults; claim(for:) = verified expected owner on an explicit active grade visit; confirm = matching claim after fresh grades; disable = source/logout/account boundary |
+| `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | Construct with defaults; claim = bound owner on an eligible foreground startup or explicit grade visit; confirm = same student (and fresh grades for a grade visit); disable = explicit school logout or confirmed account change |
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Refresh metadata on active scene; never request a password on resume |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/SchoolPortalLoginSettings.swift` | Enable(owner:name:password:) from current verified owner, scoped enrollment reply and explicit secure field; remove only on user's action |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalPages.swift` | Read binding availability/paused state for native fallback only |
@@ -875,7 +875,8 @@ Entry: `SchoolPortalPasswordEntry.swift`, bundled `PortalLogin.js`. Defaults: sh
 
 | File | Usage and parameters |
 | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/SchoolPortal.swift` | Own/cancel the transaction; view = existing persistent school WebKit; gate and claim = current grade visit |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortal.swift` | Own/cancel the transaction; view = existing persistent school WebKit; gate and claim = permitted foreground startup or grade visit |
+| `Xiaobao-iPadOS/Tests/SchoolPortalSync/AccountBoundaryTests.swift` | Run the shipped entry in a dedicated loopback web view; claim = counted synthetic input. Verify a bounded timeout and refusal on a framed login form |
 | `Xiaobao-iPadOS/scripts/generate_project.py`, `Xiaobao-iPadOS/Tests/SchoolPortalSync/portal-login.test.cjs`, `ipad-smoke.py` and `GradeEntryUITests.swift` (same test directory) | Bundle fixed script; synthetic DOM states for refusal cases; isolated loopback substitution for UI/Keychain/password checks |
 
 ### SchoolPortalLoginSettings — Consumers

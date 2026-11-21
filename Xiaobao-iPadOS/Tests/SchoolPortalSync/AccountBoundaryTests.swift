@@ -4,6 +4,42 @@ import XCTest
 
 /// Hosted only in the isolated, opt-in fixture bundle (including its own Keychain and WebKit store).
 @MainActor final class AccountBoundaryTests: XCTestCase {
+    func testUnansweredSubmissionTimesOutOnceAndAFramedLoginNeverClaims() async throws {
+        let root = SchoolPortalPage.origin
+        guard root.scheme == "http", root.host == "127.0.0.1" else { return XCTFail("Requires the isolated fixture") }
+        let url = root.appendingPathComponent("Account/Login")
+        let web = WKWebView(frame: CGRect(x: 0, y: 0, width: 700, height: 600))
+        web.load(URLRequest(url: url))
+        let deadline = ContinuousClock.now.advanced(by: .seconds(8))
+        while (web.url != url || web.isLoading), ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        guard web.url == url, !web.isLoading else { return XCTFail("Fixture did not load") }
+        // The local click only changes the UI; no credentials leave this test page.
+        _ = try await web.evaluateJavaScript("""
+          document.body.innerHTML='<input placeholder="请输入用户名"><input type="password" placeholder="请输入密码"><button>登录</button>';
+          window.fixtureClicks=0; document.querySelector('button').onclick=function(){window.fixtureClicks++;this.disabled=true;}; true;
+          """)
+        let entry = SchoolPortalPasswordEntry()
+        var claims = 0
+        func attempt() async throws {
+            try await entry.run(web, allowed: { true }) {
+                claims += 1; return .init(name: UUID().uuidString, password: UUID().uuidString)
+            }
+        }
+        do { try await attempt(); XCTFail("An unresolved form is not a verified login") }
+        catch let reason as SchoolPortalIssue { XCTAssertEqual(reason, .signInTimeout) }
+        let clicks = try await web.evaluateJavaScript("window.fixtureClicks")
+        XCTAssertEqual(clicks as? Int, 1); XCTAssertEqual(claims, 1)
+        _ = try await web.evaluateJavaScript("""
+          document.querySelector('button').disabled=false;
+          document.body.appendChild(document.createElement('iframe')); true;
+          """)
+        do { try await attempt(); XCTFail("A frame on the login form is not a normal Home subframe") }
+        catch let reason as SchoolPortalIssue { XCTAssertEqual(reason, .interaction) }
+        XCTAssertEqual(claims, 1)
+    }
+
     func testServiceActionsLeaveSchoolSessionIntactAndNeverFallBackAfterExpiry() async throws {
         let model = AppModel()
         let marker = UUID().uuidString

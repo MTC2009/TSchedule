@@ -18,13 +18,24 @@ async (operation, loginName, password) => {
     if (!official()) return "blocked";
     const shown = el => el.isConnected && el.getClientRects().length > 0 &&
         getComputedStyle(el).visibility === "visible";
+    const pending = document.readyState === "loading" || !document.body;
+    if (pending) return "waiting";
+    const notice = () => {
+        const text = document.body.innerText;
+        if (document.querySelector('iframe,frame,input[autocomplete="one-time-code"],[data-sitekey]') ||
+            /验证码|驗證碼|人机验证|安全验证|短信验证|滑块|captcha|one.time.code|verification code/i.test(text)) return "blocked";
+        if (/密码错误|密码有误|密码不正确|用户名不存在|登录失败|账号已锁定|incorrect password|password is incorrect|login failed/i.test(text)) return "rejected";
+        const dialogs = [...document.querySelectorAll('[role="dialog"],[aria-modal="true"]')].filter(shown);
+        if (dialogs.some(d => operation !== "observe" ||
+            !(d.getAttribute("aria-busy") === "true" || /^(?:正在(?:登录|加载)|loading)[.…。\s]*$/i.test(d.innerText.trim())))) return "blocked";
+        return null;
+    };
+    // After the click, never look for writable controls again. A disabled or replaced
+    // submit button is normal while the school's own handler waits for its response.
+    if (operation === "observe") return notice() ?? "waiting";
     function controls() {
         if (!official()) return "blocked";
-        if (document.readyState === "loading" || !document.body) return "waiting";
-        if (document.querySelector('iframe,frame,input[autocomplete="one-time-code"],[data-sitekey]') ||
-            [...document.querySelectorAll('[role="dialog"],[aria-modal="true"]')].some(shown) ||
-            /验证码|驗證碼|人机验证|安全验证|短信验证|滑块|captcha|one.time.code|verification code|密码错误|密码有误|登录失败|账号已锁定/i.test(document.body.innerText))
-            return "blocked";
+        if (notice()) return "blocked";
         const fields = [...document.querySelectorAll('input:not([type="hidden"]),textarea,select')].filter(shown);
         if (!fields.length) return "waiting";
         const names = fields.filter(e => e.type === "text" && e.placeholder === "请输入用户名");

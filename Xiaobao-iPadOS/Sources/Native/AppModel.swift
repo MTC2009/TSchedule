@@ -263,7 +263,7 @@ final class AppModel {
         lessonActivity.stop()
         stopLaunchLogin()
         setGradePageActive(false)
-        let needsSignIn = school.owner == nil && [.login, .expired, .interaction, .changed].contains(school.identityIssue)
+        let signInIssue = school.owner == nil ? school.identityIssue : nil
         if school.selected {
             // An account can also be changed *inside* the website. Do not show a prior
             // student's native detail between closing the sheet and verifying its owner.
@@ -272,8 +272,8 @@ final class AppModel {
         }
         selectSource(.school)
         portal.manualSheet = true
-        if needsSignIn {
-            portal.openSignIn(); portalSection = section
+        if let signInIssue, !signInIssue.permitsIdentityRecheck {
+            portal.openSignIn(after: signInIssue); portalSection = section
         } else { portalSection = portal.open(section) ? nil : section }
         portalPresented = true
     }

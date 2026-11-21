@@ -10,6 +10,7 @@ import threading
 
 class Handler(BaseHTTPRequestHandler):
     # Every value is a loopback-only fixture. Expiry is server-side; retaining an old cookie is not enough.
+    home_body = b"<html><body>Fixture</body></html>"
     generation = 1
     allow_device = True
     homes = 0
@@ -48,7 +49,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Set-Cookie", f"fixture_session={self.generation}; Path=/; HttpOnly; SameSite=Strict")
             if cls.homes == 1:
                 self.send_header("Set-Cookie", "fixture_device=local; Path=/; HttpOnly; SameSite=Strict")
-            self.end_headers(); self.wfile.write(b"<html><body>Fixture</body></html>"); return
+            self.end_headers(); self.wfile.write(self.home_body); return
         if route == "/Account/Login":
             type(self).login_pages += 1
             self.send_response(200); self.send_header("Content-Type", "text/html"); self.end_headers()

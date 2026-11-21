@@ -55,6 +55,22 @@ import XCTest
         XCTAssertEqual(f.reads, [.identity,.grades,.grades,.identity,.grades]); XCTAssertFalse(s.isRecoveringSession)
     }
 
+    func testManualHandoffKeepsTheOfficialDocumentWithoutTreatingItAsAuthentication() {
+        let entry = SchoolPortalPage.origin, home = entry.appendingPathComponent("Home")
+        let outside = URL(string: "https://elsewhere.invalid/account")
+        for reason in [SchoolPortalIssue.interaction, .signInTimeout, .signInRejected] {
+            XCTAssertFalse(reason.permitsIdentityRecheck)
+            XCTAssertTrue(SchoolPortalPage.canContinueManually(at: entry, after: reason))
+            XCTAssertTrue(SchoolPortalPage.canContinueManually(at: home, after: reason))
+            XCTAssertFalse(SchoolPortalPage.canContinueManually(at: outside, after: reason))
+            XCTAssertFalse(SchoolPortalPage.canContinueManually(at: nil, after: reason))
+        }
+        XCTAssertNotEqual(SchoolPortalIssue.signInTimeout.message, SchoolPortalIssue.interaction.message)
+        XCTAssertTrue(SchoolPortalPage.canContinueManually(at: entry, after: .login))
+        XCTAssertFalse(SchoolPortalPage.canContinueManually(at: home, after: .expired))
+        XCTAssertFalse(SchoolPortalPage.canContinueManually(at: home, after: .changed))
+    }
+
     func testExpiredIdentityWaitsForVisitEvenAfterBackgroundOrDocumentLoad() async {
         for navigate in [false, true] {
             let f = Fixture(), s = f.store

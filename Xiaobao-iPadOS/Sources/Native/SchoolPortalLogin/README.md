@@ -11,7 +11,7 @@ Optional, device-only sign-in for **one already verified student**. It is distin
 | `SchoolPortalLoginSettings.swift`, `SchoolPortalLoginSettings()` | Verified student, explicit opt-in and native secure input → enable or remove the current binding | `../CampusView.swift` |
 | `SchoolPortalLoginVault.swift`, `enable / setRestoresOnLaunch / claim / confirm / disable` | Verified owner and official login name → one Keychain item; claim allowed only for the same owner. Only metadata is read for normal screens. | Settings, `../AppModel.swift` and its logout/lifecycle hooks |
 | `SchoolPortalPasswordEntry.swift`, `run(_:allowed:claim:)` | Original WebKit view, foreground guard, scoped credential callback → lands on official Home or returns a typed failure | `../SchoolPortal.swift` for one eligible foreground action |
-| `PortalLogin.js` | Fixed isolated-world operations: inspect normal controls, submit once, clear only the inputs this operation populated → status string only | `SchoolPortalPasswordEntry`; Xcode bundles it as a signed resource |
+| `PortalLogin.js` | Inspect ordinary controls, submit once, then observe the result without touching controls; clear only the fields this transaction populated → status string only | `SchoolPortalPasswordEntry`; Xcode bundles it as a signed resource |
 
 **Protection:** the Keychain service is separate from the demo service. Its item is non-synchronizable and uses [WhenPasscodeSetThisDeviceOnly](https://developer.apple.com/documentation/security/ksecattraccessiblewhenpasscodesetthisdeviceonly). It does not fall back to a weaker protection class. Preferences contain only a random registration ID and an erase-pending flag. Before releasing a password, the vault durably pauses the entry. A matching independent identity check re-arms startup recovery; recovery on a GPA visit also checks for fresh grades. If the app is interrupted, the password is rejected, or the outcome is ambiguous after submission, the student may need to sign in normally and re-enroll. Opt-out, explicit logout in the app, and a confirmed account change revoke the binding. An expired web session alone does not. Deletion targets only this item's service and account; if protected storage was unavailable, cleanup is retried after unlock. No credential or academic record is logged.
 
@@ -20,6 +20,11 @@ Optional, device-only sign-in for **one already verified student**. It is distin
 **Tests:** [integration and on-device steps](../../../Tests/SchoolPortalSync/README.md). Node checks preflight and zero submissions to unrecognized pages. Swift tests fence identities, account changes, failures and explicit visits. The isolated iPad UI test exercises a real simulator Keychain and a synthetic school's actual password check without any live credential.
 
 ## Change History
+
+### 2026-11-21 — login-result-handoff
+Model: Codex · Keywords: busy-form / committed-home / manual-handoff
+Changed: Separate preflight from read-only observation after one click. A committed, official Home document may load ordinary same-origin or blank subframes; login-page frames, popups and off-origin redirects still stop automation. The store verifies the same student independently.
+Reason: A busy button or a Home subframe is not a request for the student to sign in again. The 16-second deadline and an explicit rejection now have distinct outcomes. Interfaces: internal script operation `observe`, `signInTimeout` and `signInRejected`; binding storage and enrollment unchanged.
 
 ### 2026-11-21 — foreground-restore
 Model: Codex · Keywords: foreground-restore / keychain-consent

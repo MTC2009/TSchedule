@@ -45,3 +45,16 @@ test('recheck the controls during handoff; never click through disabled UI or a 
     const disabled=page();disabled.button.disabled=true;
     assert.equal(await disabled.run('submit','fixture','synthetic'),'blocked');assert.deepEqual(disabled.counts(),[0,0]);
 });
+test('after one submission a busy form is only observed, while refusal and challenges stay distinct',async()=>{
+    const p=page();
+    assert.equal(await p.run('submit','fixture','synthetic'),'submitted');
+    p.button.disabled=true; p.button.innerText='正在登录';
+    assert.equal(await p.run('observe'),'waiting');
+    p.document.body.innerText='您输入的密码有误，请重新输入！';
+    assert.equal(await p.run('observe'),'rejected');
+    p.document.body.innerText=''; p.spec.challenge=true;
+    assert.equal(await p.run('observe'),'blocked');
+    p.location.hostname='outside.invalid'; p.spec.challenge=false;
+    assert.equal(await p.run('observe'),'blocked');
+    assert.deepEqual(p.counts(),[1,1]);
+});

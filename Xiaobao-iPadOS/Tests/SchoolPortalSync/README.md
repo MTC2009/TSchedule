@@ -5,7 +5,7 @@ Developer-only, not in the app bundle. Inputs are locally authored synthetic fix
 - `node --test Tests/SchoolPortalSync/*.test.cjs` exercises the two shipped reader/projection scripts with a fixed mock transport and the separate sign-in script with synthetic form controls. It covers release flags, session changes, paging, enrollment identity, and refusal of unknown login screens and challenges.
 - On macOS, `python3 Tests/SchoolPortalSync/webkit-smoke.py` runs the shipping store, `SchoolPortalEntry` and reader in Apple WebKit, without a visible window. The loopback server rejects the old HttpOnly session, changes the synthetic grade, then either honors a separate synthetic device authorization or redirects to a login page. It verifies entry/grade counts and no credential POSTs. Only the test copy uses the loopback origin.
 - `python3 -B Tests/SchoolPortalSync/ipad-smoke.py <QA-simulator-UUID>` builds a throwaway fixture app and performs actual GPA sidebar taps using XCUITest. Requires Xcode and the Ruby `xcodeproj` gem. Only the disposable build has a loopback-only host substitution; it has a separate bundle ID. The shipping project, installed student app, credential store and school site are not used.
-- `--delegated`: enroll a randomly generated local password, invalidate the fixture session, terminate and relaunch on Today. Verify exactly one startup submission, the same student and **no grade read** until GPA is opened. Wrong input stays paused.
+- `--delegated`: enroll a randomly generated local password, invalidate the fixture session, terminate and relaunch on Today. The sign-in button goes busy before navigation and Home loads a local subframe. Verify one startup submission, the same student and **no grade read** until GPA opens. Wrong input stays paused; opening the school page preserves its inline refusal.
 - `--native-reads`: verify explicit GPA refresh versus cached return, and the attendance summary, course detail and failure/retry.
 - `--settings`: test the default product with legacy source preferences; school-only settings, no sample reminder controls, native activity preview and narrow/large text.
 - `--account-boundary`: a separate, Debug-only fixture host enables `TSCHEDULE_INTERNAL_FIXTURES`. It exercises real simulator Keychain/WebKit, successful test-service logout, HTTP 401 and cold-restart cancellation. The standard Debug and Release schemes do not enable this flag.
@@ -16,6 +16,11 @@ Developer-only, not in the app bundle. Inputs are locally authored synthetic fix
 **Distinguish the three paths on a personal iPad:** after the first normal sign-in, leave the school's session intact until it expires naturally. In a local debug run, use auto-continuing breakpoints at `PortalSession.reopenForGrades()` and `SchoolPortalLoginVault.claim(for:)` without inspecting variables. A fresh result without either marker used an existing session. A Home recovery without a claim used existing school authorization; it did not submit a password. A claim identifies a new password attempt, not success: only a fresh result after the same-student check counts. No screenshots, accounts, score values or network captures are needed.
 
 ## Change History
+
+### 2026-11-21 — login-result-handoff
+Model: Codex · Keywords: busy-form / first-party-frame / rejected-handoff
+Changed: The loopback iPad UI flow checks a slow submit handler, ordinary framed Home and the original refusal after manual handoff. The hosted account-boundary test also checks an unanswered click times out exactly once and a frame on the login form cannot claim a credential.
+Reason: The previous synchronous fixture did not exercise these WebKit transitions. Interfaces: existing `--delegated` and `--account-boundary` tests only, with generated data.
 
 ### 2026-11-21 — cold-launch
 Model: Codex · Keywords: cold-launch / shipping-ui / navigation-retry

@@ -9,6 +9,7 @@ import Foundation
     private weak var view: WKWebView?
     private var stopped: Error?
     private var documents = 0
+    private var committedHome = false
     private var reply: (UUID, CheckedContinuation<String, Error>)?
     private let script: String?
     init(bundle: Bundle = .main) {
@@ -18,9 +19,10 @@ import Foundation
     }
 
     func cancel() { stop(CancellationError()) }
-    private func stop(_ error: Error) {
+    private func stop(_ error: Error, stopLoading: Bool = true) {
         guard ticket != nil, stopped == nil else { return }
-        stopped = error; view?.stopLoading()
+        stopped = error
+        if stopLoading { view?.stopLoading() }
         let current = reply; reply = nil; current?.1.resume(throwing: error)
     }
 
@@ -32,12 +34,14 @@ import Foundation
         let initial = SchoolPortalPage.issue(at:url, foreground:true, loading:false)
         guard initial == nil || initial == .login else { throw SchoolPortalIssue.interaction }
         let id = UUID(), navigation = web.navigationDelegate, ui = web.uiDelegate
-        ticket = id; stopped = nil; documents = 0; view = web
+        ticket = id; stopped = nil; documents = 0; committedHome = false; view = web
         web.navigationDelegate = self; web.uiDelegate = self
         var attempted = false
         let timeout = Task { [weak self] in
             do { try await Task.sleep(for: .seconds(16)) } catch { return }
-            if self?.ticket == id { self?.stop(SchoolPortalIssue.interaction) }
+            // End automation, not the student's in-flight page. A late result belongs
+            // to the manual handoff and must not cause another submission.
+            if self?.ticket == id { self?.stop(SchoolPortalIssue.signInTimeout, stopLoading: false) }
         }
         defer {
             timeout.cancel()
@@ -68,13 +72,24 @@ import Foundation
             while true {
                 try check()
                 if !web.isLoading {
-                    let here = SchoolPortalPage.issue(at:web.url, foreground:true, loading:false)
+                    let documentURL = web.url, finished = documents
+                    let here = SchoolPortalPage.issue(at:documentURL, foreground:true, loading:false)
                     if here == nil { return } // The store must independently verify the bound student.
                     guard here == .login else { throw SchoolPortalIssue.interaction }
-                    let shape = try await evaluate(web, script, "probe")
+                    let shape: String
+                    do { shape = try await evaluate(web, script, attempted ? "observe" : "probe") }
+                    catch SchoolPortalIssue.notReady where attempted {
+                        // A redirect may replace the document before the read-only observation replies.
+                        try check(); try await Task.sleep(for: .milliseconds(220)); continue
+                    }
                     try check()
-                    if shape == "blocked" { throw SchoolPortalIssue.interaction }
-                    if shape == "ready", !attempted {
+                    // The response belongs to the old login document if the redirect
+                    // crossed this await. Classify the new top-level page instead.
+                    if web.isLoading || documents != finished || web.url != documentURL { continue }
+                    switch shape {
+                    case "waiting": break
+                    case "rejected" where attempted: throw SchoolPortalIssue.signInRejected
+                    case "ready" where !attempted:
                         let secret = try claim()
                         try check()
                         attempted = true
@@ -85,6 +100,7 @@ import Foundation
                             // Navigation can destroy the JS context during the click. Only
                             // observe its outcome; never use the password a second time.
                         }
+                    default: throw SchoolPortalIssue.interaction
                     }
                 }
                 try await Task.sleep(for:.milliseconds(attempted ? 220 : 120))
@@ -109,10 +125,26 @@ import Foundation
         }
     }
 
+    /// The school's Home may load ordinary embedded content. Only a committed main
+    /// Home document can load it, and no frame ever receives a credential or establishes identity.
+    private func allowsHomeFrame(_ url: URL, in web: WKWebView) -> Bool {
+        committedHome && SchoolPortalPage.issue(at: web.url, foreground: true, loading: false) == nil &&
+            (url.absoluteString == "about:blank" || SchoolPortalPage.isOfficial(url))
+    }
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { committedHome = false }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        committedHome = SchoolPortalPage.issue(at: webView.url, foreground: true, loading: false) == nil
+    }
+
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard stopped == nil, action.targetFrame?.isMainFrame == true, let url = action.request.url,
-              SchoolPortalPage.isOfficial(url), ["GET","HEAD"].contains(action.request.httpMethod ?? "GET") else {
+        guard stopped == nil, let target = action.targetFrame, let url = action.request.url,
+              ["GET","HEAD"].contains(action.request.httpMethod ?? "GET") else {
+            decisionHandler(.cancel); stop(SchoolPortalIssue.interaction); return
+        }
+        if !target.isMainFrame, allowsHomeFrame(url, in: webView) { decisionHandler(.allow); return }
+        guard target.isMainFrame, SchoolPortalPage.isOfficial(url) else {
             decisionHandler(.cancel); stop(SchoolPortalIssue.interaction); return
         }
         let issue = SchoolPortalPage.issue(at:url, foreground:true, loading:false)
@@ -123,7 +155,11 @@ import Foundation
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         // Also fence server redirects, which need not create a new navigation-action callback.
-        guard response.isForMainFrame, let url = response.response.url, SchoolPortalPage.isOfficial(url),
+        if stopped == nil, !response.isForMainFrame, let url = response.response.url, allowsHomeFrame(url, in: webView),
+           url.absoluteString == "about:blank" || (response.response as? HTTPURLResponse).map({ (200..<400).contains($0.statusCode) }) == true {
+            decisionHandler(.allow); return
+        }
+        guard stopped == nil, response.isForMainFrame, let url = response.response.url, SchoolPortalPage.isOfficial(url),
               let http = response.response as? HTTPURLResponse else {
             decisionHandler(.cancel); stop(SchoolPortalIssue.interaction); return
         }

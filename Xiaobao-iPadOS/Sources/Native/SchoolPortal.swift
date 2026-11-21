@@ -79,7 +79,9 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     }
 
     /// User chose the visible sign-in screen after an interaction-required result.
-    func openSignIn() {
+    func openSignIn(after issue: SchoolPortalIssue) {
+        // Reloading the entry would discard the school's inline error or a just-completed login.
+        if errorMessage == nil, SchoolPortalPage.canContinueManually(at: webView.url, after: issue) { return }
         errorMessage = nil
         expectNavigation(webView.load(URLRequest(url: Self.url, cachePolicy: .reloadIgnoringLocalCacheData)))
     }

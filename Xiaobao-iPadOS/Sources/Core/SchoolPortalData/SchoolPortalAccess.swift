@@ -1,16 +1,23 @@
 import Foundation
 
 enum SchoolPortalIssue: String, Error {
-    case notReady, login, expired, interaction, changed, denied, format, network, term, unavailable
+    case notReady, login, expired, interaction, signInTimeout, signInRejected, changed, denied, format, network, term, unavailable
 
     /// Such a failure cannot authenticate anyone or prove the last student signed out.
-    var permitsIdentityRecheck: Bool { self != .login && self != .expired && self != .changed && self != .interaction }
+    var permitsIdentityRecheck: Bool {
+        switch self {
+        case .login, .expired, .interaction, .changed, .signInTimeout, .signInRejected: false
+        default: true
+        }
+    }
 
     var message: String {
         switch self {
         case .notReady: "正在等待校宝页面就绪。"
         case .login: "请在校宝中完成登录后再查看。"
-        case .interaction: "校宝需要本人确认登录，本次不会再代为提交。"
+        case .interaction: "请打开校宝，在当前网页上完成登录。"
+        case .signInTimeout: "等待校宝登录结果超时。请打开校宝查看进度，不会自动重试。"
+        case .signInRejected: "校宝未接受这次登录。请打开校宝查看提示。"
         case .expired: "此前的校宝登录已失效。"
         case .changed: "当前校宝账号已改变，请确认账号后再查看。"
         case .denied: "校宝未向当前账号开放这项资料。"
@@ -29,6 +36,16 @@ enum SchoolPortalPage {
     static func isOfficial(_ url: URL) -> Bool {
         url.scheme == "https" && url.host?.lowercased() == origin.host && url.user == nil &&
             url.password == nil && (url.port == nil || url.port == 443)
+    }
+
+    /// A handoff displays the existing first-party page; it does not authorize a read or a submission.
+    static func canContinueManually(at url: URL?, after reason: SchoolPortalIssue) -> Bool {
+        guard let url, isOfficial(url) else { return false }
+        switch reason {
+        case .interaction, .signInTimeout, .signInRejected: return true
+        case .login, .expired: return issue(at: url, foreground: true, loading: false) == .login
+        default: return false
+        }
     }
 
     static func issue(at url: URL?, foreground: Bool, loading: Bool) -> SchoolPortalIssue? {

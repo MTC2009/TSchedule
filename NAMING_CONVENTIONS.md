@@ -2,6 +2,7 @@
 
 - For school reads, `notReady` means a document is not ready for a read, `expired` means the service explicitly rejected a previously verified session, and `login` means student interaction is needed (including first login). `denied` means the requested information is not accessible; it is not an instruction to authenticate.
 - **Foreground school sign-in** is a new authentication using a student's opt-in local **binding**. It is distinct from ordinary session recovery. `interaction` stops automatic sign-in (a challenge or unfamiliar flow); a **paused** binding cannot release another password before successful verified completion or deliberate re-enrollment.
+- `signInTimeout` means no sign-in outcome arrived by the local deadline. `signInRejected` is an explicit refusal on the school page, not an inference from a disabled button. Neither authorizes another submission.
 
 - **School portal** (`SchoolPortal`) is the official student website session. **CampusConnection** remains the optional demo HTTP service; neither shares tokens or caches with the other. A portal **week** is actual dated records, not a rotation template. A portal **epoch** invalidates all in-flight reads after a session transition.
 

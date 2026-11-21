@@ -14,6 +14,8 @@ struct CampusConnectionSettings: View {
         case .login: return "未登录"
         case .expired: return "登录已过期"
         case .changed, .interaction: return "需本人确认"
+        case .signInTimeout: return "登录结果超时"
+        case .signInRejected: return "登录未成功"
         case .notReady, nil: return "正在等待页面"
         case .network: return "暂时无法连接"
         default: return "暂时无法读取资料"
@@ -25,6 +27,7 @@ struct CampusConnectionSettings: View {
         if !model.school.selected || model.school.identityIssue == .login { title = "登录校宝" }
         else if model.school.identityIssue == .expired { title = "重新登录校宝" }
         else if [.changed, .interaction].contains(model.school.identityIssue) { title = "前往校宝确认账号" }
+        else if [.signInTimeout, .signInRejected].contains(model.school.identityIssue) { title = "查看校宝登录页" }
         else { title = "打开校宝网页" }
         return Button(title, systemImage: "safari") { model.openPortal() }
             .accessibilityIdentifier("settings-school-portal")

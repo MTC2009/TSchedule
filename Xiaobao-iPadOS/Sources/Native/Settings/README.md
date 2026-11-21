@@ -17,6 +17,11 @@ The existing Settings sidebar route opens one native grouped form. No extra side
 
 ## Change History
 
+### 2026-11-21 — login-result-handoff
+Model: Codex · Keywords: school-account-status / manual-handoff
+Changed: Personal Info shows a sign-in timeout separately from a school rejection and from required interaction. The existing school-page action can show the original school response.
+Reason: A delayed response is not a password error. Interfaces: existing account row and action; no new setting or stored preference.
+
 ### 2026-11-21 — shipping-account
 Model: Codex · Keywords: shipping-account / current-lesson-preview
 Changed: Remove fixture account and reminder controls from standard builds; preview only the verified loaded lesson or a neutral empty state. Document foreground device sign-in consent.

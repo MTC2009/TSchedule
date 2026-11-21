@@ -140,6 +140,11 @@ import XCTest
         tap("设置"); try await control("test-input",UUID().uuidString); try await control("revoke-device")
         tap("GPA"); app.buttons["gpa-check-grades"].tap()
         XCTAssertTrue(app.buttons["打开校宝登录"].waitForExistence(timeout:25)); XCTAssertFalse(readout.exists)
+        XCTAssertTrue(app.staticTexts["校宝未接受这次登录。请打开校宝查看提示。"].exists)
+        app.buttons["打开校宝登录"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["密码错误"].firstMatch.waitForExistence(timeout:8),
+                      "Manual handoff should preserve the school's inline error, not reload its entry")
+        app.buttons["完成"].tap()
         tap("设置"); tap("GPA"); XCTAssertFalse(app.webViews.firstMatch.exists)
         tap("设置"); openPersonalInfo(); expectStatus("已暂停"); setup.tap()
         XCTAssertTrue(remove.waitForExistence(timeout:8)); remove.tap()

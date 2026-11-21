@@ -58,6 +58,9 @@ class UIHandler(Handler):
             return self.respond(None, 401)
         if self.path == "/":
             self.send_response(302); self.send_header("Location", "/Home"); self.end_headers()
+        elif self.delegated and self.path == "/fixture/home-note":
+            self.send_response(200); self.send_header("Content-Type","text/html"); self.end_headers()
+            self.wfile.write(b"<p>Footer</p>")
         elif self.delegated and self.path == "/Account/Login":
             type(self).login_pages += 1
             self.send_response(200); self.send_header("Content-Type","text/html; charset=utf-8")
@@ -66,9 +69,11 @@ class UIHandler(Handler):
             page = """<!doctype html><meta charset=utf-8><title>Fixture</title>
 <input type=text placeholder="请输入用户名"><input type=password placeholder="请输入密码"><button>登录</button><p></p>
 <script>document.querySelector('button').onclick=async()=>{
+const button=document.querySelector('button');button.disabled=true;button.textContent='正在登录';
 const [n,p]=document.querySelectorAll('input');
 const r=await fetch('/fixture/session',{method:'POST',body:JSON.stringify([n.value,p.value])});
-if(r.ok){location.replace('/Home')}else{document.querySelector('p').textContent='密码错误'}
+await new Promise(resolve=>setTimeout(resolve,850));
+if(r.ok){location.replace('/Home')}else{button.disabled=false;button.textContent='登录';document.querySelector('p').textContent='密码错误'}
 }</script>"""
             self.wfile.write(page.encode())
         elif self.path == "/api/MemberShip/GetCurrentStudentInfo" and self.current_session():
@@ -282,6 +287,8 @@ if __name__ == "__main__":
     UIHandler.navigation = args.navigation
     UIHandler.account_boundary = args.account_boundary
     UIHandler.delegated = args.delegated
+    if args.delegated:
+        UIHandler.home_body = b'<html><body>Fixture<iframe hidden src="/fixture/home-note"></iframe></body></html>'
     UIHandler.native_reads = args.native_reads
     UIHandler.lesson_activity = args.lesson_activity
     if args.navigation or args.account_boundary or args.settings or args.native_reads or args.lesson_activity: UIHandler.release_home.set()
@@ -296,7 +303,7 @@ if __name__ == "__main__":
             assert UIHandler.archive_reads >= 1 and not UIHandler.unexpected_posts
             print("PASS: overview prefetch, task/GPA term switch, preserved cache, stalled identity and retry")
         elif args.account_boundary:
-            print("PASS: persistent school login and Keychain survive test-service logout; rejected service and cold restart cancel timetable alerts")
+            print("PASS: account isolation and reminder cleanup; one unanswered sign-in timed out, and a framed login did not claim a password")
         elif args.lesson_activity:
             assert UIHandler.activity_started.is_set() and UIHandler.login_pages == 0
             assert not UIHandler.grade_generations and not UIHandler.submissions and not UIHandler.unexpected_posts
@@ -312,7 +319,7 @@ if __name__ == "__main__":
             print("PASS: shipping school-only settings, legacy-source upgrade, native disclosure and large-text portrait; no grade reads or sign-in submissions")
         elif args.delegated:
             assert (UIHandler.login_pages, UIHandler.grade_generations, UIHandler.submissions, UIHandler.unexpected_posts) == (3,[1,2,3],[True,True,False],0)
-            print("PASS: iPad opt-in, real simulator Keychain, cold launch restored login before any grade read, fresh GPA, rejection with no repeat")
+            print("PASS: one foreground submission through busy form and framed Home, verified cold launch without grades, preserved refusal and no repeat")
         else:
             assert (UIHandler.homes, UIHandler.login_pages, UIHandler.grade_generations, UIHandler.unexpected_posts) == (3, 1, [1, 2], 0)
             print("PASS: actual iPad GPA taps displayed a fresh mark without a web sheet, then stopped on forced reauthentication")

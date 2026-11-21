@@ -106,6 +106,11 @@ swift test
 
 ## Change History
 
+### 2026-11-21 — 代登录结果与网页接续
+Model: Codex · Keywords: login-result-handoff / foreground-restore
+Changed: 登录提交一次后等待校宝处理，返回首页还要核对本人身份；拒绝、超时和需要手动处理分别提示。打开校宝时优先保留本次登录的原页面。
+Reason: 短暂不可点的按钮或首页的普通嵌入内容不代表需要重新登录。Affected interfaces: 本机登录结果与原网页入口；不改变钥匙串、学校接口、后端或数据库。
+
 ### 2026-11-21 — 账号隔离、前台登录与学期选择
 Model: Codex · Keywords: 账号隔离、前台登录与学期选择
 Changed: 普通 Debug 和 Release 只访问校宝。内部服务退出不再操作校宝会话，失效后不切回本机课表。增加有明确授权的冷启动恢复、共享学期选择与列表预取。

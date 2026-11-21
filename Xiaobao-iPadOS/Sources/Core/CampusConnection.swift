@@ -167,12 +167,22 @@ func campusTransport() -> CampusSend {
         return try JSONDecoder().decode(CampusEnvelope<CampusList<CampusWork>>.self, from: body).data
     }
 
+    private var canReadCachedTimetable: Bool {
+        guard let account, (account.refreshExpires ?? account.expires) > now() else { return false }
+        if let manifest = offline.manifest, manifest.parts[CampusModule.timetable.rawValue] == nil { return false }
+        return true
+    }
+
+    /// Rotation rules must not borrow another source's calendar or the legacy weekday fallback.
+    var cachedSchoolCalendar: PublishedSchoolCalendar? {
+        guard canReadCachedTimetable, case .timetable(let timetable) = offline.data[.timetable] else { return nil }
+        return timetable.schoolCalendar
+    }
+
     /// Read the active account's visible dates without requesting seven pages.
     /// A directly received day can carry overrides not present in its template.
     func cachedSchedule(on date: Date) -> CampusSchedule? {
-        guard let account, (account.refreshExpires ?? account.expires) > now(),
-              SchoolClock.dayDate(SchoolClock.key(date)) != nil else { return nil }
-        if let manifest = offline.manifest, manifest.parts[CampusModule.timetable.rawValue] == nil { return nil }
+        guard canReadCachedTimetable, SchoolClock.dayDate(SchoolClock.key(date)) != nil else { return nil }
         let key = CampusPage.schedule(SchoolClock.key(date))
         let snapshot = pages[key]
         if let snapshot, snapshot.cache.tag?.hasPrefix("offline:") != true,

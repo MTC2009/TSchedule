@@ -3,6 +3,7 @@ import SwiftUI
 /// Owned by the page, not by its sheet. Leaving to use the timetable does
 /// not commit or discard other unsaved edits.
 struct PlanEditorDraft {
+    enum RepeatMode { case none, weekday, rotationDay }
     var title: String
     var timed: Bool
     var starts: Date
@@ -11,11 +12,12 @@ struct PlanEditorDraft {
     var color: PlanColor?
     var icon: PlanIcon?
     var reusable: Bool
-    var repeatsWeekly: Bool
+    var repeatMode: RepeatMode
     var weekday: Int
+    var rotationDay: Int?
     var reminder: PlanReminder?
 
-    init(plan: PersonalPlan?, bubble: PlanBubble? = nil, on date: Date, now: Date) {
+    init(plan: PersonalPlan?, bubble: PlanBubble? = nil, on date: Date, now: Date, teachingDay: Int?) {
         title = plan?.title ?? ""
         timed = plan?.time != nil
         let start = plan?.time?.startMinute ?? SchoolClock.minute(in: now)
@@ -25,8 +27,13 @@ struct PlanEditorDraft {
         color = plan?.color
         icon = plan?.icon
         reusable = bubble?.reusable ?? false
-        repeatsWeekly = bubble?.latest?.week != nil
-        weekday = bubble?.latest?.week?.weekday ?? SchoolClock.calendar.component(.weekday, from: date)
+        weekday = SchoolClock.calendar.component(.weekday, from: date)
+        rotationDay = teachingDay.flatMap { PlanRecurrence.rotationDays.contains($0) ? $0 : nil }
+        switch bubble?.latest?.rule?.recurrence {
+        case .weekday(let value): repeatMode = .weekday; weekday = value
+        case .rotationDay(let value): repeatMode = .rotationDay; rotationDay = value
+        case nil: repeatMode = .none
+        }
         reminder = plan?.reminder
     }
 
@@ -37,7 +44,18 @@ struct PlanEditorDraft {
                         endMinute: hasEnd ? (end == 0 ? 1440 : end) : nil)
     }
 
-    var allowsSave: Bool { (!timed && !repeatsWeekly) || time != nil }
+    var recurrence: PlanRecurrence? {
+        switch repeatMode {
+        case .none: nil
+        case .weekday: .weekday(weekday)
+        case .rotationDay: rotationDay.map(PlanRecurrence.rotationDay)
+        }
+    }
+
+    var allowsSave: Bool {
+        if repeatMode == .none { return !timed || time != nil }
+        return time != nil && recurrence?.isValid == true
+    }
 
     mutating func use(_ range: PlanTime, on date: Date) {
         starts = range.start(on: date)
@@ -60,8 +78,9 @@ struct PlanEditorView: View {
     let date: Date
     let planID: UUID
     let target: PlanEditTarget
-    let weeklyStarts: Date
-    let hadWeeklyRule: Bool
+    let effectiveDate: Date
+    let hadRepeatRule: Bool
+    let calendar: PublishedSchoolCalendar?
     @Binding var draft: PlanEditorDraft
     let conflicts: (PlanTime) -> [PlannerSchoolEntry]
     let chooseRange: () -> Void
@@ -182,21 +201,42 @@ struct PlanEditorView: View {
         Section {
             Toggle("留作常用气泡", isOn: $draft.reusable)
                 .accessibilityIdentifier("plan-reusable")
-            Toggle("每周重复", isOn: $draft.repeatsWeekly)
-                .accessibilityIdentifier("plan-weekly")
-            if draft.repeatsWeekly {
+            Picker("重复", selection: $draft.repeatMode) {
+                Text("不重复").tag(PlanEditorDraft.RepeatMode.none)
+                Text("按星期").tag(PlanEditorDraft.RepeatMode.weekday)
+                Text("按轮转 Day").tag(PlanEditorDraft.RepeatMode.rotationDay)
+            }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("plan-repeat-mode")
+            if draft.repeatMode == .weekday {
                 Picker("重复星期", selection: $draft.weekday) {
                     ForEach(["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"].enumerated().map { ($0.offset + 1, $0.element) }, id: \.0) { day in
                         Text(day.1).tag(day.0)
                     }
                 }
                 .accessibilityIdentifier("plan-weekday")
+            } else if draft.repeatMode == .rotationDay {
+                Picker("轮转日", selection: $draft.rotationDay) {
+                    Text("请选择").tag(nil as Int?)
+                    ForEach(PlanRecurrence.rotationDays, id: \.self) { day in
+                        Text(verbatim: "Day \(day)").tag(Optional(day))
+                    }
+                }
+                .accessibilityIdentifier("plan-rotation-day")
             }
         } footer: {
-            if draft.repeatsWeekly && draft.time == nil {
-                Text("先设置时间，再保存每周安排。")
-            } else if draft.repeatsWeekly || hadWeeklyRule {
-                Text("只影响\(schoolDateLabel(weeklyStarts, format: "M月d日"))起的重复安排，不改之前的记录。")
+            if draft.repeatMode != .none && draft.time == nil {
+                Text("请先设置重复计划的开始时间。")
+            } else if draft.repeatMode == .rotationDay && draft.rotationDay == nil {
+                Text("请选择要重复的轮转日。")
+            } else if draft.repeatMode != .none || hadRepeatRule {
+                let first = SchoolClock.key(effectiveDate)
+                if draft.repeatMode == .rotationDay, let day = draft.rotationDay,
+                   calendar?.days.contains(where: { $0.date >= first && $0.teachingDay == day }) != true {
+                    Text("校历暂未确认后续的这个 Day。可以先保存，暂不安排日期或提醒。")
+                } else {
+                    Text("只影响\(schoolDateLabel(effectiveDate, format: "M月d日"))起的重复安排，不改之前的记录。")
+                }
             } else {
                 Text("常用气泡可以反复拖到课表，每次只添加当天的一条计划。")
             }

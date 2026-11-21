@@ -4,6 +4,28 @@ import XCTest
 
 /// Hosted only in the isolated, opt-in fixture bundle (including its own Keychain and WebKit store).
 @MainActor final class AccountBoundaryTests: XCTestCase {
+    func testMaintenanceAtEntryDoesNotRevokePreviouslyScheduledReminders() async throws {
+        let root = SchoolPortalPage.origin
+        guard root.scheme == "http", root.host == "127.0.0.1" else { return XCTFail("Requires loopback") }
+        let previous = UserDefaults.standard.string(forKey: CampusSource.preferenceKey)
+        UserDefaults.standard.set(CampusSource.school.rawValue, forKey: CampusSource.preferenceKey)
+        defer { UserDefaults.standard.set(previous, forKey: CampusSource.preferenceKey) }
+        let model = AppModel()
+        let web = model.portal.webView
+        let url = root.appending(queryItems: [.init(name: "fixture-maintenance", value: "1")])
+        web.load(URLRequest(url: url))
+        let deadline = ContinuousClock.now.advanced(by: .seconds(12))
+        while model.school.identityIssue != .network, ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        XCTAssertEqual(model.school.identityIssue, .network)
+        XCTAssertNil(model.activePlanOwner, "A maintenance page cannot authorize reading plans")
+        XCTAssertEqual(model.reminderAccess, .waiting, "It also cannot revoke the device's queued reminders")
+        model.timetable.reviewAccount()
+        XCTAssertEqual(model.reminderAccess, .revoked, "An explicit account review is a real privacy boundary")
+        model.timetable.forget()
+    }
+
     func testUnansweredSubmissionTimesOutOnceAndAFramedLoginNeverClaims() async throws {
         let root = SchoolPortalPage.origin
         guard root.scheme == "http", root.host == "127.0.0.1" else { return XCTFail("Requires the isolated fixture") }

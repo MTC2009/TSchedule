@@ -63,6 +63,12 @@ asset_build = add("Assets:build", isa="PBXBuildFile", fileRef=assets)
 calendar = add("HSCalendar", isa="PBXFileReference", lastKnownFileType="text.json",
                path="../xiaobao-backend/src/provider/academic-calendar-hs-2026-2027.json", sourceTree="SOURCE_ROOT")
 calendar_build = add("HSCalendar:build", isa="PBXBuildFile", fileRef=calendar)
+policy = add("PolicyCopy", isa="PBXFileReference", lastKnownFileType="text.json",
+             path="Resources/PolicyCopy.json", sourceTree="SOURCE_ROOT")
+policy_build = add("PolicyCopy:build", isa="PBXBuildFile", fileRef=policy)
+privacy = add("PrivacyManifest", isa="PBXFileReference", lastKnownFileType="text.xml",
+              path="Config/PrivacyInfo.xcprivacy", sourceTree="<group>")
+privacy_build = add("PrivacyManifest:build", isa="PBXBuildFile", fileRef=privacy)
 portal_refs = [add(path, isa="PBXFileReference", lastKnownFileType="sourcecode.javascript",
                    path=path, sourceTree="SOURCE_ROOT") for path in [
     "Sources/Native/SchoolPortalSync/PortalProjection.js", "Sources/Native/SchoolPortalSync/PortalRead.js",
@@ -76,9 +82,9 @@ product = add("Product", isa="PBXFileReference", explicitFileType="wrapper.appli
 widget_product = add("LessonActivityProduct", isa="PBXFileReference", explicitFileType="wrapper.app-extension",
                      includeInIndex=0, path="LessonActivityWidget.appex", sourceTree="BUILT_PRODUCTS_DIR")
 products = add("Products", isa="PBXGroup", children=[product, widget_product], name="Products", sourceTree="<group>")
-main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, *portal_refs, info, widget_info, readme, products], sourceTree="<group>")
+main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, policy, privacy, *portal_refs, info, widget_info, readme, products], sourceTree="<group>")
 source_phase = add("Compile", isa="PBXSourcesBuildPhase", buildActionMask=2147483647, files=source_builds, runOnlyForDeploymentPostprocessing=0)
-resource_phase = add("Resources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647, files=[asset_build, calendar_build, *portal_builds], runOnlyForDeploymentPostprocessing=0)
+resource_phase = add("Resources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647, files=[asset_build, calendar_build, policy_build, privacy_build, *portal_builds], runOnlyForDeploymentPostprocessing=0)
 framework_phase = add("Frameworks", isa="PBXFrameworksBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0)
 widget_source_phase = add("LessonActivityCompile", isa="PBXSourcesBuildPhase", buildActionMask=2147483647,
                           files=widget_builds, runOnlyForDeploymentPostprocessing=0)

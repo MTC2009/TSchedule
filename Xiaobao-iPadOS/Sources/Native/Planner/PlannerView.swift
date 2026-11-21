@@ -38,7 +38,7 @@ struct PlannerView: View {
         let target: PlanEditTarget
         let planID: UUID
         let effectiveDay: String
-        let hadWeeklyRule: Bool
+        let hadRepeatRule: Bool
         let completionPlan: PersonalPlan?
         var draft: PlanEditorDraft
         var selectingRange = false
@@ -97,8 +97,9 @@ struct PlannerView: View {
         let current = scope
         // Entering Edit temporarily shows the records without changing the browse preference.
         let showsPlans = editing || !plansHidden
+        let calendar = model.planRotationCalendar
         let columns = dates.map {
-            source.column(on: $0, records: showsPlans ? state?.schedule.day(SchoolClock.key($0)) : nil)
+            source.column(on: $0, records: showsPlans ? state?.schedule.day(SchoolClock.key($0), calendar: calendar) : nil)
         }
         let selected = columns.first { $0.id == date }
         let fetch = SchoolRead(scope: current, dates: dates)
@@ -107,9 +108,14 @@ struct PlannerView: View {
         return VStack(spacing: 8) {
             header(selected, week: week, source: source)
                 .disabled(rangeRequest != nil)
-            if current?.session != nil { schoolStatus(source, selected: selected, fetch: fetch) }
+            if model.school.selected {
+                if selected?.school.hasTimetable != true {
+                    Text(model.timetable.busy ? "正在保存本学年课表" : "当天课表尚未确认，可在设置中更新。")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
+            } else if current?.session != nil { schoolStatus(source, selected: selected, fetch: fetch) }
             if current == nil {
-                Label("暂时无法读取此账号的计划。", systemImage: "person.crop.circle.badge.exclamationmark")
+                Label(model.localSchoolTimetable == nil ? "暂时无法读取此账号的计划。" : "正在查看本机课表；个人计划需确认账号后查看。", systemImage: "person.crop.circle.badge.exclamationmark")
                     .font(.callout).foregroundStyle(.secondary)
             } else if read?.scope == current, state == nil {
                 status("无法读取已保存的计划。") { Task { await readPlans() } }
@@ -132,7 +138,7 @@ struct PlannerView: View {
                 .id(current)
         }
         .task(id: phase == .active ? fetch : nil) {
-            if phase == .active { await loadSchool(source, fetch: fetch) }
+            if phase == .active, !model.school.selected { await loadSchool(source, fetch: fetch) }
         }
     }
 
@@ -293,10 +299,9 @@ struct PlannerView: View {
     }
 
     @ViewBuilder private func schoolStatus(_ source: PlannerSchoolSource, selected: PlannerTimelineColumn?, fetch: SchoolRead) -> some View {
-        let failed = model.school.selected ? model.school.issues[SchoolPortalStore.weekKey(date)] != nil
-            : (source.calendarPage.map { model.campus.errors[$0] != nil } ?? false)
+        let failed = source.calendarPage.map { model.campus.errors[$0] != nil } ?? false
         if failed || (checkedSchool == fetch && selected?.school.hasCalendar == false) {
-            status(model.school.selected ? "未能读取这周的校宝课表。" : "学校资料暂未更新，已有安排仍可查看。") {
+            status("学校资料暂未更新，已有安排仍可查看。") {
                 Task { await loadSchool(source, fetch: fetch, force: true) }
             }
         }
@@ -327,7 +332,7 @@ struct PlannerView: View {
     }
 
     private func editPlan(_ item: PlanPlacementItem) {
-        let target = item.source == .weeklyBubble || item.source == .reusableBubble ? date :
+        let target = item.source == .recurringBubble || item.source == .reusableBubble ? date :
             (SchoolClock.dayDate(item.plan.day) ?? date)
         openEditor(item, on: target)
     }
@@ -341,11 +346,12 @@ struct PlannerView: View {
             else if let item { .plan(item.plan.id) } else { .create }
         let today = SchoolClock.key(model.now)
         let effective = max(today, SchoolClock.key(day), bubble?.revisions.first?.effectiveDay ?? today)
-        var draft = PlanEditorDraft(plan: bubble?.prototype ?? item?.plan, bubble: bubble, on: day, now: model.now)
+        var draft = PlanEditorDraft(plan: bubble?.prototype ?? item?.plan, bubble: bubble, on: day, now: model.now,
+                                    teachingDay: model.planRotationCalendar?.day(on: day).teachingDay)
         if let range { draft.use(range, on: day) }
-        let completion = item.flatMap { $0.source == .plan || $0.source == .weeklyOccurrence ? $0.plan : nil }
+        let completion = item.flatMap { $0.source == .plan || $0.source == .occurrence ? $0.plan : nil }
         editor = Editor(scope: current, date: day, target: target, planID: item?.plan.id ?? UUID(),
-                        effectiveDay: effective, hadWeeklyRule: bubble?.latest?.week != nil,
+                        effectiveDay: effective, hadRepeatRule: bubble?.latest?.rule != nil,
                         completionPlan: completion, draft: draft)
     }
 
@@ -355,11 +361,11 @@ struct PlannerView: View {
         let draft = Binding(get: { editor?.id == request.id ? editor?.draft ?? request.draft : request.draft },
                             set: { if editor?.id == request.id { editor?.draft = $0 } })
         let completion = request.completionPlan.flatMap { source in
-            state?.schedule.day(source.day).plans.first { $0.id == source.id }
+            state?.schedule.day(source.day, calendar: model.planRotationCalendar).plans.first { $0.id == source.id }
         }
         return PlanEditorView(date: request.date, planID: request.planID, target: request.target,
-                              weeklyStarts: SchoolClock.dayDate(request.effectiveDay) ?? request.date,
-                              hadWeeklyRule: request.hadWeeklyRule, draft: draft,
+                              effectiveDate: SchoolClock.dayDate(request.effectiveDay) ?? request.date,
+                              hadRepeatRule: request.hadRepeatRule, calendar: model.planRotationCalendar, draft: draft,
                               conflicts: conflictDay.conflicts(with:),
                               chooseRange: { chooseRange(for: request) },
                               cancel: { if editor?.id == request.id { editor = nil } },
@@ -370,7 +376,7 @@ struct PlannerView: View {
         }) { plan in
             guard let current = editor, current.id == request.id else { throw CancellationError() }
             let edit = PlanEdit(target: request.target, plan: plan, reusable: current.draft.reusable,
-                                weekday: current.draft.repeatsWeekly ? current.draft.weekday : nil,
+                                recurrence: current.draft.recurrence,
                                 effectiveDay: request.effectiveDay)
             try await persist(.save(edit), pending: plan.id, scope: request.scope,
                               requestPermission: plan.reminder != nil && plan.time != nil)
@@ -403,6 +409,11 @@ struct PlannerView: View {
 
     private func place(_ item: PlanPlacementItem, on day: Date, at time: PlanTime?) {
         guard editing, PlannerCalendarMonth.selectableDates.contains(day) else { return }
+        if item.isRecurring, case .rotationDay = state?.schedule.bubbles.first(where: { $0.id == item.plan.id })?.latest?.rule?.recurrence,
+           model.planRotationCalendar?.day(on: day).teachingDay == nil {
+            writeFailure = "这一天没有已确认的轮转 Day，原计划没有改动。"
+            return
+        }
         apply(.place(item, on: SchoolClock.key(day), at: time, now: model.now), pending: item.plan.id,
               requestPermission: time != nil && item.plan.reminder != nil)
     }
@@ -424,7 +435,7 @@ struct PlannerView: View {
     private func persist(_ command: PlanStore.Mutation, pending id: UUID, scope current: Scope,
                          requestPermission: Bool = false) async throws {
         try await write(pending: id, scope: current, requestPermission: requestPermission) { session in
-            try await model.planStore.apply(command, for: current.owner, session: session)
+            try await model.planStore.apply(command, for: current.owner, session: session, calendar: model.planRotationCalendar)
         }
     }
 

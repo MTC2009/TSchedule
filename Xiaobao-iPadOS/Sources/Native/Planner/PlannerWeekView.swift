@@ -5,7 +5,7 @@ struct PlannerTimelineColumn: Identifiable {
     let day: PlannerDay
     let school: PlannerSchoolDay
     let calendarDay: SchoolCalendarDay?
-    let weeklyIDs: Set<UUID>
+    let recurringIDs: Set<UUID>
     let focus: PlannerDay.Focus?
 
     var notices: [String] {

@@ -505,6 +505,8 @@ actor CampusMock {
             let days = week.dates.compactMap { second.cachedSchedule(on: $0) }
             XCTAssertEqual(days.count, 7)
             let closed = try XCTUnwrap(days.first { $0.date == "2027-04-26" })
+            let calendar = try XCTUnwrap(second.cachedSchoolCalendar)
+            XCTAssertEqual(calendar.day(on: SchoolClock.date(2027, 4, 26)), closed.calendarDay)
             XCTAssertEqual(closed.calendarDay?.day, 2)
             XCTAssertEqual(closed.calendarDay?.status, .noClass)
             XCTAssertNil(closed.day)
@@ -522,6 +524,7 @@ actor CampusMock {
         XCTAssertEqual(last?.0, 304); XCTAssertEqual(last?.1, 0)
         try await second.logout()
         XCTAssertNil(second.cachedSchedule(on: anInstructionDate))
+        XCTAssertNil(second.cachedSchoolCalendar)
         XCTAssertNil(vault.data)
     }
 }

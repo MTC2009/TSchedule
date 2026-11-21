@@ -14,6 +14,9 @@ enum SchoolPortalRead: Hashable {
 @Observable @MainActor final class SchoolPortalStore {
     typealias Reader = @MainActor (SchoolPortalRead, String?) async throws -> Data
     private let reader: Reader
+    /// A confirmed identity (or an explicit mismatch), delivered before UI observation.
+    /// Expiry, ordinary navigation and network errors are not an account switch.
+    @ObservationIgnored var onAccountConfirmation: (@MainActor (String?) -> Void)?
     private(set) var selected: Bool
     private(set) var owner: String?
     private(set) var epoch = UUID()
@@ -106,6 +109,7 @@ enum SchoolPortalRead: Hashable {
     }
 
     func invalidate(_ reason: SchoolPortalIssue? = nil) {
+        if reason == .changed { onAccountConfirmation?(nil) }
         if owner != nil { navigationEpoch = UUID() }
         manualReview = nil
         let prior = owner ?? lastVerifiedOwner
@@ -165,6 +169,7 @@ enum SchoolPortalRead: Hashable {
             if let previous = owner ?? lastVerifiedOwner, previous != next {
                 invalidate(.changed); return
             }
+            onAccountConfirmation?(next)
             owner = next; lastVerifiedOwner = next; identityIssue = nil
             if let saved = manualReview, saved.owner == next, (0..<300).contains(Date().timeIntervalSince(saved.at)) {
                 weeks = saved.weeks; weekOrder = saved.weekOrder; collections = saved.collections
@@ -200,6 +205,7 @@ enum SchoolPortalRead: Hashable {
             guard epoch == ticket else { return }
             guard actual == expected else { throw SchoolPortalIssue.changed }
             expiredOwner = nil; expiredFromEpoch = nil
+            onAccountConfirmation?(actual)
             owner = actual; lastVerifiedOwner = actual; identityIssue = nil
         } catch {
             guard epoch == ticket, !(error is CancellationError) else { return }
@@ -282,7 +288,10 @@ enum SchoolPortalRead: Hashable {
         guard !pending.contains(key), force || attendanceQuery != query || attendance == nil else { return }
         if let old = attendanceQuery { discardAttendanceRead(.attendance(old)) }
         discardAttendanceRead(attendanceSubjectKey)
-        attendanceQuery = query; attendance = nil; attendanceSubject = nil; attendanceSubjectKey = nil
+        // Keep this same verified filter visible while revalidating. A new query never
+        // inherits its predecessor's counts; a refused/invalid result still clears it.
+        if attendanceQuery != query { attendance = nil }
+        attendanceQuery = query; attendanceSubject = nil; attendanceSubjectKey = nil
         await load(SchoolPortalAttendance.self, key, sharedAcrossViews: true) { value in
             try value.validate(for: query); self.attendance = value
         } clear: { self.attendance = nil }
@@ -309,6 +318,23 @@ enum SchoolPortalRead: Hashable {
             self.weekOrder.removeAll { $0 == start }; self.weekOrder.append(start)
             if self.weekOrder.count > 12 { self.weeks[self.weekOrder.removeFirst()] = nil }
         } clear: { self.weeks[start] = nil }
+    }
+
+    /// The annual importer uses only the same bounded school week operation. Return a value to
+    /// its staged import; do not populate a per-page week cache or commit an obsolete account.
+    func readTimetableWeek(_ date: Date, for expected: String) async throws -> SchoolPortalWeek {
+        let ticket = epoch
+        guard selected, owner == expected else { throw SchoolPortalIssue.changed }
+        do {
+            let value = try await reply([SchoolPortalWeek.Row].self, Self.weekKey(date), expected)
+            try Task.checkCancellation()
+            guard epoch == ticket, owner == expected else { throw CancellationError() }
+            guard let rows = value.value, rows.count <= 4096 else { throw SchoolPortalIssue.format }
+            return try SchoolPortalWeek(week: TimetableWeek(containing: date), rows: rows)
+        } catch let issue as SchoolPortalIssue {
+            if epoch == ticket, [.login, .expired, .changed].contains(issue) { invalidate(issue) }
+            throw issue
+        }
     }
 
     /// Only a foreground grade visit or explicit refresh may initiate recovery.
@@ -352,6 +378,7 @@ enum SchoolPortalRead: Hashable {
             try Task.checkCancellation()
             guard actual == requestedOwner else { throw SchoolPortalIssue.changed }
             expiredOwner = nil; expiredFromEpoch = nil
+            onAccountConfirmation?(actual)
             owner = actual; lastVerifiedOwner = actual; identityIssue = nil
             if let initialTerm {
                 await loadTerms()
@@ -371,16 +398,31 @@ enum SchoolPortalRead: Hashable {
     }
 
     /// Entering the real GPA page is the scoped request to read published grades.
-    func loadGrades() async {
-        guard selected, owner != nil else { return }
-        if !allowsTaskScores {
+    func enableTaskScoresOnGradeVisit() {
+        if selected, owner != nil, !allowsTaskScores {
             // The old metadata-only snapshot (or a late reply) cannot satisfy a
             // score-enabled read. Do not visit the task list until it is opened.
             let old = taskRead
             requests[old] = nil; pending.remove(old); issues[old] = nil
             tasks = nil; allowsTaskScores = true
         }
-        await load(SchoolPortalGrades.self, gradeRead) { values in
+    }
+
+    func loadGrades() async {
+        guard selected, owner != nil else { return }
+        enableTaskScoresOnGradeVisit()
+        await loadGradeOverview(sharedAcrossViews: false)
+    }
+
+    /// Opportunistic current-term summary only. Never navigate, submit credentials, open
+    /// archived grades, enable task score projection, or request any per-course detail.
+    func refreshGradesFromToday() async {
+        guard selected, owner != nil, selectedTermID == nil, !hasRecentGrades() else { return }
+        await loadGradeOverview(sharedAcrossViews: true)
+    }
+
+    private func loadGradeOverview(sharedAcrossViews: Bool) async {
+        await load(SchoolPortalGrades.self, gradeRead, sharedAcrossViews: sharedAcrossViews) { values in
             guard self.selectedTermID == nil || values.termID == self.selectedTermID,
                   !values.term.isEmpty, Set(values.courses.map(\.id)).count == values.courses.count else { throw SchoolPortalIssue.format }
             self.grades = values; self.gradesChecked = Date(); self.invalidateDetails()

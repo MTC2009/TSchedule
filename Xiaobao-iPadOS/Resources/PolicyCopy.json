@@ -1,0 +1,112 @@
+{
+  "revised": "2026-11-21",
+  "publisher": null,
+  "effectiveDate": null,
+  "contact": "steven.xie.28.tsinglan.org@gmail.com",
+  "draftNotice": {
+    "zh": "讨论稿，尚未生效。正式发布者和生效日期将在发布前确认。",
+    "en": "Review draft, not yet in effect. The publisher and effective date will be confirmed before release."
+  },
+  "privacy": {
+    "title": { "zh": "隐私政策", "en": "Privacy Policy" },
+    "intro": {
+      "zh": "TSchedule（澜图）是独立的学生 iPad 工具，不是学校或校宝的官方应用，不另设学生账号。下面区分了校宝、你的 iPad 和项目维护者各自能接触的信息。",
+      "en": "TSchedule is an independent student app for iPad, not an official app of the school or its portal provider. It does not create a separate student account. This policy distinguishes what the school portal, your iPad and the project maintainer can see."
+    },
+    "sections": [
+      {
+        "heading": { "zh": "校宝登录与学习资料", "en": "School sign-in and academic records" },
+        "body": {
+          "zh": "普通登录在 App 内的校宝官方网页完成。校宝收到登录请求并决定该账号可以查看什么。TSchedule 使用同一网页会话，在 iPad 上核对当前学生身份，将该账号有权查看的资料整理成原生页面。登录凭据、网页会话和学习资料不经过开发者服务器；原生读取逻辑不提取网页密码或导出 Cookie。",
+          "en": "For ordinary sign-in you use the official school portal inside the app. The portal receives the request and controls access. TSchedule uses that same web session on the iPad to verify the current student and display records available to that account. Credentials, web sessions and academic records are not relayed through a developer server. The native reader does not extract passwords from the page or export cookies."
+        }
+      },
+      {
+        "heading": { "zh": "读取哪些内容、什么时候读", "en": "What the app reads and when" },
+        "body": {
+          "zh": "首次确认本人账号后，App 在前台读取少量相邻教学周，与本学年的高中校历核对，保存能确认的轮转课程及按日期发生的事项。「今日」和「计划」读同一份本机课表；只有在设置点「更新课表」才重新获取。任务、考勤和其他目录仍在前台按需更新，不下载附件。显示已缓存的「今日」时，有效的本人会话可更新本学期任务、考勤和已公布的 GPA 总览；近期成绩可复用，任务变化会使其失效。这个更新不代登录。历史学期和单科明细仍按选择读取。原生功能不提交作业、不修改考勤或成绩。",
+          "en": "After verifying the student, the app compares a small number of nearby teaching weeks with the high-school calendar and saves corroborated rotating lessons and dated entries. Today and Planner read the same device copy. Only Update Timetable in Settings retrieves a replacement. Tasks, attendance and other directories remain foreground reads; attachments are not downloaded. When cached Today is displayed, a verified session may refresh current-term tasks, attendance and the published GPA overview. Recent grades may be reused unless the task snapshot changes. This update cannot sign in for you. Historical terms and course details are loaded only when selected. Native reads do not submit work or edit attendance or marks."
+        }
+      },
+      {
+        "heading": { "zh": "本机代登录是可选项", "en": "Saved sign-in is optional" },
+        "body": {
+          "zh": "默认关闭，不开启也能在校宝网页登录。若在「设置 → 个人信息 → 校园资料」主动开启，App 从已核验的本人账号取得登录名，接收你在本机输入的密码，保存在设有锁屏密码的这台 iPad 的系统钥匙串中，不同步到 iCloud。先用已有会话；只有明确需要重新登录，才在获准的前台启动恢复或主动查看 GPA 时向官方登录页提交一次。拒绝或无法确认结果时不反复尝试。请不要在共用设备上开启。",
+          "en": "This option is off by default; ordinary portal sign-in works without it. If you turn it on in Settings → Personal Info → Campus Data, the app obtains the login name of the verified account and accepts a password you enter on the device. The pair is kept in this passcode-protected iPad’s system Keychain and does not sync to iCloud. The app first tries the existing session. Only when sign-in is required may an authorized foreground startup or a deliberate GPA visit submit the pair once on the official page. A refusal or uncertain result does not trigger repeated attempts. Do not enable this option on a shared device."
+        }
+      },
+      {
+        "heading": { "zh": "保留期限、退出与删除", "en": "Retention, sign-out and deletion" },
+        "body": {
+          "zh": "课表按账号和学年保存在这台 iPad 受系统文件保护、不参与设备备份的文件中；拥有设备解锁权限的人可能看到它。重开、断网或学校会话过期后仍可查看。任务、成绩和考勤只保存在当前会话内存，不建立长期成绩档案。打开完整校宝会暂时隐藏课表，核对为同一账号后恢复；确认换号或在 App 内退出／清除校宝登录资料，会撤销并清理旧课表。退出／清除也清理网站数据及绑定，不删除学校原始记录。单独移除已保存的登录只撤销代登录，不清除课表或退出网页。",
+          "en": "The timetable is stored by account and academic year in a file on this iPad with system file protection and excluded from device backups. Someone who can unlock the iPad may see it after relaunch, offline or after the school session expires. Tasks, grades and attendance remain in session memory; the app does not build a lasting grade archive. Opening the full portal hides the timetable until the same account is confirmed. An account change, signing out in the app or clearing local school sign-in data revokes and clears the old timetable. Signing out or clearing also removes portal website data and the binding, not the school’s records. Removing saved sign-in alone revokes only the credential, not the timetable or web session."
+        }
+      },
+      {
+        "heading": { "zh": "个人计划、提醒与锁屏", "en": "Personal plans, notifications and the Lock Screen" },
+        "body": {
+          "zh": "个人计划、昵称与偏好保存在设备上；这些内容是否随设备备份，取决于系统和你的备份设置。退出校宝不会删除计划；请在对应账号的「计划」中删除，昵称可在设置里清空。主动开启实时活动或个人计划提醒后，下一节课程名、剩余分钟、自定义标题或提醒内容可能出现在锁屏，旁人可能看见。可选的课前提醒只用本机已确认的课表，不额外连接校宝。它只显示上课时间提示，不含课程名、教室或账号。退出或换号会清理旧提醒。可结束实时活动、关闭提醒，或在 iPad 系统设置中调整显示。",
+          "en": "Personal plans, a nickname and preferences are stored on the device. Device backups depend on the system and your backup settings. Signing out does not delete plans; delete them in Planner under the relevant account. You can clear the nickname in Settings. If you start a Live Activity or schedule a personal reminder, the next class name, remaining minutes, custom heading or reminder text may be visible to others on the Lock Screen. Optional class alerts use only the confirmed timetable on this iPad, without contacting the school. The alert contains timing only, not a class name, room or account. Signing out or changing accounts clears the old alerts. You can end the activity, turn off reminders or adjust visibility in iPad settings."
+        }
+      },
+      {
+        "heading": { "zh": "天气与开发者能看到的信息", "en": "Weather and what the developer can see" },
+        "body": {
+          "zh": "跟随城市天气时，iPad 向 Open-Meteo 请求东莞固定坐标的天气，不读取设备定位，也不向它发送账号、课表或成绩。该服务能收到 IP 地址和请求参数等连接信息，按其自身政策处理。可以关闭「跟随东莞天气」，改用手动预览。本版没有广告或跨 App 跟踪。只有你主动发支持邮件时，维护者的 Gmail 邮箱才会收到你的发件地址和邮件内容。来信仅为处理问题及履行适用义务所需而保留，不用来建立学生档案。",
+          "en": "When city weather is enabled, the iPad requests weather for fixed Dongguan coordinates from Open-Meteo. It does not read the device’s location or send account details, timetables or grades to this provider. Open-Meteo can receive the IP address and request parameters and handles them under its own policy. You can turn off city weather and use a manual preview. This version has no advertising or cross-app tracking. Only if you email support does the maintainer’s Gmail mailbox receive your sender address and message. Correspondence is retained only as needed to address the issue and applicable obligations, not to build a student profile."
+        }
+      },
+      {
+        "heading": { "zh": "未成年用户和联系渠道", "en": "Young students, questions and requests" },
+        "body": {
+          "zh": "如试用涉及不满十四周岁的学生，在学校和发布者落实适用的监护人同意及专门处理规则前，请不要连接真实校宝账号。App 当前没有监护人同意流程。学生或监护人可通过文末邮箱询问、要求更正或删除发给维护者的信息；学校记录请向学校查阅或更正。反馈只需版本、现象和操作步骤，请勿发送密码、验证码、Cookie 或能识别学生的截图。若处理用途或接收方发生实质变化，应先更新说明，并在适用时重新取得同意。",
+          "en": "If a pilot would include students under 14, do not connect a real school account before the school and publisher have put applicable guardian consent and specific data-handling rules in place. The app currently has no guardian-consent flow. Students and guardians can contact the maintainer below with privacy questions or requests to correct or delete information they sent. Contact the school about access to or correction of its records. For support, send only the version, symptom and steps—not passwords, verification codes, cookies or identifiable screenshots. Material changes to purposes or recipients should be explained before they take effect, with renewed consent where required."
+        }
+      }
+    ]
+  },
+  "terms": {
+    "title": { "zh": "使用与服务条款", "en": "Terms of Use and Service" },
+    "intro": {
+      "zh": "这些条款说明学生怎样使用 TSchedule，以及它不能替代什么。校宝和学校仍负责原始校务记录及账号权限；安装本 App 不代表学校或校宝为它背书，也不授予任何新的访问权。",
+      "en": "These terms describe how to use TSchedule and what it cannot replace. The school and its portal remain responsible for the original records and account permissions. Installation does not imply their endorsement or grant new access rights."
+    },
+    "sections": [
+      {
+        "heading": { "zh": "谁可以连接校宝", "en": "Who may connect" },
+        "body": {
+          "zh": "只在学校及校宝适用规则允许的范围内，用你本人有权使用的学生账号连接。不得共享账号、代收同学密码、查看他人资料或规避访问限制。若你发现了不属于自己的资料，请停止查看，不要转发，向学校及维护者报告现象即可。未成年用户可与监护人一同阅读；对于不满十四周岁的学生，适用隐私政策所述的试用限制。",
+          "en": "Connect only with your own authorized student account and within the applicable school and portal rules. Do not share accounts, collect classmates’ passwords, access someone else’s records or evade access controls. If you see records that are not yours, stop viewing them, do not forward them and report the issue without including the records. Minors can review these terms with a guardian. The under-14 pilot restriction in the Privacy Policy applies."
+        }
+      },
+      {
+        "heading": { "zh": "学校记录与个人工具", "en": "Official records and personal tools" },
+        "body": {
+          "zh": "TSchedule 是辅助查看和个人计划工具。课表变更、作业提交状态、考勤、更正和最终成绩以学校正式通知或校宝原记录为准。个人计划、提醒和 GPA 试算不会改写校宝，也不构成正式提交。遇到截止时间、考试或数据冲突，请向学校核对，不要只依赖通知。",
+          "en": "TSchedule assists with viewing records and planning. Use official school notices or the original portal for schedule changes, submission status, attendance, corrections and final grades. A personal plan, reminder or GPA estimate does not update school records or count as a submission. Confirm deadlines, exams and discrepancies with the school rather than relying only on a notification."
+        }
+      },
+      {
+        "heading": { "zh": "你的选择与使用边界", "en": "Your choices and limits" },
+        "body": {
+          "zh": "本机代登录不是使用条件，只应在你能控制的个人 iPad 上开启。可随时移除绑定、退出校宝或停用 App。不要把考试材料、同学资料或带身份的截图公开传播。仓库的开源许可只涉及它覆盖的软件，不会赋予学校内容、标识或服务接口的使用许可。",
+          "en": "Saved sign-in is not required and should be enabled only on a personal iPad you control. You can remove the binding, sign out or stop using the app. Do not publicly distribute exam material, classmates’ information or identifiable screenshots. The repository’s open-source license covers the software within its scope, not the school’s content, marks or service access."
+        }
+      },
+      {
+        "heading": { "zh": "服务变化与问题处理", "en": "Changes, interruptions and support" },
+        "body": {
+          "zh": "网络、校宝页面或账号权限变化可能延迟或中断显示。若发生串号、异常请求或学校要求暂停，不应继续用受影响的连接试用；可先回到学校原有渠道，联系维护者核查。维护者可暂停提供受影响的版本或功能，这并不意味着能远程删除已安装副本。本条款不排除适用法律赋予你的权利或依法不得免除的责任。",
+          "en": "Network outages, portal changes or changed permissions can delay or interrupt access. If records appear under the wrong account, requests behave abnormally or the school asks for a pause, stop using the affected connection, use the school’s usual channels and contact the maintainer. The maintainer may suspend distribution of an affected version or feature; this does not mean installed copies can be remotely deleted. These terms do not exclude rights or liability that cannot be waived under applicable law."
+        }
+      },
+      {
+        "heading": { "zh": "条款、隐私与联系", "en": "Terms, privacy and contact" },
+        "body": {
+          "zh": "隐私政策说明不同数据的用途、接收方、保留及移除方式。这份服务说明不能替代学校或校宝的规定，也不能代替依法需要的同意。若未来经 App Store 分发，适用的软件许可另行依该分发渠道说明。重要变化会标明修订及生效日期。问题请通过文末邮箱提出，无需提供学校密码或成绩。",
+          "en": "The Privacy Policy explains uses, recipients, retention and removal. These service terms do not replace the school’s or portal’s rules or legally required consent. If the app is distributed through the App Store, the applicable software license will be identified through that channel. Material revisions will identify their revision and effective dates. Send questions to the address below; school credentials and grades are not needed."
+        }
+      }
+    ]
+  }
+}

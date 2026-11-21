@@ -181,7 +181,7 @@ struct PlannerTimelineView: View {
                                       tapMinute: { tapTime($0, on: column.id) },
                                       acceptsTimeTap: canWrite && (selected != nil || rangeRequest?.date == column.id),
                                       opensSchool: !editing,
-                                      compact: isWeek, weeklyIDs: column.weeklyIDs, shownGroup: $shownGroup)
+                                      compact: isWeek, recurringIDs: column.recurringIDs, shownGroup: $shownGroup)
                     .frame(width: layout.columnWidth)
             }
         }
@@ -280,7 +280,7 @@ struct PlannerTimelineView: View {
     private func handle(at point: CGPoint) -> PlannerHandleFrame? {
         guard rangeRequest == nil else { return nil }
         return handles.last { handle in
-            let onShelf = handle.item.source == .reusableBubble || handle.item.source == .weeklyBubble || handle.item.plan.time == nil
+            let onShelf = handle.item.source == .reusableBubble || handle.item.source == .recurringBubble || handle.item.plan.time == nil
             return (onShelf ? showsInbox && inbox.contains(point) : viewport.contains(point)) && handle.frame.contains(point)
         }
     }
@@ -301,7 +301,7 @@ struct PlannerTimelineView: View {
             positioned = true
             if let frame = handle(at: point) {
                 let initialOffset: Double
-                if frame.item.source == .plan || frame.item.source == .weeklyOccurrence,
+                if frame.item.source == .plan || frame.item.source == .occurrence,
                    let time = frame.item.plan.time, viewport.contains(point),
                    let minute = scale.minute(at: point.y - canvas.minY) {
                     // Keep the grab point relative to the start, not the center of
@@ -400,7 +400,7 @@ struct PlannerTimelineView: View {
                     case .time(let date, let placement):
                         Text((isWeek ? schoolDateLabel(date, format: "EEE") + " · " : "") +
                              PlannerScheduleCanvas.timeLabel(placement.time)).font(.caption).monospacedDigit()
-                        if item.isWeekly { Label("调整今后每周", systemImage: "repeat").font(.caption) }
+                        if item.isRecurring { Label("调整今后的重复安排", systemImage: "repeat").font(.caption) }
                     case .inbox: Text("移回待安排").font(.caption)
                     case .outsideDay: Text("超出当天").font(.caption)
                     case nil: Text("拖到时间轴").font(.caption)

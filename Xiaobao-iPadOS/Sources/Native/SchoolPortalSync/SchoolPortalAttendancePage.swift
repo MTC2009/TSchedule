@@ -48,7 +48,7 @@ struct SchoolPortalAttendancePage: View {
             .refreshable { await store.loadAttendance(request, force: true) }
         }
         .task(id: request) {
-            await store.loadAttendance(request)
+            await store.loadAttendance(request, force: true)
             if !Task.isCancelled, store.attendanceQuery == request, let term = store.attendance?.semester { semester = term }
         }
     }

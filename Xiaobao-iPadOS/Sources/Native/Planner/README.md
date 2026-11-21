@@ -1,6 +1,6 @@
 # 原生计划页
 
-`PlannerView()` 是侧栏「计划」的唯一页面，也是按天或按周查看学校安排的入口。本机模式读取内置课表；连接资料服务时读取当前账号现有的课表、校历和课程名。真实校宝模式只读取所选周的本人课程和日历事件，不借用演示课表或推算正式铃声时段；所有来源复用此页和[计划核心](../../Core/Planner/README.md)。
+`PlannerView()` 是侧栏「计划」的唯一页面，也是按天或按周查看学校安排的入口。本机模式读取内置课表；连接资料服务时读取当前账号现有的课表、校历和课程名。真实校宝模式与「今日」读取同一份按账号保存的学年课表和按日期缓存的事项，翻周不请求网络；不借用演示课表或推算正式铃声时段；所有来源复用此页和[计划核心](../../Core/Planner/README.md)。
 
 | 文件 | 职责 |
 | --- | --- |
@@ -16,7 +16,7 @@
 | `PlannerPlanAnnotations.swift` | 绘制避开课名的无底计划标签，以及拥挤时带编号和图标的胶囊；点胶囊查看全部名称与时间。 |
 | `PlannerInboxView.swift` | 编辑专用的固定气泡架：待安排、可复用气泡、提醒状态和唯一加号；浏览不挂载也不占位。 |
 | `PlannerPlanCard.swift` | 时间轴与待安排共用的个人卡片：抓手、完成、编辑和点选落点。只有抓手接管拖动。此处集中定义计划页的连续圆角。 |
-| `PlanEditorView.swift` | 新建和编辑共用：气泡、每周、提醒、颜色、图标及时间段划选／微调。只有「保存」才提交。 |
+| `PlanEditorView.swift` | 新建和编辑共用：气泡、按星期或轮转 Day 重复、提醒、颜色、图标及时间段划选／微调。只有「保存」才提交。 |
 
 输入：当前 `AppModel`、学校日期及账号、缓存或实时读取的学校安排、当天的本机计划。输出：一条可浏览的日程和独立的个人计划写入；学校资料不写回、不改变学校的提交或考勤状态。
 
@@ -35,6 +35,17 @@
 测试：运行 `swift test --filter Planner` 和原生 Xcode 模拟器构建。除了比较增减个人计划前后的课程矩形，还要验证没有并行课程的学校卡片右缘等于时间轨道右缘，排除固定预留宽度。用跨课的有色计划检查色带经过课程文字；色带内点击仍去课程详情，点气泡去计划详情。走新建、划选、气泡复制、按日隔离、每周和个人提醒流程。横竖屏和大字号下保持时间、抓手和目标可见。资料账户的缓存与隔离沿用 `PlannerTests` 及原联调。
 
 ## Change History
+
+### 2026-11-21 — local-class-alerts / notification-suspension
+Model: Codex. 个人计划仍需明确设置开始时间和提醒。普通退后台或等待身份不会撤销已登记的通知；退出、手动账号复核或切号会清理。个人副标题不会出现在独立的校宝课前提醒。
+
+### 2026-11-21 — planner-rotation / repeat-picker
+Model: Codex. 原每周开关的位置改用「重复」选择，分别显示星期或 Day 1–6。首次选择轮转时可带入所选日期的已确认 Day；休息日不代猜。没有后续校历可先存规则，不生成日期或提醒。由 `PlannerView` 传入当前所有者校历，不新增页面、校宝读取或存储路径。
+验证：隔离 iPad 模拟器上，Day 3 计划出现在两个不同星期几的 Day 3，同星期但不同 Day 的日期没有这条计划。随后从原表单改按星期、再关闭重复，课表请求数不变。完整 225 项 Swift 测试（含本机 Rust 联测）和 iPadOS Release 构建通过。覆盖排程输入，未在真机触发系统通知。
+
+### 2026-11-21 — annual-timetable / cache-first-today
+Model: Codex. PlannerSchoolSource uses the same on-device year as Today. Changing date or opening the month picker no longer causes portal week reads. Offline timetable access does not grant access to personal plans.
+
 
 ### 2026-11-21 — planner-source
 Model: Codex · Keywords: planner-source / fixture-boundary

@@ -1,16 +1,30 @@
-# 支持网页与隐私政策
+# 隐私政策、使用与服务条款及支持页
 
-- [支持页](support/index.html)：仓库已有 TSchedule 双语支持页的送审包副本。原件仍在 `docs/tschedule-support/index.html`；不会自动同步修改。
-- [隐私政策](privacy/index.html)：按当前原生 App 行为整理的双语发布草稿，不是已发布政策或已通过审核的承诺。
+[隐私政策](privacy/index.html) · [使用与服务条款](terms/index.html) · [应用支持](support/index.html)
 
-发布者确认后，替换 HTML 内所有相应字段：
+目前是本地审阅材料，不是已上线的网址或校方授权。两份政策都提供简体中文和英文；现有 iPad「设置 → 隐私」显示相同正文，断网也能读。阅读不是同意，不会保存同意记录或改变校宝登录状态。
 
-| 标记 | 要填的实际内容 |
-| --- | --- |
-| `__TSCHEDULE_SUPPORT_EMAIL__` | 真正可公开、可收信的联系邮箱；两页保持一致 |
-| `__TSCHEDULE_PUBLISHER__` | 实际负责发布的个人法定姓名或组织名称 |
-| `__TSCHEDULE_EFFECTIVE_DATE__` | 实际生效日期 |
+## 修改与检查
 
-随后分别放到网站的 `/tschedule/support/` 和 `/tschedule/privacy/`，或其他稳定路径。公开页面无需登录、无占位符、邮件地址有效后，才把完整 HTTPS 地址填入 App Store Connect。隐私政策的实际网址也应从 App 内易于找到。
+- **政策唯一正文：** [PolicyCopy.json](../../../Xiaobao-iPadOS/Resources/PolicyCopy.json)。按语言维护标题、导言及各节，维护者邮箱已填。修订日期不等于生效日期。发布者和生效日期未确认时，都保留为 `null`，网页和 App 显示「讨论稿，尚未生效」。
+- **输出：** `render_policies.py` 仅读这份 JSON，校验中英文和发布日期，再写入或核对两个 `index.html`。网页只用同目录树内的 [样式](policy.css)，没有远程脚本、分析、表单或登录依赖；iPad 直接读打包正文，无需解析 HTML。
+- **支持页：** [原件](../../tschedule-support/index.html)与送审副本保持一致；更新邮箱时也核对两份支持页。邮件需由使用者主动发送，不是 App 自动提交的报告。
 
-支持页和隐私页不接收学生学号、密码、会话或成绩；只提供邮件联系方式。不要把私有文档共享链接当作提交到 Apple 的公共隐私网址。网站托管若启用额外日志或分析，要核对站点的数据说明。
+在仓库根目录执行（系统 Python 3，无第三方依赖）：
+
+```sh
+python3 -B docs/tschedule-app-store/04-web/render_policies.py --write
+python3 -B docs/tschedule-app-store/04-web/render_policies.py --check
+cmp docs/tschedule-support/index.html docs/tschedule-app-store/04-web/support/index.html
+```
+
+## 对外分发前
+
+1. 由实际发布者核对负责任的主体、日期、来信处理与未成年人安排；向学校/服务商确认接入范围。政策文本不能替代这些决定或依法需要的同意。
+2. 确认后更新正文、再生成网页和构建 App。将 `policy.css` 与 `privacy/`、`terms/`、`support/` 放在同一公开目录；无需上传生成脚本。核对实际托管的访问日志和隐私影响。
+3. 用未登录的设备检查最终 HTTPS 地址、两种语言、页间导航和邮箱可用性，再填 App Store Connect、添加正式政策网址。另行核对归档的隐私清单和隐私问卷。
+4. 讨论未满十四周岁学生的试用时，另核对监护人同意及专门处理规则；目前没有这项同意流程。[《个人信息保护法》第三十一条](https://www.cac.gov.cn/2021-08/20/c_1631050028355286.htm)。第三方服务和分发许可另见 [Apple 审核指南 §5.2.2](https://developer.apple.com/app-store/review/guidelines/#intellectual-property)；服务条款也不代替 [App Store 软件许可](https://developer.apple.com/help/app-store-connect/manage-app-information/provide-a-custom-license-agreement/)。
+
+## 修改记录
+
+- 2026-11-21 · Codex · `offline-policy / shared-copy`：用同一份文案生成隐私与条款静态页，和 iPad 离线阅读保持一致；补齐联系渠道。无服务端接口或发布操作。

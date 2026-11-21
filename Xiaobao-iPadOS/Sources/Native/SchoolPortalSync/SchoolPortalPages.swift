@@ -9,7 +9,11 @@ struct SchoolPortalPages: View {
     let tab: AppTab
     var body: some View {
         let school = model.school
-        if school.owner == nil {
+        if tab == .today, model.localSchoolTimetable != nil {
+            SchoolPortalToday()
+        } else if tab == .planner, model.localSchoolTimetable != nil {
+            PlannerView()
+        } else if school.owner == nil {
             if school.isRecoveringSession {
                 ProgressView("正在恢复校宝登录")
             } else if school.pending.contains(.identity) || model.portal.loading || school.identityIssue == nil {
@@ -45,24 +49,30 @@ struct SchoolPortalPages: View {
 private struct SchoolPortalToday: View {
     @Environment(AppModel.self) private var model
     var body: some View {
-        let store = model.school, now = model.now
+        let now = model.now, day = model.schoolTimetableDay(now)
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                TodayRotationHeader(date: now, day: model.todayRotationDay, unknownDayTitle: "今日课表")
+                TodayRotationHeader(date: now, day: day?.calendarDay.teachingDay,
+                                    unpublished: day?.calendarDay.status == .unpublished, unknownDayTitle: day == nil || day?.hasDatedException == true ? "今日课表" : nil)
                     .accessibilityIdentifier("verified-school-today")
-                if let week = store.week(on: now), let schedule = week.schedule(on: now) {
-                    if schedule.lessons.isEmpty {
-                        StudentEmptyState(title: "今天没有排课", detail: "校宝本周课表中，这天没有课程。")
-                    } else {
-                        TodayTimetableView(timeline: schedule.timeline { week.names[$0] ?? "课程" })
+                if day?.hasDatedException == true {
+                    Text("校历标为非教学日；下列是校宝当天单独列出的课次，不计入轮转。")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
+                if let day, day.schedule != nil {
+                    let next = PublishedSchoolCalendar.bundledHS.flatMap {
+                        model.localSchoolTimetable?.nextSchoolDay(after: now, calendar: $0)
                     }
-                } else if let issue = store.issues[SchoolPortalStore.weekKey(now)] {
-                    SchoolPortalRetry(issue: issue) { await store.loadWeek(now, force: true) }
-                } else { ProgressView("正在读取本周课表") }
+                    TodayTimetableView(timeline: day.timeline, nextSchoolDay: next,
+                                       noClassNotice: day.calendarDay.notices.first)
+                } else if model.timetable.busy && model.localSchoolTimetable == nil {
+                    ProgressView("正在保存本学年课表")
+                } else {
+                    StudentEmptyState(title: "当天课表尚未确认",
+                                      detail: model.timetable.message ?? "可在设置中更新课表。未确认的课程不会按空课表显示。")
+                }
             }.padding(24).frame(maxWidth: 1000).frame(maxWidth: .infinity)
         }
-        .task(id: SchoolPortalStore.weekKey(now)) { await store.loadWeek(now) }
-        .refreshable { await store.loadWeek(now, force: true) }
     }
 }
 

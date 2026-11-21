@@ -13,7 +13,7 @@ final class PlannerRoutineTests: XCTestCase {
         let prototype = try XCTUnwrap(PersonalPlan(day: key, title: "Recharge the audio recorder", time: nil,
                                                     color: .teal, icon: .computer, reminder: .tenMinutes))
         let created = try await store.save(PlanEdit(target: .create, plan: prototype, reusable: true,
-                                                   weekday: nil, effectiveDay: key), for: owner)
+                                                   recurrence: nil, effectiveDay: key), for: owner)
         XCTAssertTrue(created.plans.isEmpty)
         let next = SchoolClock.key(date.addingTimeInterval(86_400))
         let copyTime = try XCTUnwrap(PlanTime(startMinute: 1015, endMinute: 1060))
@@ -25,7 +25,7 @@ final class PlannerRoutineTests: XCTestCase {
         XCTAssertEqual(a.color, .teal)
         XCTAssertEqual(b.reminder, .tenMinutes)
         XCTAssertEqual(second.bubbles.first?.prototype, prototype)
-        XCTAssertTrue(second.weeklyIDs.isEmpty)
+        XCTAssertTrue(second.recurringIDs.isEmpty)
         let other = try await store.readSchedule(for: .local)
         XCTAssertTrue(other.bubbles.isEmpty)
         XCTAssertTrue(other.plans.isEmpty)
@@ -37,9 +37,9 @@ final class PlannerRoutineTests: XCTestCase {
         let time = try XCTUnwrap(PlanTime(startMinute: 505, endMinute: 550))
         let original = try XCTUnwrap(PersonalPlan(day: key, title: "Clean drying trays", time: time, color: .orange))
         let first = try await store.save(PlanEdit(target: .create, plan: original, reusable: false,
-                                                 weekday: weekday, effectiveDay: key), for: .local)
+                                                 recurrence: .weekday(weekday), effectiveDay: key), for: .local)
         let occurrence = try XCTUnwrap(first.plans.first)
-        XCTAssertEqual(first.weeklyIDs, [original.id])
+        XCTAssertEqual(first.recurringIDs, [original.id])
         XCTAssertTrue(first.bubbles[0].visibleOnShelf)
         let previous = try await store.readDay(SchoolClock.key(date.addingTimeInterval(-7 * 86_400)), for: .local)
         XCTAssertTrue(previous.plans.isEmpty)
@@ -51,7 +51,7 @@ final class PlannerRoutineTests: XCTestCase {
         let updated = try XCTUnwrap(PersonalPlan(id: original.id, day: later, title: "Clean labelled trays",
                                                time: PlanTime(startMinute: 580, endMinute: 625)))
         _ = try await store.save(PlanEdit(target: .bubble(original.id), plan: updated, reusable: false,
-                                         weekday: weekday, effectiveDay: later), for: .local)
+                                         recurrence: .weekday(weekday), effectiveDay: later), for: .local)
         let restored = PlanStore(file: file)
         let old = try await restored.readDay(key, for: .local)
         let new = try await restored.readDay(later, for: .local)
@@ -61,7 +61,7 @@ final class PlannerRoutineTests: XCTestCase {
         XCTAssertEqual(new.plans.first?.time, updated.time)
         let future = SchoolClock.key(date.addingTimeInterval(14 * 86_400))
         _ = try await restored.save(PlanEdit(target: .bubble(original.id), plan: updated, reusable: true,
-                                            weekday: nil, effectiveDay: future), for: .local)
+                                            recurrence: nil, effectiveDay: future), for: .local)
         let stopped = try await restored.readDay(future, for: .local)
         XCTAssertTrue(stopped.plans.isEmpty)
         XCTAssertTrue(stopped.bubbles[0].visibleOnShelf)
@@ -89,7 +89,7 @@ final class PlannerRoutineTests: XCTestCase {
         let prototype = try XCTUnwrap(PersonalPlan(day: futureKey, title: "Inspect seal alignment",
                                                    time: PlanTime(startMinute: 12), reminder: .thirtyMinutes))
         var bubble = PlanBubble(prototype: prototype, reusable: false)
-        bubble.revise(weekday: weekday, effectiveDay: futureKey)
+        bubble.revise(recurrence: .weekday(weekday), effectiveDay: futureKey)
         let schedule = PlanStore.Schedule(bubbles: [bubble])
         let expected = SchoolClock.at(minute: 12, on: futureDate).addingTimeInterval(-30 * 60)
         let distant = PlanReminderPlanner.make(now: date, schedule: schedule)
@@ -98,7 +98,7 @@ final class PlannerRoutineTests: XCTestCase {
         let near = PlanReminderPlanner.make(now: futureDate.addingTimeInterval(-86_400), schedule: schedule)
         XCTAssertEqual(near.first?.nextFire, expected)
         XCTAssertEqual(near.first?.timing, .weekly(weekday: 1, minute: 1422))
-        bubble.revise(weekday: nil, effectiveDay: futureKey)
+        bubble.revise(recurrence: nil, effectiveDay: futureKey)
         XCTAssertTrue(PlanReminderPlanner.make(now: date, schedule: .init(bubbles: [bubble])).isEmpty)
     }
 

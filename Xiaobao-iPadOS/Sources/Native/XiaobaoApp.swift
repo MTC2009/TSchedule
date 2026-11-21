@@ -25,6 +25,9 @@ struct XiaobaoApp: App {
             if phase == .active { model.lessonActivity.clearOrphans() } else { model.stopLaunchLogin(resetForNextForeground: phase == .background) }
             model.cityWeather.setForeground(phase == .active)
             model.portal.foreground = phase == .active
+            model.timetableForeground = phase == .active
+            if phase == .active { model.timetable.restore() }
+            if phase == .background { model.timetable.cancel() }
             if model.school.selected {
                 if phase == .background {
                     model.setGradePageActive(false); model.portal.cancelSchoolReads(); model.school.suspend()
@@ -93,7 +96,10 @@ struct RootView: View {
         .id(scope.account)
         .navigationSplitViewStyle(.balanced)
         .onChange(of: model.tab) { _, _ in compactColumn = .detail }
-        .onChange(of: SchoolClock.calendar.startOfDay(for: model.now)) { _, _ in model.returnToNow() }
+        .onChange(of: SchoolClock.calendar.startOfDay(for: model.now)) { _, _ in
+            model.returnToNow()
+            if scenePhase == .active { Task { await model.refreshPlanReminders() } }
+        }
         .onChange(of: model.campus.account?.scope) { _, _ in
             model.reconcileLessonActivitySource()
             model.selectedLesson = nil
@@ -104,9 +110,18 @@ struct RootView: View {
             model.reconcileLessonActivitySource()
             Task { await model.refreshReminders() }
         }
-        .onChange(of: model.activePlanOwner) { _, _ in
+        .onChange(of: model.reminderAccess) { _, access in
             model.selectedLesson = nil
-            Task { await model.refreshReminders() }
+            if access != .waiting { Task { await model.refreshPlanReminders() } }
+        }
+        .onChange(of: model.planRotationCalendar?.sourceSHA256) { _, _ in
+            if scenePhase == .active { Task { await model.refreshPlanReminders() } }
+        }
+        // Changing tabs does not cancel/restart a first import, and browsing dates never
+        // schedules it. The store independently fences the session and skips a saved book.
+        .task(id: SchoolWarmup(epoch: model.school.epoch, owner: model.school.owner, page: .today,
+                               ready: scenePhase == .active && !model.portalPresented)) {
+            if scenePhase == .active, !model.portalPresented { await model.updateSchoolTimetable(manual: false) }
         }
         .task(id: SchoolWarmup(epoch: model.school.epoch, owner: model.school.owner, page: model.tab,
                                ready: scenePhase == .active && !model.portalPresented)) {

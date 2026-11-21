@@ -10,7 +10,13 @@ struct TodayView: View {
                 TodayRotationHeader(date: model.now, day: model.todayRotationDay,
                                     unpublished: calendar?.status == .unpublished)
                 let lessons = model.provider.lessons(on: model.now)
-                TodayTimetableView(timeline: model.provider.timeline(on: model.now, lessons: lessons)) { id in
+                let next = NextSchoolDay(after: model.now) { date in
+                    let source = model.provider, row = source.schoolCalendar.publishedDay(on: date)
+                    guard row?.teachingDay != nil else { return (row, nil) }
+                    return (row, source.timeline(on: date, lessons: source.lessons(on: date)))
+                }
+                TodayTimetableView(timeline: model.provider.timeline(on: model.now, lessons: lessons),
+                                   nextSchoolDay: next, noClassNotice: calendar?.notices.first) { id in
                     model.selectedLesson = lessons.first { $0.id == id }
                 }
                 Text("XIAOBAO").tracking(3)
@@ -25,13 +31,16 @@ struct TodayView: View {
 struct TodayTimetableView: View {
     @Environment(AppModel.self) private var model
     let timeline: LessonTimeline?
+    let nextSchoolDay: NextSchoolDay?
+    var noClassNotice: String? = nil
     var openLesson: ((String) -> Void)? = nil
 
     var body: some View {
         let instant = model.timetableInstant
         let focus = timeline?.focus(at: instant)
         let recess = timeline?.recess(at: instant)
-        FocusLessonCard(timeline: timeline, focus: focus, recess: recess, instant: instant, openLesson: openLesson)
+        FocusLessonCard(timeline: timeline, focus: focus, recess: recess, instant: instant,
+                        nextSchoolDay: nextSchoolDay, noClassNotice: noClassNotice, openLesson: openLesson)
         if let timeline, let bounds = timeline.bounds {
             TimeLensView(timeline: timeline, bounds: bounds, instant: instant, focus: focus, recess: recess)
             LessonActivityControl(timeline: timeline)
@@ -183,13 +192,15 @@ private struct FocusLessonCard: View {
     let focus: LessonTimeline.Block?
     let recess: DateInterval?
     let instant: Date
+    let nextSchoolDay: NextSchoolDay?
+    let noClassNotice: String?
     let openLesson: ((String) -> Void)?
 
     var body: some View {
         GlassCard {
             if let timeline {
                 if timeline.blocks.isEmpty {
-                    endOfDay("今天没有课", symbol: "calendar")
+                    endOfDay("今天没有排课", symbol: "calendar", notice: noClassNotice)
                 } else {
                     // Measure each real alternative at the current width and text size.
                     // Only the active content is drawn, interactive or read by VoiceOver.
@@ -281,13 +292,33 @@ private struct FocusLessonCard: View {
         .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
     }
 
-    private func endOfDay(_ title: String, symbol: String) -> some View {
+    private func endOfDay(_ title: String, symbol: String, notice: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             Label(title, systemImage: symbol).font(.title2.weight(.semibold))
-            Button("查看明天的计划", systemImage: "arrow.right") {
-                guard let tomorrow = SchoolClock.calendar.date(byAdding: .day, value: 1, to: model.now) else { return }
-                model.openPlanner(on: tomorrow)
-            }.buttonStyle(.glass)
+            if let notice { Text(notice).font(.subheadline).foregroundStyle(.secondary) }
+            if let next = nextSchoolDay {
+                let date = schoolDateLabel(next.date)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("下一个上课日").font(.subheadline).foregroundStyle(.secondary)
+                    Text(verbatim: next.rotation.map { "\(date) · Day \($0)" } ?? date)
+                        .font(.headline)
+                    if next.firstLessons.count > 1 {
+                        Text("首节有多个课次同时开始，可在计划中查看。")
+                    } else if let lesson = next.firstLessons.first {
+                        Text(verbatim: "第一节：\(lesson.name) · \(lesson.room ?? "教室未提供")")
+                    } else {
+                        Text("第一节课尚未确认")
+                    }
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("today-next-school-day")
+                Button("查看当天计划", systemImage: "arrow.right") { model.openPlanner(on: next.date) }
+                    .buttonStyle(.glass)
+                    .accessibilityHint("打开\(date)的计划")
+                    .accessibilityIdentifier("today-next-school-day-plan")
+            } else {
+                Text("下一个上课日尚未确认").font(.subheadline).foregroundStyle(.secondary)
+            }
         }
     }
 }

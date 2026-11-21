@@ -77,7 +77,7 @@ struct TasksView: View {
         .refreshable { await load(force: true) }
         .task(id: LoadKey(scope: scope, term: model.school.selected ? model.school.selectedTermID : term, active: phase == .active,
                           includesSchoolScores: model.school.allowsTaskScores)) {
-            if phase == .active { await load(force: false) }
+            if phase == .active { await load(force: model.school.selected) }
         }
     }
 

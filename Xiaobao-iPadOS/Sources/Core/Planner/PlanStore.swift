@@ -24,7 +24,7 @@ actor PlanStore {
     struct Day: Sendable {
         let plans: [PersonalPlan]
         let bubbles: [PlanBubble]
-        let weeklyIDs: Set<UUID>
+        let recurringIDs: Set<UUID>
     }
 
     struct Schedule: Codable, Equatable, Sendable {
@@ -36,10 +36,10 @@ actor PlanStore {
             return plans.allSatisfy(\.isValid) && bubbles.allSatisfy(\.isValid) && Set(ids).count == ids.count
         }
 
-        func day(_ key: String) -> Day {
-            let weekly = bubbles.compactMap { $0.occurrence(on: key) }
-            return Day(plans: plans.filter { $0.day == key } + weekly,
-                       bubbles: bubbles, weeklyIDs: Set(weekly.map(\.id)))
+        func day(_ key: String, calendar: PublishedSchoolCalendar? = nil) -> Day {
+            let occurrences = bubbles.compactMap { $0.occurrence(on: key, calendar: calendar) }
+            return Day(plans: plans.filter { $0.day == key } + occurrences,
+                       bubbles: bubbles, recurringIDs: Set(occurrences.map(\.id)))
         }
     }
 
@@ -55,12 +55,12 @@ actor PlanStore {
 
     init(file: URL) { self.file = file }
 
-    func read(day: String, for owner: PlanOwner) throws -> [PersonalPlan] {
-        try readDay(day, for: owner).plans
+    func read(day: String, for owner: PlanOwner, calendar: PublishedSchoolCalendar? = nil) throws -> [PersonalPlan] {
+        try readDay(day, for: owner, calendar: calendar).plans
     }
 
-    func readDay(_ day: String, for owner: PlanOwner) throws -> Day {
-        try readSchedule(for: owner).day(day)
+    func readDay(_ day: String, for owner: PlanOwner, calendar: PublishedSchoolCalendar? = nil) throws -> Day {
+        try readSchedule(for: owner).day(day, calendar: calendar)
     }
 
     func readSchedule(for owner: PlanOwner) throws -> Schedule {
@@ -73,12 +73,13 @@ actor PlanStore {
         return EditorState(schedule: schedule, canUndo: isCurrent && history.canUndo, canRedo: isCurrent && history.canRedo)
     }
 
-    func apply(_ command: Mutation, for owner: PlanOwner, session: UUID) throws -> EditorState {
+    func apply(_ command: Mutation, for owner: PlanOwner, session: UUID,
+               calendar: PublishedSchoolCalendar? = nil) throws -> EditorState {
         _ = try change(for: owner, session: session) { schedule in
             switch command {
             case .save(let edit): try Self.save(edit, in: &schedule)
-            case let .place(item, day, time, now): try Self.place(item, on: day, at: time, now: now, in: &schedule)
-            case let .complete(value, plan): try Self.complete(value, plan: plan, in: &schedule)
+            case let .place(item, day, time, now): try Self.place(item, on: day, at: time, now: now, calendar: calendar, in: &schedule)
+            case let .complete(value, plan): try Self.complete(value, plan: plan, calendar: calendar, in: &schedule)
             }
         }
         return try readEditor(for: owner, session: session)
@@ -98,42 +99,42 @@ actor PlanStore {
     }
 
     func create(_ plan: PersonalPlan, for owner: PlanOwner) throws -> [PersonalPlan] {
-        try save(PlanEdit(target: .create, plan: plan, reusable: false, weekday: nil,
+        try save(PlanEdit(target: .create, plan: plan, reusable: false, recurrence: nil,
                           effectiveDay: plan.day), for: owner).plans
     }
 
     func update(_ plan: PersonalPlan, for owner: PlanOwner) throws -> [PersonalPlan] {
-        try save(PlanEdit(target: .plan(plan.id), plan: plan, reusable: false, weekday: nil,
+        try save(PlanEdit(target: .plan(plan.id), plan: plan, reusable: false, recurrence: nil,
                           effectiveDay: plan.day), for: owner).plans
     }
 
     /// Record edits, template edits, and template + first placement are atomic.
-    func save(_ edit: PlanEdit, for owner: PlanOwner) throws -> Day {
-        try change(for: owner) { try Self.save(edit, in: &$0) }.day(edit.plan.day)
+    func save(_ edit: PlanEdit, for owner: PlanOwner, calendar: PublishedSchoolCalendar? = nil) throws -> Day {
+        try change(for: owner) { try Self.save(edit, in: &$0) }.day(edit.plan.day, calendar: calendar)
     }
 
     private static func save(_ edit: PlanEdit, in schedule: inout Schedule) throws {
         let plan = edit.plan
         guard plan.isValid, SchoolClock.dayDate(edit.effectiveDay) != nil,
-              edit.weekday.map({ (1...7).contains($0) && plan.time != nil }) ?? true else { throw StoreError.invalidPlan }
+              edit.recurrence.map({ $0.isValid && plan.time != nil }) ?? true else { throw StoreError.invalidPlan }
         switch edit.target {
         case .create:
             guard !schedule.plans.contains(where: { $0.id == plan.id }),
                   !schedule.bubbles.contains(where: { $0.id == plan.id }) else { throw StoreError.alreadyExists }
-            if edit.reusable || edit.weekday != nil {
+            if edit.reusable || edit.recurrence != nil {
                 var prototype = plan
                 prototype.isCompleted = false
                 var bubble = PlanBubble(prototype: prototype, reusable: edit.reusable)
-                bubble.revise(weekday: edit.weekday, effectiveDay: edit.effectiveDay)
+                bubble.revise(recurrence: edit.recurrence, effectiveDay: edit.effectiveDay)
                 schedule.bubbles.append(bubble)
-                if edit.weekday == nil, let time = plan.time, let initial = bubble.copy(on: plan.day, at: time) {
+                if edit.recurrence == nil, let time = plan.time, let initial = bubble.copy(on: plan.day, at: time) {
                     schedule.plans.append(initial)
                 }
             } else {
                 schedule.plans.append(plan)
             }
         case .plan(let id):
-            guard id == plan.id, !edit.reusable, edit.weekday == nil,
+            guard id == plan.id, !edit.reusable, edit.recurrence == nil,
                   let index = schedule.plans.firstIndex(where: { $0.id == id && $0.day == plan.day }) else {
                 throw StoreError.missingPlan
             }
@@ -151,21 +152,22 @@ actor PlanStore {
             bubble.prototype = prototype
             bubble.reusable = edit.reusable
             let effective = max(edit.effectiveDay, bubble.revisions.first?.effectiveDay ?? edit.effectiveDay)
-            bubble.revise(weekday: edit.weekday, effectiveDay: effective)
+            bubble.revise(recurrence: edit.recurrence, effectiveDay: effective)
             schedule.bubbles[index] = bubble
         }
     }
 
-    func placeBubble(_ id: UUID, on day: String, at time: PlanTime, for owner: PlanOwner) throws -> Day {
+    func placeBubble(_ id: UUID, on day: String, at time: PlanTime, for owner: PlanOwner,
+                     calendar: PublishedSchoolCalendar? = nil) throws -> Day {
         try change(for: owner) { schedule in
-            guard let bubble = schedule.bubbles.first(where: { $0.id == id && $0.reusable && $0.latest?.week == nil }),
+            guard let bubble = schedule.bubbles.first(where: { $0.id == id && $0.reusable && $0.latest?.rule == nil }),
                   let instance = bubble.copy(on: day, at: time) else { throw StoreError.missingPlan }
             schedule.plans.append(instance)
-        }.day(day)
+        }.day(day, calendar: calendar)
     }
 
     private static func place(_ item: PlanPlacementItem, on day: String, at time: PlanTime?, now: Date,
-                              in schedule: inout Schedule) throws {
+                              calendar: PublishedSchoolCalendar?, in schedule: inout Schedule) throws {
         guard let date = SchoolClock.dayDate(day), time?.isValid != false else { throw StoreError.invalidPlan }
         let source = item.plan
         switch item.source {
@@ -175,30 +177,33 @@ actor PlanStore {
             schedule.plans[index] = placed
         case .reusableBubble:
             guard let time, let bubble = schedule.bubbles.first(where: {
-                $0.prototype == source && $0.reusable && $0.latest?.week == nil
+                $0.prototype == source && $0.reusable && $0.latest?.rule == nil
             }), let placed = bubble.copy(on: day, at: time) else { throw StoreError.missingPlan }
             schedule.plans.append(placed)
-        case .weeklyBubble, .weeklyOccurrence:
+        case .recurringBubble, .occurrence:
             guard let time, let index = schedule.bubbles.firstIndex(where: { bubble in
-                bubble.id == source.id && bubble.latest?.week != nil &&
-                (item.source == .weeklyBubble ? bubble.prototype == source : bubble.occurrence(on: source.day) == source)
+                bubble.id == source.id && bubble.latest?.rule != nil &&
+                (item.source == .recurringBubble ? bubble.prototype == source : bubble.occurrence(on: source.day, calendar: calendar) == source)
             }) else { throw StoreError.missingPlan }
-            guard schedule.bubbles[index].reschedule(to: date, at: time, now: now) else { throw StoreError.invalidPlan }
+            guard schedule.bubbles[index].reschedule(to: date, at: time, now: now, calendar: calendar) else { throw StoreError.invalidPlan }
         }
     }
 
-    func setCompleted(_ completed: Bool, plan: PersonalPlan, for owner: PlanOwner) throws -> [PersonalPlan] {
-        try complete(completed, plan: plan, for: owner).plans
+    func setCompleted(_ completed: Bool, plan: PersonalPlan, for owner: PlanOwner,
+                      calendar: PublishedSchoolCalendar? = nil) throws -> [PersonalPlan] {
+        try complete(completed, plan: plan, for: owner, calendar: calendar).plans
     }
 
-    func complete(_ completed: Bool, plan: PersonalPlan, for owner: PlanOwner) throws -> Day {
-        try change(for: owner) { try Self.complete(completed, plan: plan, in: &$0) }.day(plan.day)
+    func complete(_ completed: Bool, plan: PersonalPlan, for owner: PlanOwner,
+                  calendar: PublishedSchoolCalendar? = nil) throws -> Day {
+        try change(for: owner) { try Self.complete(completed, plan: plan, calendar: calendar, in: &$0) }.day(plan.day, calendar: calendar)
     }
 
-    private static func complete(_ completed: Bool, plan: PersonalPlan, in schedule: inout Schedule) throws {
+    private static func complete(_ completed: Bool, plan: PersonalPlan, calendar: PublishedSchoolCalendar?,
+                                 in schedule: inout Schedule) throws {
         if let index = schedule.plans.firstIndex(where: { $0.id == plan.id && $0.day == plan.day }) {
             schedule.plans[index].isCompleted = completed
-        } else if let index = schedule.bubbles.firstIndex(where: { $0.id == plan.id && $0.occurrence(on: plan.day) != nil }) {
+        } else if let index = schedule.bubbles.firstIndex(where: { $0.id == plan.id && $0.occurrence(on: plan.day, calendar: calendar) != nil }) {
             schedule.bubbles[index].setCompleted(completed, on: plan.day)
         } else {
             throw StoreError.missingPlan

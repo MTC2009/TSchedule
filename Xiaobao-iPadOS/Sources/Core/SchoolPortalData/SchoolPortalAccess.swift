@@ -48,9 +48,12 @@ enum SchoolPortalPage {
         }
     }
 
-    static func issue(at url: URL?, foreground: Bool, loading: Bool) -> SchoolPortalIssue? {
+    static func issue(at url: URL?, foreground: Bool, loading: Bool, httpStatus: Int? = nil) -> SchoolPortalIssue? {
         guard foreground, !loading, let url, url.absoluteString != "about:blank" else { return .notReady }
         guard isOfficial(url) else { return .unavailable }
+        // A maintenance response at "/" is not evidence of sign-out. Only the
+        // main document at the matching URL may supply this status, never a subframe.
+        if let httpStatus, httpStatus == 429 || (500..<600).contains(httpStatus) { return .network }
         switch url.path.lowercased() {
         case "/home", "/home/", "/home/index", "/home/index/": return nil
         case "", "/", "/account/login", "/account/login/": return .login

@@ -24,7 +24,7 @@ struct PlannerScheduleCanvas: View {
     let acceptsTimeTap: Bool
     let opensSchool: Bool
     let compact: Bool
-    let weeklyIDs: Set<UUID>
+    let recurringIDs: Set<UUID>
     @Binding var shownGroup: PlannerDay.TimedRow.ID?
 
     var body: some View {
@@ -116,7 +116,7 @@ struct PlannerScheduleCanvas: View {
                     .mask { endpointMask(avoiding: schoolText) }
                     .allowsHitTesting(false).accessibilityHidden(true)
                 PlannerPlanAnnotations(values: annotations.annotations, day: day, actions: actions,
-                                       weeklyIDs: weeklyIDs, permitsOpening: !acceptsTimeTap, shownGroup: $shownGroup)
+                                       recurringIDs: recurringIDs, permitsOpening: !acceptsTimeTap, shownGroup: $shownGroup)
             }
         }
     }

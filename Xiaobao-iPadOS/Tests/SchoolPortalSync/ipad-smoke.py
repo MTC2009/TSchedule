@@ -26,6 +26,7 @@ class UIHandler(Handler):
     release_home = threading.Event()
     delegated = False
     account_boundary = False
+    annual = None
     navigation = False
     overviews = set()
     archive_reads = 0
@@ -41,6 +42,10 @@ class UIHandler(Handler):
     submissions = []
 
     def do_GET(self):
+        if self.account_boundary and self.path == "/?fixture-maintenance=1":
+            self.send_response(503); self.send_header("Content-Type", "text/html"); self.end_headers()
+            self.wfile.write(b"<title>Unavailable</title>"); return
+        if self.annual and self.annual.get(self): return
         if self.navigation and self.path == "/api/MemberShip/GetCurrentStudentInfo" and self.hold_identity:
             self.identity_resume.wait(timeout=14)
         if self.navigation and self.current_session():
@@ -96,6 +101,7 @@ if(r.ok){location.replace('/Home')}else{button.disabled=false;button.textContent
         else: self.send_error(404)
 
     def do_POST(self):
+        if self.annual and self.annual.post(self): return
         if self.account_boundary and self.path == "/api/v1/demo/sessions":
             info = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
             reply = {"access_token": "fixture-only", "expires_at": "2099-01-01T00:00:00Z"}
@@ -169,14 +175,19 @@ if(r.ok){location.replace('/Home')}else{button.disabled=false;button.textContent
 
 # The release project and its source tree are never rewritten. Only the throwaway
 # simulator target has a loopback origin, entitlement-free bundle ID and UI test target.
-def run(device, space, base, *, settings=False):
+def run(device, space, base, *, settings=False, planner_rotation=False, reminders=False):
     app = space/"app"
     shutil.copytree(root/"Xiaobao.xcodeproj", app/"Xiaobao.xcodeproj",
                     ignore=shutil.ignore_patterns("xcuserdata"))
     shutil.copytree(root/"Sources", app/"Sources")
     shutil.copytree(root/"Config", app/"Config")
     (app/"Resources").symlink_to(root/"Resources", target_is_directory=True)
-    (space/"xiaobao-backend").symlink_to(root.parent/"xiaobao-backend", target_is_directory=True)
+    if reminders:
+        calendar = space/"xiaobao-backend/src/provider/academic-calendar-hs-2026-2027.json"
+        calendar.parent.mkdir(parents=True)
+        calendar.write_text(json.dumps(UIHandler.annual.publication))
+    else:
+        (space/"xiaobao-backend").symlink_to(root.parent/"xiaobao-backend", target_is_directory=True)
 
     def replace(path, old, new):
         source = path.read_text()
@@ -192,6 +203,20 @@ def run(device, space, base, *, settings=False):
     replace(app/"Sources/Native/SchoolPortal.swift", 'if url.scheme == "https" ||',
             'if SchoolPortalPage.isOfficial(url) ||')
     shutil.copy2(tests/"GradeEntryUITests.swift", app/"GradeEntryUITests.swift")
+    if UIHandler.annual:
+        shutil.copy2(tests/"AnnualTimetableUITests.swift", app/"AnnualTimetableUITests.swift")
+        replace(app/"AnnualTimetableUITests.swift", "__ANNUAL_FIXTURE_ORIGIN__", base)
+    if reminders:
+        with (app/"Sources/Native/AppModel.swift").open("a") as target:
+            target.write("\n"+(tests/"ReminderQueueProbe.swift").read_text())
+        replace(app/"Sources/Native/XiaobaoApp.swift", "RootView()\n", "RootView().task { await model.sampleFixtureQueue() }\n")
+    elif UIHandler.annual:
+        # Only the disposable copy has clock switches; the installed product uses Date().
+        clock = ('(ProcessInfo.processInfo.arguments.contains("-AnnualAfterSchool") ? SchoolClock.date(2026, 9, 30, minute: 1040) : '
+                 'ProcessInfo.processInfo.arguments.contains("-AnnualHoliday") ? SchoolClock.date(2026, 10, 2) : SchoolClock.date(2026, 9, 10, minute: 540))')
+        replace(app/"Sources/Native/AppModel.swift", "var now = Date()", "var now = "+clock)
+        replace(app/"Sources/Native/AppModel.swift", "        now = Date()", "        now = "+clock)
+        replace(app/"Sources/Native/XiaobaoApp.swift", "model.now = Date()", "model.now = "+clock)
     if UIHandler.lesson_activity:
         shutil.copy2(tests/"LessonActivityUITests.swift", app/"LessonActivityUITests.swift")
         replace(app/"LessonActivityUITests.swift", "__ACTIVITY_FIXTURE_ORIGIN__", base)
@@ -242,12 +267,16 @@ s.save_as('Xiaobao.xcodeproj', 'GradeEntryFixture')
 """
     fixture_id = ("cn.xiaobao.fixture.navigation" if UIHandler.navigation else "cn.xiaobao.fixture.boundary" if UIHandler.account_boundary else "cn.xiaobao.fixture.settings" if settings else
                   "cn.xiaobao.fixture.lesson-activity" if UIHandler.lesson_activity else "cn.xiaobao.fixture.grade-entry")
+    if UIHandler.annual: fixture_id = "cn.xiaobao.fixture.annual.r"+uuid.uuid4().hex[:12]
     if UIHandler.delegated:
         # Each loopback port represents a different school origin. Never carry a previous
         # run's bound identity into it. The process restart inside one run keeps its Keychain.
         fixture_id = "cn.xiaobao.fixture.signin.r" + uuid.uuid4().hex[:12]
     subprocess.run(["ruby", "-e", spec, fixture_id, "unit" if UIHandler.account_boundary else "ui"], cwd=app, check=True)
-    test = ("SchoolNavigationUITests/testListsAreWarmedTermsAreOnDemandAndSlowIdentityCanRetry" if UIHandler.navigation else
+    test = ("AnnualTimetableUITests/testBackgroundRemindersAndPrivacyCleanup" if reminders else
+            "AnnualTimetableUITests/testPersonalPlanCanSwitchBetweenRotationAndWeekday" if planner_rotation else
+            "AnnualTimetableUITests/testSavedYearDrivesTodayAndPlannerWhileLiveRecordsRefresh" if UIHandler.annual else
+            "SchoolNavigationUITests/testListsAreWarmedTermsAreOnDemandAndSlowIdentityCanRetry" if UIHandler.navigation else
             "AccountBoundaryTests" if UIHandler.account_boundary else
             "SettingsUITests/testShippingSettingsIgnoreLegacySourceAndNeverOfferFixtures" if settings else
             "LessonActivityUITests/testStartsFromTheLoadedSchoolDayAndCanBeStopped" if UIHandler.lesson_activity else
@@ -260,6 +289,7 @@ s.save_as('Xiaobao.xcodeproj', 'GradeEntryFixture')
                     "-derivedDataPath", str(space/"DerivedData"), "COMPILER_INDEX_STORE_ENABLE=NO",
                     "ONLY_ACTIVE_ARCH=YES", "CODE_SIGN_IDENTITY=-", "test"], cwd=app, timeout=390)
     if result.returncode:
+        if reminders: print("Synthetic notification transitions:", UIHandler.annual.transitions[-18:])
         print("Fixture counters: homes, login pages, grade generations, attendance reads, submission results:",
               UIHandler.homes, UIHandler.login_pages, UIHandler.grade_generations, UIHandler.attendance_reads, UIHandler.submissions)
         for report in (space/"DerivedData/Logs/Test").glob("*.xcresult"):
@@ -281,9 +311,18 @@ if __name__ == "__main__":
     mode.add_argument("--settings",action="store_true",help="Check school-only settings and legacy-source upgrade, enrollment disclosure and large text")
     mode.add_argument("--native-reads",action="store_true",help="Verify native attendance, current-course detail and deliberate GPA refresh")
     mode.add_argument("--lesson-activity",action="store_true",help="Start and stop a local Live Activity from the loaded synthetic school day")
+    mode.add_argument("--annual", action="store_true", help="Verify offline cold launch, shared rotation, live data and failed manual replacement")
+    mode.add_argument("--planner-rotation", action="store_true", help="Create, change and stop a personal plan with the cached teaching calendar")
     mode.add_argument("--navigation", action="store_true", help="Check the verified cache, terms, prefetched lists and bounded identity recovery")
     mode.add_argument("--account-boundary", action="store_true", help="Verify fixture logout, expiry and cold restart against isolated native stores")
+    mode.add_argument("--reminders", action="store_true", help="Test real pending and delivered notifications in the isolated iPad app")
     args = parser.parse_args()
+    if args.reminders:
+        from reminder_fixture import ReminderFixture
+        UIHandler.annual = ReminderFixture(); UIHandler.release_home.set()
+    elif args.annual or args.planner_rotation:
+        from annual_fixture import AnnualFixture
+        UIHandler.annual = AnnualFixture(); UIHandler.release_home.set()
     UIHandler.navigation = args.navigation
     UIHandler.account_boundary = args.account_boundary
     UIHandler.delegated = args.delegated
@@ -296,10 +335,20 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory(prefix="tschedule-grade-ui-") as d, ThreadingHTTPServer(("127.0.0.1", 0), UIHandler) as server:
         threading.Thread(target=server.serve_forever, daemon=True).start()
         try:
-            run(args.device, Path(d), "http://127.0.0.1:" + str(server.server_port), settings=args.settings)
+            run(args.device, Path(d), "http://127.0.0.1:" + str(server.server_port), settings=args.settings,
+                planner_rotation=args.planner_rotation, reminders=args.reminders)
         finally:
             server.shutdown()
-        if args.navigation:
+        if args.reminders:
+            assert UIHandler.annual.count == UIHandler.annual.baseline and not UIHandler.submissions
+            print("PASS: system delivered both alerts in background; class opt-out preserved personal alerts; logout cleared both.")
+        elif args.planner_rotation:
+            assert UIHandler.annual.baseline > 0 and UIHandler.annual.count == UIHandler.annual.baseline and not UIHandler.submissions
+            print("PASS: recurrence editor saved a rotation Day, switched to weekday, stopped the series, no additional schedule reads")
+        elif args.annual:
+            assert UIHandler.annual.count == UIHandler.annual.baseline+1 and not UIHandler.submissions
+            print("PASS: annual import, zero browsing reads, live summaries, failed replacement and offline cold relaunch")
+        elif args.navigation:
             assert UIHandler.archive_reads >= 1 and not UIHandler.unexpected_posts
             print("PASS: overview prefetch, task/GPA term switch, preserved cache, stalled identity and retry")
         elif args.account_boundary:
@@ -310,8 +359,11 @@ if __name__ == "__main__":
             print("PASS: started and stopped a local Live Activity from the loaded schedule; no grades or re-login")
         elif args.native_reads:
             assert UIHandler.grade_generations == [1,1] and UIHandler.homes == 1 and UIHandler.login_pages == 0
-            assert UIHandler.attendance_reads == ["GetAttendanceStatistic","GetSubjectAttendanceStatistic","GetSubjectAttendanceDetail",
-                                                  "GetAttendanceStatistic","GetAttendanceStatistic","GetAttendanceStatisticDetail"]
+            # A newly mounted attendance tab refreshes live data. Prefetch can be joined
+            # if still in flight; the return to Attendance must read the classroom summary again.
+            summary = ["GetAttendanceStatistic","GetSubjectAttendanceStatistic"]
+            tail = ["GetSubjectAttendanceDetail", *summary, "GetAttendanceStatistic","GetAttendanceStatistic","GetAttendanceStatisticDetail"]
+            assert UIHandler.attendance_reads in (summary+tail, summary+summary+tail), UIHandler.attendance_reads
             assert not UIHandler.submissions and not UIHandler.unexpected_posts
             print("PASS: GPA on entry, fresh on refresh and reused on return; native attendance, course detail, refused read and empty retry; no web sheet or password")
         elif args.settings:

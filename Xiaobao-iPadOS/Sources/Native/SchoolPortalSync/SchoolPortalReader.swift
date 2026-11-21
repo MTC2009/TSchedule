@@ -27,8 +27,7 @@ final class SchoolPortalReader {
     func read(_ request: SchoolPortalRead, expected: String?) async throws -> Data {
         guard let session, let script else { throw SchoolPortalIssue.unavailable }
         let web = session.webView, revision = session.revision
-        if let issue = SchoolPortalPage.issue(at: web.url, foreground: session.foreground,
-                                             loading: session.loading || web.isLoading) { throw issue }
+        if let issue = session.documentIssue(loading: session.loading || web.isLoading) { throw issue }
         let generation = session.readGeneration
         let op: String, params: [String: Any]
         switch request {
@@ -55,13 +54,19 @@ final class SchoolPortalReader {
         let arguments: [String: Any] = ["operation":op, "parameters":params, "expected":expected ?? "",
                                              "salt":salt, "generation":generation.uuidString]
         let value: Any?
+        let timeout: Duration? = switch request {
+        case .identity: .seconds(8)
+        case .week: .seconds(16)
+        default: nil
+        }
         do {
-            if request == .identity {
-                // WebKit can suspend a detached document's JS timers. Bound the native wait too.
+            if let timeout {
+                // A detached web document can suspend JS timers. A hung calendar read
+                // must not leave the sole manual update action permanently disabled.
                 value = try await withCheckedThrowingContinuation { continuation in
-                    let wait = IdentityReply(continuation)
+                    let wait = BoundedReply(continuation)
                     let deadline = Task {
-                        do { try await Task.sleep(for: .seconds(8)) } catch { return }
+                        do { try await Task.sleep(for: timeout) } catch { return }
                         wait.finish(.failure(SchoolPortalIssue.network))
                     }
                     web.callAsyncJavaScript(script, arguments: arguments, in: nil, in: .defaultClient) { result in
@@ -81,7 +86,7 @@ final class SchoolPortalReader {
         return Data(text.utf8)
     }
 
-    @MainActor private final class IdentityReply {
+    @MainActor private final class BoundedReply {
         private var continuation: CheckedContinuation<Any?, Error>?
         init(_ continuation: CheckedContinuation<Any?, Error>) { self.continuation = continuation }
         func finish(_ result: Result<Any, Error>) {

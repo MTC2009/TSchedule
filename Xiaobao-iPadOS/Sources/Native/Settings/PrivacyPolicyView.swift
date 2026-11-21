@@ -1,28 +1,101 @@
 import SwiftUI
 
+/// Both documents stay readable without opening the school website or verifying an account.
 struct PrivacyPolicyView: View {
+    @State private var english = Locale.preferredLanguages.first?.hasPrefix("en") == true
+
     var body: some View {
         SettingsForm {
-            Section("适用范围") {
-                Text("TSchedule 是独立的校园工具，并非校宝或学校的官方 App。这份说明介绍 App 如何处理资料。")
-            }
-            Section("校宝登录与学习资料") {
-                Text("你在校宝的页面登录。TSchedule 通过这台 iPad 的网页会话读取本人可见的课表、任务、考勤和已公布成绩。学习资料只在当前会话中使用。网页会话由系统网页组件管理。")
-                Text("本机代登录默认关闭。你可以自行开启，把密码保存在仅本机可用的系统钥匙串中，不同步到 iCloud。仅在允许的前台打开 App 或主动查看 GPA 时，已有会话失效才会使用它登录校宝。可在个人信息中关闭启动恢复或移除绑定。")
-            }
-            Section("本机内容与锁屏") {
-                Text("昵称、外观、提醒偏好和个人计划保存在设备上。昵称不改写校宝资料。个人计划按资料账号区分；退出不等于删除计划。")
-                Text("开启实时活动后，距离下课的分钟数、下一节课程名及自定义小标题可在锁屏上显示，旁人可能看见。个人计划提醒由 iPadOS 安排，能否在锁屏显示内容取决于系统的通知设置。")
-            }
-            Section("城市天气") {
-                Text("自动天气向 Open-Meteo 请求东莞市的固定位置，不读取你的定位，也不发送校宝资料。天气服务会收到 IP 地址等网络连接信息。你可以在「外观 → 天气与外观」关闭自动天气。")
-            }
-            Section("你的选择") {
-                Text("在「个人信息 → 校园资料」可移除本机代登录、退出校宝或清除本机校宝登录资料。清空昵称或自定义文字后保存即可移除；个人计划可在「计划」中删除。")
-                Text("可在「今日」随时结束锁屏课表，或在 iPad 的系统设置管理 TSchedule 的通知和实时活动权限。")
-                Text("清除本机资料不会删除学校保存的记录。查阅或更正学校记录，请通过学校已有渠道。")
+            if let copy = PolicyCopy.bundled {
+                Section {
+                    NavigationLink {
+                        SettingsForm {
+                            PolicySections(copy: copy, document: copy.terms, english: $english)
+                        }
+                        .navigationTitle(copy.terms.title.text(english))
+                    } label: {
+                        Text(verbatim: copy.terms.title.text(english))
+                    }
+                    .accessibilityIdentifier("settings-terms-page")
+                }
+                PolicySections(copy: copy, document: copy.privacy, english: $english)
+            } else {
+                Text("当前安装包缺少隐私与条款文档。 / The policy documents are missing from this installation.")
             }
         }
-        .navigationTitle("隐私说明")
+        .navigationTitle(english ? "Privacy" : "隐私说明")
     }
+}
+
+private struct PolicySections: View {
+    let copy: PolicyCopy
+    let document: PolicyCopy.Document
+    @Binding var english: Bool
+
+    var body: some View {
+        Section {
+            Picker(english ? "Document language" : "文档语言", selection: $english) {
+                Text(verbatim: "简体中文").tag(false)
+                Text(verbatim: "English").tag(true)
+            }
+            .pickerStyle(.segmented)
+            Text(verbatim: document.intro.text(english))
+        } footer: {
+            if let publisher = copy.publisher, let date = copy.effectiveDate {
+                Text(verbatim: english ? "Publisher: \(publisher) · Effective: \(date)" : "发布者：\(publisher) · 生效日期：\(date)")
+            } else {
+                Text(verbatim: copy.draftNotice.text(english))
+            }
+        }
+        ForEach(document.sections.indices, id: \.self) { index in
+            let section = document.sections[index]
+            Section {
+                Text(verbatim: section.body.text(english))
+            } header: {
+                Text(verbatim: section.heading.text(english))
+            }
+        }
+        Section {
+            if let address = URL(string: "mailto:\(copy.contact)") {
+                Link(destination: address) { Text(verbatim: copy.contact) }
+            }
+            LabeledContent(english ? "Last revised" : "最近修订", value: copy.revised)
+        } header: {
+            Text(english ? "Contact" : "联系维护者")
+        }
+    }
+}
+
+/// The static review pages are rendered from this same app resource; never fetch policy copy at launch.
+private struct PolicyCopy: Decodable {
+    struct Wording: Decodable {
+        let zh: String
+        let en: String
+        func text(_ english: Bool) -> String { english ? en : zh }
+    }
+
+    struct Paragraph: Decodable {
+        let heading: Wording
+        let body: Wording
+    }
+
+    struct Document: Decodable {
+        let title: Wording
+        let intro: Wording
+        let sections: [Paragraph]
+    }
+
+    let privacy: Document
+    let terms: Document
+    let revised: String
+    let publisher: String?
+    let effectiveDate: String?
+    let contact: String
+    let draftNotice: Wording
+
+    static let bundled: Self? = {
+        guard let url = Bundle.main.url(forResource: "PolicyCopy", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(PolicyCopy.self, from: data)
+    }()
 }

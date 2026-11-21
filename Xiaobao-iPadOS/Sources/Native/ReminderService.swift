@@ -15,6 +15,9 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
     var route: NotificationRoute?
     var working = false
     private(set) var planStatus: String?
+    private(set) var schoolStatus: String?
+    @ObservationIgnored var permitsSchoolDelivery: @MainActor @Sendable () -> Bool = { false }
+    @ObservationIgnored var permitsPersonalDelivery: @MainActor @Sendable () -> Bool = { false }
     private static let pendingBudget = 60
     @ObservationIgnored private let center = UNUserNotificationCenter.current()
     @ObservationIgnored private var revision = UUID()
@@ -27,11 +30,20 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func requestPermission() async -> Bool {
-        do {
-            let allowed = try await center.requestAuthorization(options: [.alert, .sound, .badge])
-            if !allowed { status = "通知未获授权，可以在系统设置中开启。" }
-            return allowed
-        } catch { status = error.localizedDescription; return false }
+        // Do not leave a switch disabled forever if the system fails to present or
+        // answer the dialog. A late grant never enables this device setting by itself.
+        enum Answer: Sendable { case allowed, denied, unavailable }
+        let answer: Answer? = await readNotificationState(timeout: .seconds(60)) { reply in
+            center.requestAuthorization(options: [.alert, .sound, .badge]) { allowed, error in
+                reply(error != nil ? .unavailable : allowed ? .allowed : .denied)
+            }
+        }
+        switch answer {
+        case .allowed: return true
+        case .denied: status = "通知未获授权，可以在系统设置中开启。"
+        case .unavailable, nil: status = "系统暂未返回通知授权结果，请稍后重试。"
+        }
+        return false
     }
 
     #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
@@ -56,7 +68,8 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
         // Preserve the existing school allocation. Personal reminders fill only
         // the remainder when the caller reconciles them after the school write.
         let overflow = max(0, allIDs.count - school.count + plan.count - Self.pendingBudget)
-        center.removePendingNotificationRequests(withIdentifiers: school + Array(personal.prefix(overflow)))
+        let replaced = school + Array(personal.prefix(overflow))
+        if !replaced.isEmpty { center.removePendingNotificationRequests(withIdentifiers: replaced) }
         var count = 0
         do {
             for item in plan {
@@ -88,12 +101,12 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
         let (requests, shown) = await (pending, delivered)
         guard revision == token else { return }
         if let requests {
-            center.removePendingNotificationRequests(withIdentifiers: requests.map(\.identifier)
-                .filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) })
+            let retired = requests.map(\.identifier).filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) }
+            if !retired.isEmpty { center.removePendingNotificationRequests(withIdentifiers: retired) }
             pendingCount = 0
         }
-        if let shown {
-            center.removeDeliveredNotifications(withIdentifiers: shown.filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) })
+        if let retired = shown?.filter({ $0.hasPrefix(ReminderPlanner.identifierPrefix) }), !retired.isEmpty {
+            center.removeDeliveredNotifications(withIdentifiers: retired)
         }
         status = requests == nil || shown == nil ? "暂时无法确认课表提醒已移除。" : "课表提醒已关闭"
     }
@@ -101,102 +114,140 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
     func requestPlanPermission() async {
         // Do not await the permission dialog while holding the plan write queue.
         // It may stay open while the app changes scenes or the owner changes.
-        _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
+        _ = await requestPermission()
     }
 
-    func syncPlanReminders(_ plan: [PlannedPlanReminder], subtitle: String?) async {
-        await runPlanOperation { [weak self] token in
-            await self?.applyPlanReminders(plan, subtitle: subtitle ?? "", token: token)
+    /// nil personal input means that its protected records cannot be read: leave its
+    /// queue untouched. An empty input means the owner has no eligible reminders.
+    func syncDeviceReminders(plans: [PlannedPlanReminder]?, lessons: [SchoolLessonReminder], subtitle: String?) async {
+        let work = enqueue { [weak self] token in
+            guard let self, await self.finishRemoval(), self.planRevision == token else { return }
+            await self.apply(plans: plans, lessons: lessons, subtitle: subtitle ?? "", token: token)
         }
+        await work.value
     }
 
-    private func applyPlanReminders(_ plan: [PlannedPlanReminder], subtitle: String, token: UUID) async {
-        let authorization = await notificationAuthorization()
+    private func apply(plans: [PlannedPlanReminder]?, lessons: [SchoolLessonReminder], subtitle: String, token: UUID) async {
+        async let auth = notificationAuthorization()
+        async let list = pendingRequests()
+        let (authorization, pending) = await (auth, list)
         guard planRevision == token else { return }
         let unavailable = "暂时无法更新系统提醒，下次打开 App 会重试。"
-        guard let authorization else { planStatus = unavailable; return }
-        if authorization == .notDetermined {
-            planStatus = plan.isEmpty ? nil : "计划已保存；请在系统设置允许通知。"
-            return
+        guard let authorization, let pending else {
+            if plans != nil { planStatus = unavailable }; schoolStatus = unavailable; return
         }
-        let pending = await pendingRequests()
-        guard planRevision == token else { return }
-        guard let pending else { planStatus = unavailable; return }
-        let existing = pending.filter { $0.identifier.hasPrefix(PlanReminderPlanner.identifierPrefix) }
         let allowed = authorization == .authorized || authorization == .provisional
-        guard allowed, !plan.isEmpty else {
-            center.removePendingNotificationRequests(withIdentifiers: existing.map(\.identifier))
-            planStatus = plan.isEmpty ? nil : "计划已保存；请在系统设置允许通知。"
-            return
-        }
-        let limit = max(0, Self.pendingBudget - (pending.count - existing.count))
-        let candidates = Array(plan.prefix(limit))
-        let signatures = Set(candidates.map(planSignature))
-        // Check the OS content itself so a subtitle edit or reset replaces the
-        // pending personal request without changing legacy plan signatures.
-        let (retained, stale) = existing.reduce(into: (Set<String>(), [String]())) { result, request in
-            if let key = request.planSignature, signatures.contains(key), request.subtitle == subtitle {
-                result.0.insert(key)
-            } else {
-                result.1.append(request.identifier)
+        let personal = pending.filter { $0.identifier.hasPrefix(PlanReminderPlanner.identifierPrefix) }
+        let school = pending.filter { $0.identifier.hasPrefix(SchoolLessonReminder.prefix) }
+        // Lend unused capacity to the other type; with a full queue neither type can
+        // starve the other. Other namespaces, including a test alert, are never evicted.
+        let free = max(0, Self.pendingBudget - pending.count + (plans == nil ? 0 : personal.count) + school.count)
+        let planCount = allowed ? min(plans?.count ?? 0, max((free + 1) / 2, free - lessons.count)) : 0
+        let candidates = Array((plans ?? []).prefix(planCount))
+        let classes = Array(lessons.prefix(allowed ? max(0, free - planCount) : 0))
+        var stale: [String] = [], keptPlans = Set<String>()
+        if plans != nil {
+            let signatures = Set(candidates.map(planSignature))
+            for old in personal {
+                if let sig = old.planSignature, signatures.contains(sig), old.subtitle == subtitle,
+                   keptPlans.insert(sig).inserted { continue }
+                stale.append(old.identifier)
             }
         }
-        center.removePendingNotificationRequests(withIdentifiers: stale)
-        var failures = false
-        for item in candidates {
+        let desired = Set(classes.map(\.id)), keptClasses = Set(school.map(\.identifier)).intersection(desired)
+        stale += school.map(\.identifier).filter { !desired.contains($0) }
+        if !stale.isEmpty { center.removePendingNotificationRequests(withIdentifiers: stale) }
+        var planFailed = false, schoolCount = keptClasses.count
+        for item in candidates where !keptPlans.contains(planSignature(item)) {
             guard planRevision == token else { return }
-            let signature = planSignature(item)
-            guard !retained.contains(signature) else { continue }
-            let request = planRequest(item, subtitle: subtitle, signature: signature, token: token)
-            do {
-                try await center.add(request)
-                guard planRevision == token else {
-                    center.removePendingNotificationRequests(withIdentifiers: [request.identifier])
-                    return
-                }
-            } catch { failures = true }
+            let request = planRequest(item, subtitle: subtitle, signature: planSignature(item), token: token)
+            do { try await center.add(request) } catch { planFailed = true }
+            guard planRevision == token else { center.removePendingNotificationRequests(withIdentifiers: [request.identifier]); return }
+        }
+        for item in classes where !keptClasses.contains(item.id) {
+            guard planRevision == token else { return }
+            do { try await center.add(Self.schoolRequest(item)); schoolCount += 1 } catch { /* reported by count below */ }
+            guard planRevision == token else { center.removePendingNotificationRequests(withIdentifiers: [item.id]); return }
         }
         guard planRevision == token else { return }
-        planStatus = failures ? "部分计划提醒未能登记。" :
-            (candidates.count < plan.count ? "通知队列已满，仅安排最近的计划提醒。" : nil)
-    }
-
-    func clearPlanReminders() async {
-        await runPlanOperation(mustRun: true) { [weak self] _ in
-            await self?.removePlanReminders()
+        let denied = "请在 iPad 系统设置中允许 TSchedule 发送通知。"
+        if let plans {
+            if !plans.isEmpty && !allowed { planStatus = denied }
+            else if planFailed { planStatus = "部分计划提醒未能登记。" }
+            else { planStatus = candidates.count < plans.count ? "通知队列已满，仅安排最近的计划提醒。" : nil }
         }
+        if !allowed { schoolStatus = denied }
+        else if schoolCount < classes.count { schoolStatus = "已安排 \(schoolCount) 条课前提醒，部分未能登记。" }
+        else if schoolCount < lessons.count { schoolStatus = "通知名额有限，已安排最近的 \(schoolCount) 条课前提醒。" }
+        else { schoolStatus = schoolCount == 0 ? "未来 7 天没有可安排的课前提醒。" : "已安排未来 7 天的 \(schoolCount) 条课前提醒。" }
     }
 
-    /// The next reconciliation cannot retain an add that the previous one
-    /// is still cancelling. A scope clear runs before its replacement.
-    private func runPlanOperation(mustRun: Bool = false,
-                                  _ operation: @escaping @MainActor (UUID) async -> Void) async {
-        let token = UUID()
+    /// No account, title, room, custom subtitle or navigation record enters the OS payload.
+    static func schoolRequest(_ item: SchoolLessonReminder) -> UNNotificationRequest {
+        let content = UNMutableNotificationContent()
+        content.title = "课前提醒"
+        content.body = item.lead == 0 ? "现在是上课时间。" : "距离上课还有 \(item.lead) 分钟。"
+        content.sound = .default
+        let clock = SchoolClock.calendar
+        var date = clock.dateComponents([.year, .month, .day, .hour, .minute], from: item.fireDate)
+        date.calendar = clock; date.timeZone = clock.timeZone
+        return UNNotificationRequest(identifier: item.id, content: content,
+            trigger: UNCalendarNotificationTrigger(dateMatching: date, repeats: false))
+    }
+
+    private static let accountRemoval = "tschedule.notifications.clearAccount"
+    private static let schoolRemoval = "tschedule.notifications.clearLessons"
+
+    /// Record revocation before yielding (even if the app is killed mid-cleanup).
+    /// A privacy clear is ordered before all writes that follow it, never superseded.
+    @discardableResult func requireRemoval(includingPlans: Bool) -> Task<Void, Never> {
+        UserDefaults.standard.set(UUID().uuidString, forKey: includingPlans ? Self.accountRemoval : Self.schoolRemoval)
+        return enqueue(mustRun: true) { [weak self] _ in _ = await self?.finishRemoval() }
+    }
+
+    private func enqueue(mustRun: Bool = false, _ op: @escaping @MainActor (UUID) async -> Void) -> Task<Void, Never> {
+        let token = UUID(), previous = planOperation
         planRevision = token
-        let previous = planOperation
         let step = Task { [weak self] in
             await previous?.value
             guard mustRun || self?.planRevision == token else { return }
-            await operation(token)
+            await op(token)
+            if self?.planRevision == token { self?.planOperation = nil }
         }
         planOperation = step
-        await step.value
-        if planRevision == token { planOperation = nil }
+        return step
     }
 
-    private func removePlanReminders() async {
-        if await notificationAuthorization() == .notDetermined { planStatus = nil; return }
-        async let oldRequests = pendingRequests()
-        async let deliveredIDs = deliveredRequestIDs()
-        let (old, shown) = await (oldRequests, deliveredIDs)
-        if let old {
-            center.removePendingNotificationRequests(withIdentifiers: old.map(\.identifier)
-                .filter { $0.hasPrefix(PlanReminderPlanner.identifierPrefix) })
+    func retryRemovalIfNeeded() async {
+        if UserDefaults.standard.object(forKey: Self.accountRemoval) != nil ||
+            UserDefaults.standard.object(forKey: Self.schoolRemoval) != nil {
+            await enqueue(mustRun: true) { [weak self] _ in _ = await self?.finishRemoval() }.value
         }
-        if let shown {
-            center.removeDeliveredNotifications(withIdentifiers: shown.filter { $0.hasPrefix(PlanReminderPlanner.identifierPrefix) })
+    }
+
+    private func finishRemoval() async -> Bool {
+        let defaults = UserDefaults.standard
+        let account = defaults.string(forKey: Self.accountRemoval), school = defaults.string(forKey: Self.schoolRemoval)
+        guard account != nil || school != nil else { return true }
+        func matches(_ id: String) -> Bool {
+            id.hasPrefix(SchoolLessonReminder.prefix) || (account != nil && id.hasPrefix(PlanReminderPlanner.identifierPrefix))
         }
-        planStatus = old == nil || shown == nil ? "暂时无法确认旧计划提醒已移除。" : nil
+        async let pending = pendingRequests()
+        async let delivered = deliveredRequestIDs()
+        let (requests, shown) = await (pending, delivered)
+        if let ids = requests?.map(\.identifier).filter(matches), !ids.isEmpty {
+            center.removePendingNotificationRequests(withIdentifiers: ids)
+        }
+        if let ids = shown?.filter(matches), !ids.isEmpty { center.removeDeliveredNotifications(withIdentifiers: ids) }
+        guard requests != nil, shown != nil else {
+            schoolStatus = "暂时无法确认旧提醒已移除。"; if account != nil { planStatus = schoolStatus }; return false
+        }
+        schoolStatus = nil
+        if account != nil { planStatus = nil }
+        for (key, stamp) in [(Self.accountRemoval, account), (Self.schoolRemoval, school)] {
+            if let stamp, defaults.string(forKey: key) == stamp { defaults.removeObject(forKey: key) }
+        }
+        return true
     }
 
     private struct PendingRequest: Sendable {
@@ -230,13 +281,14 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
     // A missing response from the notification daemon must not hold the serial
     // write queue indefinitely. An unknown queue is never treated as empty.
     private func readNotificationState<Value: Sendable>(
+        timeout: Duration = .seconds(4),
         _ start: (@escaping @Sendable (Value) -> Void) -> Void
     ) async -> Value? {
         await withCheckedContinuation { continuation in
             let read = NotificationRead(continuation)
             start { value in Task { @MainActor in read.finish(value) } }
             Task {
-                try? await Task.sleep(for: .seconds(4))
+                try? await Task.sleep(for: timeout)
                 read.finish(nil)
             }
         }
@@ -305,7 +357,18 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
 
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
         willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        if notification.request.identifier.hasPrefix(ReminderPlanner.identifierPrefix) {
+        let id = notification.request.identifier
+        if id.hasPrefix(SchoolLessonReminder.prefix) || id.hasPrefix(PlanReminderPlanner.identifierPrefix) {
+            let clearing = await MainActor.run {
+                let defaults = UserDefaults.standard
+                return defaults.object(forKey: Self.accountRemoval) != nil ||
+                    (id.hasPrefix(SchoolLessonReminder.prefix) && defaults.object(forKey: Self.schoolRemoval) != nil)
+            }
+            if clearing { return [] }
+        }
+        if id.hasPrefix(SchoolLessonReminder.prefix), !(await permitsSchoolDelivery()) { return [] }
+        if id.hasPrefix(PlanReminderPlanner.identifierPrefix), !(await permitsPersonalDelivery()) { return [] }
+        if id.hasPrefix(ReminderPlanner.identifierPrefix) {
             #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
             guard await permitsFixtureDelivery() else { return [] }
             #else

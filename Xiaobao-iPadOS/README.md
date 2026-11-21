@@ -33,9 +33,9 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
 ## 在 App 里读取本人的真实校宝资料
 
 1. 点侧栏「完整校宝」（或「设置 → 个人信息 → 校园资料 → 登录校宝」）。在学校自己的网页完成登录。
-2. 确认进入学校首页后点「完成」。「今日」读取当周实际安排；在「计划」翻周会读取那一周。来源没有提供的轮转 Day、铃声表或课室不编造；失败和没有排课分别显示。
-3. App 先显示当前栏目，在前台依次准备本周课表、任务、考勤摘要、考试、测评和资料目录。只读取列表，不下载附件。「我的任务」和「GPA」共用校宝返回的学期选项；往期记录只在选择后读取。
-4. 打开「GPA」才读取已公布成绩。同一已核验会话和学期内，近期结果可复用 5 分钟；「刷新 GPA」始终向校宝取新值。进入后台、退出或确认换号会隔离旧数据。
+2. 确认进入学校首页后点「完成」。第一次确认本人后，以附近实际教学周和对应高中校历保存本学年课表；之后两页读同一份本机文件。翻周、断网、重开不重读校宝；更新走「设置 → 更新课表」，不完整或失败不覆盖原表。校历未公布或课程未确认会明确标示。
+3. App 先显示当前栏目，课表不挡住前台任务、考勤摘要、考试、测评和资料目录的更新。只读取列表，不下载附件。「我的任务」和「GPA」共用校宝返回的学期选项；往期记录只在选择后读取。
+4. 本机「今日」已能显示时，有效的本人会话可顺便更新本学期已公布的成绩总览，不代登录、不读单科明细；打开「GPA」也按需读取。同一已核验会话和学期内，近期结果可复用 5 分钟；「刷新 GPA」始终向校宝取新值。任务、考勤和成绩在转后台时清空；课表跨进程保留，退出或确认换号清除。
    若希望彻底关闭 App 后也能恢复登录，请在「设置 → 个人信息 → 校园资料」展开「本机代登录」。App 从已确认的校宝账号取得登录名，只需在 iPad 上输入密码并保存。旧版已绑定的设备可单独开启「打开 App 时恢复登录」，不必重新输入密码。凭据仅在个人设备的钥匙串内；验证码、密码不正确或身份变化不会触发连续尝试。
 5. 首次核对：选择同一周比较一节课的日期、起止和地点；同一学期比较一门课的总评、一个已发布项目及其分组权重。不需要回传个人数据。如果某项没有加载，可重试或点「校宝」在原网页核对，勿把网页源码、Cookie 或原始返回提交作问题报告。
 
@@ -50,7 +50,8 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
 - 外观集中天气与全 App 图标。默认跟随系统，也可主动选择浅色或深色校园图标；普通系统通知的头图不能为某一条消息单独指定。
 - 昵称仅在这台 iPad 的设置中显示，不影响校宝账号。校园登录和本机代登录仍在「个人信息 → 校园资料」。
 - 实时活动优先用今日已读取的课表预览背景和小标题，没有进行中的课时显示空状态，保存后在下一次开启时生效。提醒的自定义副标题只用于本机个人计划及手动测试通知。
-- 隐私说明可在 App 内阅读。[发布用隐私页面](../docs/tschedule-app-store/04-web/privacy/index.html)仍是草稿，公开网址和联系信息需要在提交前确认。
+- 「设置 → 提醒 → 课前提醒」默认关闭。开启后按本机已确认课表安排七天内的课程，可选上课时、提前 5、10 或 15 分钟。通知只显示距离上课的时间。个人计划需另设开始时间和提醒；无论哪种都不会为发通知向校宝抓资料。
+- 「设置 → 隐私」可离线阅读中英文隐私政策和使用与服务条款。App 与[发布用网页](../docs/tschedule-app-store/04-web/README.md)使用同一份正文；当前是讨论稿，公开邮箱已填，发布者、生效日期和 HTTPS 网址尚待确认。
 
 ## 验证情况
 
@@ -76,6 +77,7 @@ swift test
 
 | 路径 | 内容 |
 | --- | --- |
+| `Config/PrivacyInfo.xcprivacy` | [主 App 的 Required Reason API 清单](../docs/tschedule-app-store/05-build/app-privacy.md#required-reason-api)，由工程资源阶段打包 |
 | `Sources/Native/XiaobaoApp.swift` | App 入口、分组侧边栏、页面容器 |
 | `Sources/Native/GlassComponents.swift` | `.glassEffect()` 及可访问性回退 |
 | `Sources/Native/TodayView.swift` | 今日页、原生玻璃时间透镜 |
@@ -96,7 +98,7 @@ swift test
 | `Sources/Core/CityWeather/` | 公共城市天气读取、缓存时效、前台刷新和手动优先级 |
 | `Sources/Native/SchoolPortal.swift` | WKWebView 与网站会话管理 |
 | `Sources/Native/Settings/`、`Sources/Core/Personalization/` | [原生设置](Sources/Native/Settings/README.md)、[本机显示偏好](Sources/Core/Personalization/README.md) |
-| `Sources/Native/ReminderService.swift` | 系统通知授权、课程和个人计划的独立调度、课程跳转 |
+| `Sources/Native/ReminderService.swift` | 配合 `AppModel+Reminders.swift` 管理课程和个人计划的本机系统队列、权限与退出清理 |
 | `Sources/Core` | 校历、成绩明细、考勤、学习事项、GPA、节日与提醒规划 |
 | `Tests/Core` | 业务边界测试 |
 
@@ -105,6 +107,31 @@ swift test
 原生玻璃使用 Apple 的公开 API：[Applying Liquid Glass to custom views](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)、[Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass)。参考项目：[GiaoculatorS](https://github.com/Haoxuan1016/GiaoculatorS)。未复制该插件源码，也未宣称已经兼容其全部功能。
 
 ## Change History
+
+### 2026-11-21 — local-class-alerts / notification-suspension
+Model: Codex. Ordinary backgrounding no longer revokes queued personal reminders. Class alerts and personal plans share a bounded local system queue; manual review, sign-out and changed accounts clear pending and delivered content. No remote push, new endpoint or background fetch.
+
+### 2026-11-21 — privacy-manifest / release-archive
+- Model: GPT-6.2-sol · Keywords: required-reason-api / private-defaults / cache-file-timestamp
+- Changed: 将核对后的 `CA92.1` 与 `C617.1` 清单加入主 App 资源，同步工程生成器。
+- Reason: 申报 App 私有偏好和文件缓存维护所用的 API，不给没有相关调用的锁屏扩展复制清单。
+- Affected interfaces: 仅构建资源；未改运行时代码、自动登录、存储接口、网络或部署。
+- Verification: 未签名 iPad Release 归档通过；主包清单通过 `plutil` 且与源文件一致。复核主 App 和扩展的 Release 二进制引用，工程生成结果与现有项目文件一致。
+
+### 2026-11-21 — planner-rotation / personal-plan-calendar
+Model: Codex. 计划编辑保留每周选项，并可改为按学校 Day 1–6 重复；通知只在确认的轮转日期登记。使用当前账号已有的校历，不因编辑、展示或排提醒请求学校数据。
+
+### 2026-11-21 — next-school-day / after-school-planner
+Model: Codex. 「今日」放学后或休息日显示下次上课的日期、已知 Day、首节课程及教室；原有按钮直接打开所示日期的「计划」，不再固定跳到明天。来源是同一份本机校历与课表，不更改登录、网络、存储或计划编辑接口。
+验证：220 项 Swift 测试通过（含本机 Rust 联测）；iPad 模拟器断网后从假前放学和假期中两个时间点进入「今日」，均打开同一个正确的计划日期，课表请求没有增加。iPadOS Release 无签名构建通过。
+
+### 2026-11-21 — annual-timetable / cache-first-today
+Model: Codex. 首次核验保存年度课表，设置中主动替换；今日和计划读本机，任务、考勤和当前 GPA 读有效会话。未改变后端或数据库。
+
+
+### 2026-11-21 — offline-policy
+Model: Codex · Keywords: offline-policy / shared-copy / IT-review
+Changed: 打包中英政策正文，在现有设置中展示两份文档，网页草稿同源。Reason: 便于学生与校方核对数据流。Affected interfaces: 仅本机阅读入口与打包资源；不改账号、存储、后端或校宝访问方式。
 
 ### 2026-11-21 — 代登录结果与网页接续
 Model: Codex · Keywords: login-result-handoff / foreground-restore

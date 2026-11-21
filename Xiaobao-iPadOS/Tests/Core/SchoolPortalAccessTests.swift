@@ -42,6 +42,14 @@ import XCTest
         }
     }
 
+    func testUnavailableEntryDocumentIsNeitherARealLoginPageNorAReadyHome() {
+        for path in ["/", "/Account/Login", "/Home"] {
+            let url = URL(string: path, relativeTo: SchoolPortalPage.origin)!.absoluteURL
+            XCTAssertEqual(SchoolPortalPage.issue(at: url, foreground: true, loading: false, httpStatus: 503), .network)
+        }
+        XCTAssertEqual(SchoolPortalPage.issue(at: SchoolPortalPage.origin, foreground: true, loading: false, httpStatus: 200), .login)
+    }
+
     func testValidVisitDoesNotReenterAndConfirmedExpiryReadsNewGradesOnce() async {
         let f = Fixture(), s = f.store
         await s.verify(); await f.visit()

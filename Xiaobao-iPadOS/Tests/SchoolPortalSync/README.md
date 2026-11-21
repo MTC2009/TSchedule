@@ -6,8 +6,10 @@ Developer-only, not in the app bundle. Inputs are locally authored synthetic fix
 - On macOS, `python3 Tests/SchoolPortalSync/webkit-smoke.py` runs the shipping store, `SchoolPortalEntry` and reader in Apple WebKit, without a visible window. The loopback server rejects the old HttpOnly session, changes the synthetic grade, then either honors a separate synthetic device authorization or redirects to a login page. It verifies entry/grade counts and no credential POSTs. Only the test copy uses the loopback origin.
 - `python3 -B Tests/SchoolPortalSync/ipad-smoke.py <QA-simulator-UUID>` builds a throwaway fixture app and performs actual GPA sidebar taps using XCUITest. Requires Xcode and the Ruby `xcodeproj` gem. Only the disposable build has a loopback-only host substitution; it has a separate bundle ID. The shipping project, installed student app, credential store and school site are not used.
 - `--delegated`: enroll a randomly generated local password, invalidate the fixture session, terminate and relaunch on Today. The sign-in button goes busy before navigation and Home loads a local subframe. Verify one startup submission, the same student and **no grade read** until GPA opens. Wrong input stays paused; opening the school page preserves its inline refusal.
+- `--planner-rotation`: use the same loopback calendar fixture to save a Day-based personal plan, inspect its dated occurrences and change it to weekday or no recurrence. Check that no additional school timetable requests occur.
+- `--annual`: populate an annual course rotation from synthetic weekly replies; exercise Today, multiple Planner weeks, a failed Settings update, live summaries and cold offline relaunch. The fixture also fixes the clock after school and on a holiday, checks the next teaching date, first subject and room, and follows the action to the displayed Planner date. Server counters must show no schedule read while browsing or offline.
 - `--native-reads`: verify explicit GPA refresh versus cached return, and the attendance summary, course detail and failure/retry.
-- `--settings`: test the default product with legacy source preferences; school-only settings, no sample reminder controls, native activity preview and narrow/large text.
+- `--settings`: test the default product with legacy source preferences; school-only settings, no sample reminder controls, native activity preview and narrow/large text. Open Privacy → Terms, switch to English and back to the privacy page; assert both documents are native rather than school web views. The fixture checks there are no GPA reads or password submissions in this flow.
 - `--account-boundary`: a separate, Debug-only fixture host enables `TSCHEDULE_INTERNAL_FIXTURES`. It exercises real simulator Keychain/WebKit, successful test-service logout, HTTP 401 and cold-restart cancellation. The standard Debug and Release schemes do not enable this flag.
 - `--navigation`: verify overview prefetch without grades or archives, shared term selection, returning from a same-document route and a held identity read that times out and retries.
 - `--lesson-activity`: exercise the actual ActivityKit start/stop button on an embedded widget fixture. Its current lesson and long next-course name are generated for a local Shanghai date, not a real timetable. It requests no grades or login page. For visual acceptance, start the card on a QA simulator, open the actual Lock Screen surface, check whole minutes without an end clock or seconds, and confirm the next-course title remains readable or ellipsized. Do not use a live student account to capture it.
@@ -16,6 +18,23 @@ Developer-only, not in the app bundle. Inputs are locally authored synthetic fix
 **Distinguish the three paths on a personal iPad:** after the first normal sign-in, leave the school's session intact until it expires naturally. In a local debug run, use auto-continuing breakpoints at `PortalSession.reopenForGrades()` and `SchoolPortalLoginVault.claim(for:)` without inspecting variables. A fresh result without either marker used an existing session. A Home recovery without a claim used existing school authorization; it did not submit a password. A claim identifies a new password attempt, not success: only a fresh result after the same-student check counts. No screenshots, accounts, score values or network captures are needed.
 
 ## Change History
+
+### 2026-11-21 — local-class-alerts / notification-suspension
+Model: Codex. Add `--reminders` to the iPad smoke harness: an isolated app and loopback-only, clock-relative synthetic calendar exercise the real system notification queue. The probe belongs only to the temporary simulator target; it sends aggregate QA counts, not identifiers or credentials. Test authorization, timing-only payload, background delivery, offline relaunch, opt-out and logout.
+
+### 2026-11-21 — planner-rotation / native-selector
+Model: Codex. Added a separate XCUITest scenario for the existing personal-plan form using the annual fixture; no test-only inputs in the shipping app.
+
+### 2026-11-21 — next-school-day / offline-route
+Model: Codex. Extended the loopback annual scenario across a published closure to distinguish a real date jump from a successful tab switch. Clock switches exist only in the disposable simulator copy.
+
+### 2026-11-21 — annual-timetable / cache-first-today
+Model: Codex. Added --annual, with a dedicated isolated app identity and local date-only fixture. Verify year import, no requests on week flips, fresh live summaries, failed manual refresh and a cold offline restart.
+
+
+### 2026-11-21 — offline-policy
+Model: Codex · Keywords: settings-privacy / bilingual-terms
+Changed: Extend the existing synthetic Settings route test to cover bundled text, nested navigation and switching language. Reason: a normal launch or passing HTML check cannot prove the iPad can show the packaged documents. Interfaces: existing `--settings` test only.
 
 ### 2026-11-21 — login-result-handoff
 Model: Codex · Keywords: busy-form / first-party-frame / rejected-handoff

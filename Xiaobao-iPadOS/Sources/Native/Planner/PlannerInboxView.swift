@@ -62,7 +62,7 @@ struct PlannerInboxView: View {
                     }
                     ForEach(bubbles.reversed()) { bubble in
                         PlannerPlanCard(plan: bubble.prototype, timeLabel: nil, actions: actions,
-                                        shelfKind: bubble.latest?.week == nil ? .reusable : .weekly)
+                                        shelfKind: bubble.latest?.rule == nil ? .reusable : .recurring)
                     }
                 }
             }

@@ -6,9 +6,11 @@ struct ReminderSettingsView: View {
     @State private var checkingNotifications = false
     @State private var checkStatus: String?
     @State private var changingReminders = false
+    @State private var schoolMessage: String?
 
     var body: some View {
         SettingsForm {
+            if model.school.selected { schoolReminders }
             Section {
                 TextField("通知副标题", text: $subtitle, prompt: Text("不显示"))
                     .accessibilityIdentifier("settings-reminder-subtitle")
@@ -31,7 +33,7 @@ struct ReminderSettingsView: View {
             } header: {
                 Text("个人计划通知")
             } footer: {
-                Text("副标题仅用于本机个人计划和测试通知。留空保存可清除；已送达的通知不变。")
+                Text("给个人计划设置开始时间，并在计划的「提醒」中选择何时通知。副标题只用于个人计划和测试通知。")
             }
             #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
             if model.usesLocalTimetable { localReminders }
@@ -47,6 +49,41 @@ struct ReminderSettingsView: View {
         subtitle = model.personalization.reminderSubtitle ?? ""
         if model.personalization.reminderSubtitle != previous {
             Task { await model.refreshPlanReminders() }
+        }
+    }
+
+    private var schoolReminders: some View {
+        let enabled = model.timetable.lessonRemindersEnabled
+        return Section {
+            Toggle("课前提醒", isOn: Binding(get: { model.timetable.lessonRemindersEnabled }, set: { next in
+                changingReminders = true; schoolMessage = nil
+                Task {
+                    defer { changingReminders = false }
+                    schoolMessage = await model.setSchoolReminders(next)
+                }
+            }))
+            .disabled(changingReminders || (!enabled && !model.canEnableSchoolReminders))
+            .accessibilityIdentifier("settings-school-lesson-reminders")
+            if enabled {
+                Picker("提醒时间", selection: Binding(get: { model.timetable.lessonLead }, set: { value in
+                    model.timetable.setLessonLead(value)
+                    schoolMessage = nil
+                    Task { await model.refreshPlanReminders() }
+                })) {
+                    ForEach(SchoolLessonReminder.leads, id: \.self) { lead in
+                        Text(lead == 0 ? "上课时" : "提前 \(lead) 分钟").tag(lead)
+                    }
+                }
+                .disabled(changingReminders)
+            }
+            if let status = schoolMessage ?? (enabled ? model.notifications.schoolStatus : nil) {
+                Text(status).font(.caption).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings-school-lesson-status")
+            }
+        } header: { Text("校宝课表") } footer: {
+            Text(model.canEnableSchoolReminders
+                ? "只为本机课表已确认的课程安排未来 7 天的提醒，打开 App 时补排。通知不显示课程名或教室。"
+                : "确认校宝账号并在设置中保存课表后可开启。")
         }
     }
 

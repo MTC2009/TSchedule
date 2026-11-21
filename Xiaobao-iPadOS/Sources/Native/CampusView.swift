@@ -47,7 +47,7 @@ struct CampusConnectionSettings: View {
             schoolAccount
             #endif
         } header: { Text("校园资料") } footer: {
-            Text("课表、任务、考勤和已公布的成绩仅在本机当前会话中使用。")
+            Text("学年课表可以离线查看；任务、考勤和成绩只在当前校宝会话中使用。")
         }
     }
 
@@ -64,6 +64,8 @@ struct CampusConnectionSettings: View {
                     clearing = true
                     Task { await model.portal.reset(persistent: true); clearing = false }
                 }
+            } message: {
+                Text("此操作会移除本机课表、校宝登录和已保存的登录凭据。个人计划和学校原始记录不受影响。")
             }
     }
 }
@@ -220,7 +222,12 @@ struct CampusPageView: View {
     @ViewBuilder private func content(_ value: CampusContent) -> some View {
         switch value {
         case .schedule(let schedule):
-            TodayTimetableView(timeline: schedule.timeline(courseName: name))
+            let next = NextSchoolDay(after: model.now) { date in
+                let saved = model.campus.cachedSchedule(on: date)
+                return (saved?.calendarDay, saved?.timeline(courseName: name))
+            }
+            TodayTimetableView(timeline: schedule.timeline(courseName: name), nextSchoolDay: next,
+                               noClassNotice: schedule.calendarDay?.notices.first)
         case .grades: EmptyView() // CampusGradebookView owns the grade workflow.
         case .attendance(let report):
             if let saved = model.campus.attendanceRecords {

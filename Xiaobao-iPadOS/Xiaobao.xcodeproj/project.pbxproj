@@ -438,6 +438,28 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CD7E9AB967F79836D93C8E5A";
 		};
+		"E8304C2241B367DC8BB2CCD3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTimetable.swift";
+			"path" = "SchoolTimetable/SchoolTimetable.swift";
+			"sourceTree" = "<group>";
+		};
+		"6C3ABE2DBFDEFC41DAED6EA8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E8304C2241B367DC8BB2CCD3";
+		};
+		"77CC2569892DD7FF51D6EFB0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTimetableStore.swift";
+			"path" = "SchoolTimetable/SchoolTimetableStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"5BE07FBED9374A78E2950CC4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "77CC2569892DD7FF51D6EFB0";
+		};
 		"F5189A5B4FBF0FA9F2A73A47" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -568,6 +590,8 @@
 				"FCFA88B538E9A589D0FB3E56",
 				"63A3E4A226237019DE07C113",
 				"CD7E9AB967F79836D93C8E5A",
+				"E8304C2241B367DC8BB2CCD3",
+				"77CC2569892DD7FF51D6EFB0",
 				"F5189A5B4FBF0FA9F2A73A47",
 				"E4592B17F4FF8C6397EC5C13",
 				"A8604C4758A4E7568F330FCA",
@@ -579,6 +603,17 @@
 			);
 			"path" = "Core";
 			"sourceTree" = "<group>";
+		};
+		"9DF37F36648F0A4338A1880C" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AppModel+Reminders.swift";
+			"path" = "AppModel+Reminders.swift";
+			"sourceTree" = "<group>";
+		};
+		"102036B91233EC38F46EC59B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "9DF37F36648F0A4338A1880C";
 		};
 		"03A66FD144583012DFD9AD6A" = {
 			"isa" = "PBXFileReference";
@@ -1210,6 +1245,17 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "1E85E275824DBDD0601406BA";
 		};
+		"18DE709D08F7CE6008550CD2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTimetableAccess.swift";
+			"path" = "SchoolPortalSync/SchoolTimetableAccess.swift";
+			"sourceTree" = "<group>";
+		};
+		"CD6C6BAA844CA57B3FF3877B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "18DE709D08F7CE6008550CD2";
+		};
 		"E869004A1CAE7A1F81020C91" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1378,6 +1424,7 @@
 		"4FC6E7F740ABB8AF896EBEDE" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"9DF37F36648F0A4338A1880C",
 				"03A66FD144583012DFD9AD6A",
 				"B2F06AEE1BDF7003E7D910C6",
 				"FA955F78E782D8767C6A3BD1",
@@ -1436,6 +1483,7 @@
 				"353D5C051D0A74E2532B201E",
 				"FBBC42B26734D8F9961EBC6B",
 				"1E85E275824DBDD0601406BA",
+				"18DE709D08F7CE6008550CD2",
 				"E869004A1CAE7A1F81020C91",
 				"5194E9EE7D1949B8F6CE0079",
 				"E3475266F73F847BFF61E2BD",
@@ -1536,6 +1584,26 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "3DAA306F3B0B3A0054F6CA8B";
 		};
+		"98D84059936340A013CF97A4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.json";
+			"path" = "Resources/PolicyCopy.json";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"AD43AD47EC390B40FF322F99" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "98D84059936340A013CF97A4";
+		};
+		"46EFA2C72706889E72EAD8A0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xml";
+			"path" = "Config/PrivacyInfo.xcprivacy";
+			"sourceTree" = "<group>";
+		};
+		"DE511F7010738B16E1217A86" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "46EFA2C72706889E72EAD8A0";
+		};
 		"3235AA6BD26F1C1D90106358" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.javascript";
@@ -1613,6 +1681,8 @@
 				"2EB56BE3C2D93CDAB0C52E67",
 				"20E338624CEE29D0EFFEAD85",
 				"3DAA306F3B0B3A0054F6CA8B",
+				"98D84059936340A013CF97A4",
+				"46EFA2C72706889E72EAD8A0",
 				"3235AA6BD26F1C1D90106358",
 				"618452BEDC7CEB861D246543",
 				"A6E4EF2C154AA04042B65644",
@@ -1666,6 +1736,8 @@
 				"A5D05C5A9FC675BBF6FC28C9",
 				"CA6649F9E72C795679B5FBB4",
 				"E663E1E1C06F7CB3A4D99092",
+				"6C3ABE2DBFDEFC41DAED6EA8",
+				"5BE07FBED9374A78E2950CC4",
 				"C63C66A2979449F3D528ED87",
 				"2186AA106BF839B2381E1939",
 				"74DA0F6D3C4D6CED7964976A",
@@ -1674,6 +1746,7 @@
 				"B129B73AB537D82752DDC331",
 				"3AA18F6520FF3E623AE9F068",
 				"3D98692358048C432F2FADC1",
+				"102036B91233EC38F46EC59B",
 				"3D3DFED499EA796535E95508",
 				"08AF54FE1B9EFA272FAE4668",
 				"10BFF13D71F40CB314EC4089",
@@ -1730,6 +1803,7 @@
 				"04083CDB77715523830EAC94",
 				"4E2DA5EAC46CE9183F19985E",
 				"2D7F784EBEE263AB1AA9B7EE",
+				"CD6C6BAA844CA57B3FF3877B",
 				"D4A24923919EFAAEF83F1670",
 				"5359F559D433731B3AFCEC9D",
 				"9282D29A8A1B888C86D38C6B",
@@ -1756,6 +1830,8 @@
 			"files" = (
 				"84A0394370EA938AEB05479A",
 				"9F3E6EA225CF2ED3C84526E7",
+				"AD43AD47EC390B40FF322F99",
+				"DE511F7010738B16E1217A86",
 				"AF47253B241AA601F3E7ED86",
 				"92E956CC37720608C0619D3F",
 				"D62900372D7737089E3A9680",

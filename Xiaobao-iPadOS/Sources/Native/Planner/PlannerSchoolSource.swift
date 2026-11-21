@@ -8,7 +8,8 @@ struct PlannerSchoolSource {
     let dates: [Date]
 
     var publication: PublishedSchoolCalendar? {
-        guard !model.school.selected, model.usesLocalTimetable || model.campus.account != nil else { return nil }
+        if model.school.selected { return model.localSchoolTimetable == nil ? nil : .bundledHS }
+        guard model.usesLocalTimetable || model.campus.account != nil else { return nil }
         return .bundledHS
     }
 
@@ -22,15 +23,13 @@ struct PlannerSchoolSource {
         let day = PlannerDay(on: date, school: input.school, plans: records?.plans ?? [])
         let focus = PlannerDay(on: date, school: input.school, plans: []).focus(at: model.now)
         return .init(day: day, school: input.school, calendarDay: input.calendarDay,
-                     weeklyIDs: records?.weeklyIDs ?? [], focus: focus)
+                     recurringIDs: records?.recurringIDs ?? [], focus: focus)
     }
 
     func schoolDay(on date: Date) -> (school: PlannerSchoolDay, calendarDay: SchoolCalendarDay?) {
         if model.school.selected {
-            let week = model.school.week(on: date)
-            return (.connected(on: date, schedule: week?.schedule(on: date), calendar: week?.calendar) {
-                week?.names[$0] ?? "课程"
-            }, nil)
+            let day = model.schoolTimetableDay(date)
+            return (.connected(on: date, schedule: day?.schedule, calendar: day?.events) { $0 }, day?.calendarDay)
         }
         if model.usesLocalTimetable {
             let school = PlannerSchoolDay.local(on: date, provider: model.provider, work: StudentServices.work(on: date))
@@ -53,7 +52,7 @@ struct PlannerSchoolSource {
     }
 
     func load(selected date: Date, force: Bool = false) async {
-        if model.school.selected { await model.school.loadWeek(date, force: force); return }
+        if model.school.selected { return } // The two timetable views only render the saved academic year.
         let client = model.campus
         guard let scope = client.account?.scope, let calendarPage else { return }
         async let courses: Void = client.load(.courses)

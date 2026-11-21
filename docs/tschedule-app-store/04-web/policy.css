@@ -1,0 +1,33 @@
+:root {
+  color-scheme: light dark;
+  --color-background-primary: Canvas;
+  --color-text-primary: CanvasText;
+  --color-action-primary: LinkText;
+  --color-border-default: GrayText;
+  --spacing-small: .5rem;
+  --spacing-medium: 1rem;
+  --spacing-large: 2rem;
+  --spacing-section: 3rem;
+  font-family: system-ui, sans-serif;
+  line-height: 1.7;
+}
+body {
+  max-inline-size: 44rem;
+  margin: 0 auto;
+  padding: var(--spacing-large) clamp(1rem, 5vw, 2rem) var(--spacing-section);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+header { border-block-end: 1px solid var(--color-border-default); }
+nav { display: flex; flex-wrap: wrap; gap: var(--spacing-medium); }
+nav a { padding-block: var(--spacing-small); }
+a { color: var(--color-action-primary); overflow-wrap: anywhere; text-underline-offset: .16em; }
+a:focus-visible { outline: 2px solid var(--color-action-primary); outline-offset: 4px; }
+main > section { padding-block-start: var(--spacing-large); }
+main > section + section {
+  margin-block-start: var(--spacing-section);
+  border-block-start: 1px solid var(--color-border-default);
+}
+h1, .policy-title { line-height: 1.2; font-size: clamp(1.6rem, 4vw, 2.2rem); margin: 0 0 var(--spacing-medium); }
+h2, h3 { font-size: 1.2rem; line-height: 1.35; margin-block: var(--spacing-large) var(--spacing-small); }
+p { margin: 0 0 var(--spacing-medium); }

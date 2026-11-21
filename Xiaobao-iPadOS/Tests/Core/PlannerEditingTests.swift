@@ -11,9 +11,9 @@ final class PlannerEditingTests: XCTestCase {
         let session = UUID()
         let store = PlanStore(file: temporaryArchive())
         let created = try await store.apply(.save(.init(target: .create, plan: original, reusable: false,
-            weekday: nil, effectiveDay: original.day)), for: .local, session: session)
+            recurrence: nil, effectiveDay: original.day)), for: .local, session: session)
         let changed = try await store.apply(.save(.init(target: .plan(original.id), plan: edited, reusable: false,
-            weekday: nil, effectiveDay: original.day)), for: .local, session: session)
+            recurrence: nil, effectiveDay: original.day)), for: .local, session: session)
         XCTAssertEqual(changed.schedule.plans, [edited])
         let beforeEdit = try await store.step(.undo, for: .local, session: session)
         XCTAssertEqual(beforeEdit.schedule, created.schedule)
@@ -38,9 +38,9 @@ final class PlannerEditingTests: XCTestCase {
         let store = PlanStore(file: temporaryArchive())
         let weekday = SchoolClock.calendar.component(.weekday, from: first)
         let created = try await store.apply(.save(.init(target: .create, plan: original, reusable: true,
-                                                 weekday: weekday, effectiveDay: original.day)), for: .local, session: session)
+                                                 recurrence: .weekday(weekday), effectiveDay: original.day)), for: .local, session: session)
         let source = try XCTUnwrap(created.schedule.day(SchoolClock.key(oldDay)).plans.first)
-        let placed = try await store.apply(.place(.init(plan: source, source: .weeklyOccurrence),
+        let placed = try await store.apply(.place(.init(plan: source, source: .occurrence),
                                                   on: SchoolClock.key(destination), at: moved, now: now),
                                            for: .local, session: session)
         XCTAssertEqual(placed.schedule.day(original.day).plans.first?.time, original.time)
@@ -70,7 +70,7 @@ final class PlannerEditingTests: XCTestCase {
         let moved = try XCTUnwrap(PlanTime(startMinute: 840))
         let session = UUID()
         let store = PlanStore(file: temporaryArchive())
-        _ = try await store.apply(.save(.init(target: .create, plan: original, reusable: false, weekday: nil,
+        _ = try await store.apply(.save(.init(target: .create, plan: original, reusable: false, recurrence: nil,
                                              effectiveDay: original.day)), for: .local, session: session)
         let placed = try await store.apply(.place(.init(plan: original, source: .plan), on: next,
                                                   at: moved, now: date), for: .local, session: session)
@@ -99,7 +99,7 @@ final class PlannerEditingTests: XCTestCase {
         let destination = after(16, first)
         let old = try makePlan(on: first, start: 735)
         var bubble = PlanBubble(prototype: old, reusable: false)
-        bubble.revise(weekday: SchoolClock.calendar.component(.weekday, from: first), effectiveDay: old.day)
+        bubble.revise(recurrence: .weekday(SchoolClock.calendar.component(.weekday, from: first)), effectiveDay: old.day)
         XCTAssertTrue(bubble.reschedule(to: destination, at: try XCTUnwrap(PlanTime(startMinute: 1015)), now: first))
         // A delayed move uses explicit requests up to the cutover. It must not
         // leave one unlimited repeating request at the obsolete weekday/time.
@@ -118,7 +118,7 @@ final class PlannerEditingTests: XCTestCase {
         let store = PlanStore(file: temporaryArchive())
         let weekday = SchoolClock.calendar.component(.weekday, from: first)
         let saved = try await store.apply(.save(.init(target: .create, plan: plan, reusable: false,
-            weekday: weekday, effectiveDay: plan.day)), for: .local, session: session)
+            recurrence: .weekday(weekday), effectiveDay: plan.day)), for: .local, session: session)
         let current = try XCTUnwrap(saved.schedule.day(plan.day).plans.first)
         let completed = try await store.apply(.complete(true, plan: current), for: .local, session: session)
         let nextReminders = PlanReminderPlanner.make(now: first, schedule: completed.schedule)
@@ -141,12 +141,12 @@ final class PlannerEditingTests: XCTestCase {
         let session = UUID()
         let store = PlanStore(file: temporaryArchive())
         _ = try await store.apply(.save(.init(target: .create, plan: plan, reusable: true,
-            weekday: SchoolClock.calendar.component(.weekday, from: initialDate), effectiveDay: plan.day)),
+            recurrence: .weekday(SchoolClock.calendar.component(.weekday, from: initialDate)), effectiveDay: plan.day)),
             for: .local, session: session)
         let newDay = SchoolClock.key(earlier)
-        let changed = try await store.apply(.place(.init(plan: plan, source: .weeklyBubble),
+        let changed = try await store.apply(.place(.init(plan: plan, source: .recurringBubble),
             on: newDay, at: plan.time, now: monday), for: .local, session: session)
-        XCTAssertEqual(changed.schedule.day(newDay).weeklyIDs, [plan.id])
+        XCTAssertEqual(changed.schedule.day(newDay).recurringIDs, [plan.id])
         XCTAssertTrue(changed.schedule.day(plan.day).plans.isEmpty)
         XCTAssertTrue(changed.schedule.plans.isEmpty)
         XCTAssertEqual(changed.schedule.bubbles.count, 1)

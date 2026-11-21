@@ -81,7 +81,7 @@ import XCTest
         back()
         page("settings-reminders-page")
         XCTAssertFalse(row("settings-lesson-reminders-paused").exists)
-        XCTAssertFalse(app.switches["课前提醒"].exists)
+        XCTAssertEqual(app.switches["settings-school-lesson-reminders"].firstMatch.value as? String, "0")
         enter("settings-reminder-subtitle", "Studio session")
         back()
         page("settings-appearance-page")
@@ -102,6 +102,17 @@ import XCTest
         XCTAssertTrue(app.navigationBars["隐私说明"].exists)
         XCTAssertTrue(app.staticTexts["校宝登录与学习资料"].exists)
         XCTAssertFalse(app.webViews.firstMatch.exists)
+        page("settings-terms-page")
+        XCTAssertTrue(app.navigationBars["使用与服务条款"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["谁可以连接校宝"].exists)
+        XCTAssertFalse(app.webViews.firstMatch.exists)
+        app.segmentedControls.buttons["English"].tap()
+        XCTAssertTrue(app.navigationBars["Terms of Use and Service"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["Who may connect"].exists)
+        app.navigationBars["Terms of Use and Service"].buttons["BackButton"].tap()
+        XCTAssertTrue(app.navigationBars["Privacy"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["School sign-in and academic records"].exists)
+        XCTAssertFalse(app.webViews.firstMatch.exists)
         app.terminate()
 
         openSettings(school: false)
@@ -115,7 +126,7 @@ import XCTest
         back()
         page("settings-reminders-page")
         XCTAssertTrue(app.textFields["settings-reminder-subtitle"].waitForExistence(timeout: 8))
-        XCTAssertFalse(app.switches["课前提醒"].exists)
+        XCTAssertEqual(app.switches["settings-school-lesson-reminders"].firstMatch.value as? String, "0")
         XCTAssertFalse(row("settings-lesson-reminders-paused").exists)
         XCTAssertEqual(app.textFields["settings-reminder-subtitle"].value as? String, "Studio session")
         capture("settings-after-legacy-upgrade")
@@ -143,6 +154,12 @@ import XCTest
         XCTAssertFalse(app.buttons["退出校宝登录"].exists)
         XCTAssertTrue(web.exists)
         XCTAssertLessThanOrEqual(web.frame.maxX, app.frame.maxX)
+        // The portal is signed out; reading the policy still needs no login, including at large type.
+        app.navigationBars["个人信息"].buttons["BackButton"].tap()
+        page("settings-privacy-page")
+        page("settings-terms-page")
+        XCTAssertTrue(app.navigationBars["使用与服务条款"].waitForExistence(timeout: 6))
+        XCTAssertFalse(app.webViews.firstMatch.exists)
         XCUIDevice.shared.orientation = .landscapeLeft
     }
 }

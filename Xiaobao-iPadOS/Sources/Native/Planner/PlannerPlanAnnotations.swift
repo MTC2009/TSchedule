@@ -6,7 +6,7 @@ struct PlannerPlanAnnotations: View {
     let values: [PlannerAnnotationLayout.Annotation]
     let day: PlannerDay
     let actions: PlannerPlanActions
-    let weeklyIDs: Set<UUID>
+    let recurringIDs: Set<UUID>
     let permitsOpening: Bool
     @Binding var shownGroup: PlannerDay.TimedRow.ID?
 
@@ -22,12 +22,12 @@ struct PlannerPlanAnnotations: View {
                     PlannerPlanCard(plan: first, timeLabel: first.time.map(PlannerScheduleCanvas.timeLabel),
                                     actions: actions, density: density(value),
                                     conflictsWithSchool: first.time.map { !day.conflicts(with: $0).isEmpty } ?? false,
-                                    weekly: weeklyIDs.contains(first.id))
+                                    recurring: recurringIDs.contains(first.id))
                         .frame(width: value.frame.width, height: value.frame.height)
                         .allowsHitTesting(permitsOpening && actions.canOpenEditor)
                         .position(x: value.frame.midX, y: value.frame.midY)
                 } else {
-                    PlannerPlanGroupCapsule(plans: plans, weeklyIDs: weeklyIDs, size: value.frame.size,
+                    PlannerPlanGroupCapsule(plans: plans, recurringIDs: recurringIDs, size: value.frame.size,
                                             actions: actions, permitsOpening: permitsOpening,
                                             presented: presentation(of: value.id))
                         .position(x: value.frame.midX, y: value.frame.midY)
@@ -70,7 +70,7 @@ private struct PlannerPlanGroupCapsule: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     let plans: [PersonalPlan]
-    let weeklyIDs: Set<UUID>
+    let recurringIDs: Set<UUID>
     let size: CGSize
     let actions: PlannerPlanActions
     let permitsOpening: Bool
@@ -108,7 +108,7 @@ private struct PlannerPlanGroupCapsule: View {
             ForEach(Array(plans.prefix(displayed).enumerated()), id: \.element.id) { index, plan in
                 HStack(spacing: 2) {
                     Text((index + 1).formatted()).font(.caption2.weight(.semibold)).monospacedDigit()
-                    PlannerPlanGlyph(plan: plan, weekly: weeklyIDs.contains(plan.id), font: .caption2.weight(.medium))
+                    PlannerPlanGlyph(plan: plan, recurring: recurringIDs.contains(plan.id), font: .caption2.weight(.medium))
                 }
                 .lineLimit(1).minimumScaleFactor(0.78)
                 .frame(width: cell)
@@ -154,7 +154,7 @@ private struct PlannerPlanGroupCapsule: View {
     private func detailLabel(_ plan: PersonalPlan, number: Int) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(number.formatted()).font(.caption.weight(.semibold)).monospacedDigit().foregroundStyle(.secondary)
-            PlannerPlanGlyph(plan: plan, weekly: weeklyIDs.contains(plan.id))
+            PlannerPlanGlyph(plan: plan, recurring: recurringIDs.contains(plan.id))
             VStack(alignment: .leading, spacing: 2) {
                 Text(plan.title).font(.body.weight(.medium)).fixedSize(horizontal: false, vertical: true)
                 Text(detailTime(plan)).font(.caption).foregroundStyle(.secondary).monospacedDigit()
@@ -168,11 +168,11 @@ private struct PlannerPlanGroupCapsule: View {
 
     private func detailTime(_ plan: PersonalPlan) -> String {
         let time = plan.time.map(PlannerScheduleCanvas.timeLabel) ?? "待安排"
-        return weeklyIDs.contains(plan.id) ? time + " · 每周重复" : time
+        return recurringIDs.contains(plan.id) ? time + " · 重复安排" : time
     }
 
     private func item(_ plan: PersonalPlan) -> PlanPlacementItem {
-        .init(plan: plan, source: weeklyIDs.contains(plan.id) ? .weeklyOccurrence : .plan)
+        .init(plan: plan, source: recurringIDs.contains(plan.id) ? .occurrence : .plan)
     }
 
     private func rowActions(_ plan: PersonalPlan) -> some View {

@@ -5,14 +5,14 @@
 | 文件 | 职责与接口 |
 | --- | --- |
 | `PersonalPlan.swift` | `PersonalPlan` 是某个学校日期的个人记录。输入为名称与可选 `PlanTime`（上海当地分钟，时间段含开始、不含结束）、`PlanColor`、`PlanIcon`、`PlanReminder`。`placing(at:)` 只改时间。 |
-| `PlanBubble.swift` | 常用气泡和每周规则。`PlanPlacementItem` 区分副本、单日记录与每周规则，避免仅凭共享 ID 把重复项误认成复制来源。 |
+| `PlanBubble.swift` | 常用气泡和重复规则。`PlanRecurrence` 只取一种：星期或轮转 Day。`PlanPlacementItem` 区分副本、单日记录与重复系列，避免仅凭共享 ID 把重复项误认成复制来源。 |
 | `PlannerSchoolDay.swift` | `local(on:provider:work:)` 或 `connected(on:schedule:calendar:courseName:)` 输出只读学校条目、轮转日与资料可用性。空节只由已有课表投影确认。仅将显式关联、且时段与科目一致的本机随堂测验按一条记录呈现；其他重叠学校记录仍各自保留。 |
 | `PlannerDay.swift` | `init(on:school:plans:)` 生成全天、按时间排序和待安排三组，不投影仅有截止时间的学校事项；`focus(at:)` 找下一项或正在进行的最后一项；`conflicts(with:)` 提示已知时段重叠。 |
 | `PlannerTimelineLayout.swift` | `PlannerTimeScale(hourHeight:)` 做分钟与纵向坐标的双向换算；`PlannerTimelineLayout(day:scale:minimumHeight:)` 对学校、个人两层独立分列。`PlannerAnnotationLayout` 输入个人几何、板面和学校文本矩形，只输出标签位置、是否显示名称和组成员，不修改原时间或列宽。 |
 | `PlannerPlacement.swift` | `PlannerPlacement(at:moving:in:)` 用落点分钟、原时间（可无）和当天课表返回建议时间及冲突；`init(from:to:in:)` 给划选和两次点选复用，两端单独吸附。 |
-| `PlanStore.swift` | `readEditor(for:session:)` 读取当前所有者的计划和撤销状态；`apply(_:for:session:)` 原子提交写入，`step(_:for:session:)` 撤销／重做。保留旧读写入口及 `readSchedule(for:)`。 |
+| `PlanStore.swift` | `readEditor(for:session:)` 读取当前所有者的计划和撤销状态；`apply(_:for:session:calendar:)` 原子提交写入，`step(_:for:session:)` 撤销／重做。保留旧读写入口及 `readSchedule(for:)`。 |
 | `PlanEditHistory.swift` | 当前页面会话的前后状态，最多 32 步。根据当前状态检查可逆性，只在存储写入成功后推进历史。 |
-| `PlanReminderPlanner.swift` | 输入当前时刻和一个所有者的记录，输出独立标识、触发时间和触发类型，不申请权限或调度。 |
+| `PlanReminderPlanner.swift` | 输入当前时刻、一个所有者的记录和可选的已确认校历，输出独立标识、触发时间和触发类型，不申请权限或调度。 |
 | `PlannerCalendarMonth.swift` | 只读 HS 日历网格、选日期范围和连贯假期起止，未发布不能当作不上课。 |
 
 依赖现有 `SchoolClock`、`LessonTimeline`、本机课表/学习事项和 `CampusSchedule`/`CampusCalendar`；由[原生计划页](../../Native/Planner/README.md)、本机提醒入口与核心测试使用。
@@ -23,11 +23,14 @@ iPad 使用应用容器中独立、原子写入且受系统文件保护的本机
 
 计时：直接拖卡时，新安排拖进已确认空节会预填整节；否则开始时间吸附到五分钟，已有持续时长不变。划选是另一条路径，两端分别吸附到五分钟，支持反向，不能跨日，结束可为 24:00；不会取整节。`nil` 仍是未定时。旧档案没有颜色和图标时直接读作默认，无需迁移；个人计划文件的存储路径和所有者隔离不变。
 
-提醒：按上海时区。普通计划未定时、已完成或已错过提醒时不会排新通知。勾选某一次每周计划只跳过当天的提醒，不改变其他周的时间；假期不会自动更改个人提醒。未来才改规则时，旧规则在生效日之前的有效提醒用有限的单次请求，生效后不再按旧时间重复；撤销／重做会用恢复后的资料重新对照系统队列。暂不能用系统重复的规则最多桥接四次，接近生效日或已完成的那次经过后打开 App，会重新检查是否可恢复系统重复。长期不再打开或系统队列已满时，不保证桥接用完后的提醒。
+提醒：按上海时区。普通计划未定时、已完成或已错过提醒时不会排新通知。完成一次只跳过该次提醒。按星期的计划保持原行为（包括假期）；按轮转 Day 的计划按校历教学日逐次登记，不使用每周系统触发器。停课日印有 Day 也不算，已公布的周末补课算，未公布／超出校历范围则不排。未来才改规则时，旧规则在生效日之前的有效提醒用有限的单次请求，生效后不再按旧时间重复；撤销／重做会用恢复后的资料重新对照系统队列。暂不能用系统重复的规则最多桥接四次，接近生效日或已完成的那次经过后打开 App，会重新检查是否可恢复系统重复。长期不再打开或系统队列已满时，不保证桥接用完后的提醒。
 
-测试：在原生工程目录运行 `swift test --filter Planner`。覆盖旧档兼容、账号隔离、两层互不干扰、气泡拷贝、每周变更和按日完成、提醒跨午夜且不提前。
+测试：在原生工程目录运行 `swift test --filter Planner`。覆盖旧档兼容、账号隔离、两层互不干扰、气泡拷贝、星期与轮转规则互换、生效边界和按日完成、提醒跨午夜且不提前。
 
 ## Change History
+
+### 2026-11-21 — planner-rotation / dated-reminders
+Model: Codex. 在原有计划修订中保存按星期或轮转 Day 的单一规则；读旧的 `week` 记录不改写文件。显示、拖动、完成和提醒均使用同一份已确认校历；编辑、停用和撤销按原生效日隔离历史。对外服务、数据表、依赖和权限不变。
 
 ### 2026-11-20 — 计划日程排除截止点
 Model: Codex · Conversation Keywords: planner / deadline-only-records / schedule-focus  

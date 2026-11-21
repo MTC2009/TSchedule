@@ -135,12 +135,15 @@ final class AppModel {
     let cityWeather: CityWeatherStore
     let portal: PortalSession
     let school: SchoolPortalStore
+    let timetable: SchoolTimetableStore
+    var timetableForeground = true
+    var timetableCheckingSession = false
     let schoolLogin = SchoolPortalLoginVault()
     let campus: CampusConnection
     let planStore: PlanStore
-    @ObservationIgnored private var planReminderOwner: PlanOwner?
-    @ObservationIgnored private var planReminderOwnerKnown = false
-    @ObservationIgnored private var planReminderRead = UUID()
+    @ObservationIgnored var planReminderOwner: PlanOwner?
+    @ObservationIgnored var planReminderOwnerKnown = false
+    @ObservationIgnored var planReminderRead = UUID()
     @ObservationIgnored private var checkedLaunchLogin = false
     @ObservationIgnored private var launchLoginTask: Task<Void, Never>?
     @ObservationIgnored private var gradePageActive = false
@@ -178,20 +181,37 @@ final class AppModel {
         let schoolReader = SchoolPortalReader(session: session, salt: salt)
         school = SchoolPortalStore(selected: source == .school,
                                    reader: { try await schoolReader.read($0, expected: $1) })
+        let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        timetable = SchoolTimetableStore(file: supportRoot.appendingPathComponent("TScheduleTimetable-v1", isDirectory: true)
+            .appendingPathComponent("timetable.plist"))
         session.school = school
-        session.onForgetLogin = { [weak schoolLogin, weak lessonActivity] in
-            lessonActivity?.stop()
-            try? schoolLogin?.disable()
-        }
         if let binding = schoolLogin.binding { school.rememberComparison(binding.owner) }
         let cacheRoot = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("XiaobaoPages-v1", isDirectory: true)
-        let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let gradeRoot = supportRoot.appendingPathComponent("XiaobaoGrades-v1", isDirectory: true)
         campus = CampusConnection(vault: KeychainCampusVault(), root: cacheRoot, gradeRoot: gradeRoot,
                                   restoreOnInit: source == .fixtureService)
         planStore = PlanStore(file: supportRoot.appendingPathComponent("XiaobaoPlanner-v1", isDirectory: true)
             .appendingPathComponent("plans.plist"))
+        school.onAccountConfirmation = { [weak self] owner in
+            guard let self else { return }
+            if let owner { self.confirmReminderOwner(owner); self.timetable.verified(owner) }
+            else { self.timetable.forget(); self.revokeAccountReminders() }
+        }
+        session.onForgetLogin = { [weak self] in
+            guard let self else { return }
+            self.timetable.forget(); self.revokeAccountReminders()
+            self.lessonActivity.stop()
+            try? self.schoolLogin.disable()
+        }
+        notifications.permitsSchoolDelivery = { [weak self] in
+            guard let self else { return false }
+            return self.timetable.lessonRemindersEnabled && self.school.selected && self.reminderAccess != .revoked
+        }
+        notifications.permitsPersonalDelivery = { [weak self] in
+            guard let self else { return false }
+            return self.reminderAccess != .revoked
+        }
         #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
         notifications.permitsFixtureDelivery = { [weak self] in self?.usesLocalTimetable == true }
         #endif
@@ -264,6 +284,8 @@ final class AppModel {
         stopLaunchLogin()
         setGradePageActive(false)
         let signInIssue = school.owner == nil ? school.identityIssue : nil
+        timetable.reviewAccount()
+        revokeAccountReminders()
         if school.selected {
             // An account can also be changed *inside* the website. Do not show a prior
             // student's native detail between closing the sheet and verifying its owner.
@@ -280,6 +302,7 @@ final class AppModel {
 
     private func selectSource(_ source: CampusSource) {
         guard source != campusSource else { return }
+        revokeAccountReminders()
         lessonActivity.stop()
         setGradePageActive(false)
         portal.cancelSchoolReads()
@@ -321,7 +344,11 @@ final class AppModel {
     }
 
     private func restoreLaunchLoginIfNeeded() {
-        guard !checkedLaunchLogin, portal.foreground, !portal.manualSheet, !portalPresented,
+        // Planner browsing never needs a password. Today can also prepare live records;
+        // keep the student's independent startup opt-in working after process termination.
+        // Neither reading the saved file nor the passive GPA operation calls this flow.
+        if localSchoolTimetable != nil, tab == .planner { return }
+        guard !checkedLaunchLogin, !timetableCheckingSession, portal.foreground, !portal.manualSheet, !portalPresented,
               school.selected, !portal.loading, !school.isRecoveringSession else { return }
         if school.owner != nil { checkedLaunchLogin = true; return }
         guard school.identityIssue == .login || school.identityIssue == .expired,
@@ -356,7 +383,7 @@ final class AppModel {
         guard !school.isRecoveringSession else { return }
         if portal.webView.url == nil { portal.loadIfNeeded(); return }
         guard !portal.loading, !portal.webView.isLoading else { return }
-        if let issue = SchoolPortalPage.issue(at: portal.webView.url, foreground: true, loading: false) {
+        if let issue = portal.documentIssue(loading: false) {
             school.invalidate(issue)
         } else { await school.verify(); schoolIdentityUpdated() }
     }
@@ -384,6 +411,7 @@ final class AppModel {
         // Scene activation, a timer and a SwiftUI remount are not a student's gesture.
         explicitGradeVisit = destination == .grades && school.selected && portal.foreground && !portalPresented
         tab = destination
+        if [.tasks, .grades, .attendance, .otherItems].contains(destination), school.selected { restoreLaunchLoginIfNeeded() }
         if explicitGradeVisit && gradePageActive { requestSchoolGrades() }
     }
 
@@ -397,8 +425,9 @@ final class AppModel {
     }
 
     func requestSchoolGrades(explicit: Bool = true, force: Bool = false) {
-        if !force, school.hasRecentGrades() { return }
         guard gradePageActive, gradeVisitTask == nil else { return }
+        school.enableTaskScoresOnGradeVisit()
+        if !force, school.hasRecentGrades() { return }
         if explicit { explicitGradeVisit = true }
         gradeReadRequested = true; gradeAwaitsDocument = false; startRequestedGradeRead()
     }
@@ -463,7 +492,10 @@ final class AppModel {
     }
 
     var todayRotationDay: Int? {
-        if school.selected { return school.week(on: now)?.schedule(on: now)?.day }
+        if school.selected {
+            guard let calendar = PublishedSchoolCalendar.bundledHS else { return nil }
+            return localSchoolTimetable?.calendarDay(on: now, calendar: calendar)?.teachingDay
+        }
         if campus.account != nil {
             guard let schedule = campus.cachedSchedule(on: now) else { return nil }
             if let published = schedule.calendarDay { return published.day }
@@ -507,53 +539,6 @@ final class AppModel {
         guard campusSource == .fixtureService else { return }
         await campus.scheduledRefresh()
         scheduleDataCheck()
-    }
-
-    func refreshReminders() async {
-        #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
-        if usesLocalTimetable && preferences.remindersEnabled {
-            await notifications.schedule(provider: provider, lead: preferences.reminderLead,
-                                         morning: preferences.morningEnabled ? preferences.morningMinute : nil)
-        } else {
-            await notifications.cancelScheduled()
-        }
-        #else
-        // Upgrades may still have requests queued by a previous version.
-        await notifications.cancelScheduled()
-        #endif
-        await refreshPlanReminders()
-    }
-
-    var activePlanOwner: PlanOwner? {
-        if school.selected { return school.owner.map { .campus(origin: PortalSession.url, profile: $0) } }
-        if let account = campus.account { return .campus(origin: account.origin, profile: account.profile) }
-        return usesLocalTimetable ? .local : nil
-    }
-
-    func refreshPlanReminders(requestPermission: Bool = false) async {
-        if requestPermission, let owner = activePlanOwner,
-           let snapshot = try? await planStore.readSchedule(for: owner), activePlanOwner == owner,
-           !PlanReminderPlanner.make(now: Date(), schedule: snapshot).isEmpty {
-            await notifications.requestPlanPermission()
-        }
-        // The OS prompt can outlive the displayed scene. Read the current owner
-        // and their newest state after it has returned instead of scheduling its old snapshot.
-        let revision = UUID()
-        planReminderRead = revision
-        await clearPlanRemindersIfOwnerChanged()
-        guard planReminderRead == revision, let owner = activePlanOwner else { return }
-        let snapshot = try? await planStore.readSchedule(for: owner)
-        guard planReminderRead == revision, activePlanOwner == owner else { return }
-        let reminders = snapshot.map { PlanReminderPlanner.make(now: Date(), schedule: $0) } ?? []
-        await notifications.syncPlanReminders(reminders, subtitle: personalization.reminderSubtitle)
-    }
-
-    private func clearPlanRemindersIfOwnerChanged() async {
-        let owner = activePlanOwner
-        guard !planReminderOwnerKnown || owner != planReminderOwner else { return }
-        planReminderOwnerKnown = true
-        planReminderOwner = owner
-        await notifications.clearPlanReminders()
     }
 
     private func persist() {

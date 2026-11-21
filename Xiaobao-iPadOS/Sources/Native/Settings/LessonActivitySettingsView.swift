@@ -11,8 +11,7 @@ struct LessonActivitySettingsView: View {
     private var preview: LessonActivityAttributes.ContentState {
         let date = model.now
         guard model.school.selected, model.school.owner != nil,
-              let week = model.school.week(on: date), let schedule = week.schedule(on: date),
-              let timeline = schedule.timeline(courseName: { week.names[$0] ?? "课程" }),
+              let timeline = model.schoolTimetableDay(date)?.timeline,
               let plan = LessonActivityPlan(timeline: timeline, at: date)
         else { return .closed }
         return .init(startsAt: plan.startsAt, endsAt: plan.endsAt, nextLesson: plan.next?.title,

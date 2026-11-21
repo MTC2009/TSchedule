@@ -18,6 +18,12 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     @ObservationIgnored var manualSheet = false
     @ObservationIgnored private var ordinaryNavigation: WKNavigation?
     @ObservationIgnored private var navigationDeadline: Task<Void, Never>?
+    @ObservationIgnored private var mainResponse: (url: URL, status: Int)?
+
+    func documentIssue(loading: Bool) -> SchoolPortalIssue? {
+        let status = mainResponse.flatMap { $0.url == webView.url ? $0.status : nil }
+        return SchoolPortalPage.issue(at: webView.url, foreground: foreground, loading: loading, httpStatus: status)
+    }
 
     private func expectNavigation(_ navigation: WKNavigation?) {
         navigationDeadline?.cancel()
@@ -108,6 +114,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     func reset(persistent: Bool) async {
         onForgetLogin?()
+        mainResponse = nil
         cancelGradeEntry(); navigationDeadline?.cancel(); ordinaryNavigation = nil
         cancelSchoolReads()
         if school?.selected == true { school?.invalidate(.login) }
@@ -128,6 +135,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         guard webView === self.webView else { return }
+        mainResponse = nil
         if gradeEntry.owns(navigation) { return }
         gradeEntry.cancel(CancellationError(), stopLoading: false)
         expectNavigation(navigation)
@@ -136,10 +144,11 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard webView === self.webView else { return }
-        let issue = SchoolPortalPage.issue(at: webView.url, foreground: foreground, loading: false)
+        let issue = documentIssue(loading: false)
         if gradeEntry.owns(navigation) { gradeEntry.finish(navigation, issue: issue); return }
         guard navigation === ordinaryNavigation else { return }
         navigationDeadline?.cancel(); ordinaryNavigation = nil; loading = false
+        if issue == .network { errorMessage = SchoolPortalIssue.network.message }
         if foreground, school?.selected == true {
             if let issue {
                 school?.invalidate(issue)
@@ -170,6 +179,14 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         navigationDeadline?.cancel(); ordinaryNavigation = nil; loading = false
         errorMessage = error.localizedDescription
         if school?.selected == true { school?.invalidate(.network) }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse,
+                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if webView === self.webView, response.isForMainFrame, let http = response.response as? HTTPURLResponse,
+           let url = http.url { mainResponse = (url, http.statusCode) }
+        // Preserve WebKit's default response policy; observing status is not a download feature.
+        decisionHandler(response.canShowMIMEType ? .allow : .cancel)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,

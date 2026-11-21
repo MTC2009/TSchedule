@@ -19,7 +19,7 @@ async (op, args, expected, salt, p, generation) => {
         const readers=globalThis.tScheduleReads ??= new Map();
         if (!readers.has(generation)) readers.set(generation,new Set());
         active=readers.get(generation); active.add(abort);
-        timer=setTimeout(()=>abort.abort(),op==="identity"?7000:45000);
+        timer=setTimeout(()=>abort.abort(),op==="identity"?7000:op==="week"?15000:45000);
         async function read(path, qs, data, method=data?"POST":"GET") {
             ready();
             const url=new URL(path,origin);

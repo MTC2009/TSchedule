@@ -18,7 +18,7 @@ struct PlannerPlanActions {
     let toggleCompletion: (PersonalPlan) -> Void
 }
 
-struct PlannerWeeklyGlyph: View {
+struct PlannerRepeatGlyph: View {
     var font: Font = .callout.weight(.medium)
 
     var body: some View {
@@ -30,13 +30,13 @@ struct PlannerWeeklyGlyph: View {
 
 struct PlannerPlanGlyph: View {
     let plan: PersonalPlan
-    let weekly: Bool
+    let recurring: Bool
     var font: Font = .caption.weight(.semibold)
 
     var body: some View {
         Group {
             if let icon = plan.icon { Image(systemName: icon.symbol).font(font) }
-            else if weekly { PlannerWeeklyGlyph(font: font) }
+            else if recurring { PlannerRepeatGlyph(font: font) }
             else { Image(systemName: "bookmark").font(font) }
         }
         .accessibilityHidden(true)
@@ -45,28 +45,28 @@ struct PlannerPlanGlyph: View {
 
 struct PlannerPlanCard: View {
     enum Density { case standard, compact, combined, marker }
-    enum ShelfKind { case pending, reusable, weekly }
+    enum ShelfKind { case pending, reusable, recurring }
 
     let plan: PersonalPlan
     let timeLabel: String?
     let actions: PlannerPlanActions
     var density: Density = .standard
     var conflictsWithSchool = false
-    var weekly = false
+    var recurring = false
     var shelfKind: ShelfKind?
 
     private var item: PlanPlacementItem {
         let source: PlanPlacementItem.Source = switch shelfKind {
-        case .weekly: .weeklyBubble
+        case .recurring: .recurringBubble
         case .reusable: .reusableBubble
         case .pending: .plan
-        case nil: weekly ? .weeklyOccurrence : .plan
+        case nil: recurring ? .occurrence : .plan
         }
         return PlanPlacementItem(plan: plan, source: source)
     }
 
     private var isSelected: Bool { actions.selected == item }
-    private var isTemplate: Bool { shelfKind == .reusable || shelfKind == .weekly }
+    private var isTemplate: Bool { shelfKind == .reusable || shelfKind == .recurring }
     private var isPending: Bool { actions.pendingID == plan.id }
     private var completionLabel: String { plan.isCompleted ? "取消完成" : "完成" }
 
@@ -110,7 +110,7 @@ struct PlannerPlanCard: View {
             if actions.canEdit { handle(action: { actions.select(item) }) }
             editorButton("planner-shelf-plan-\(plan.id.uuidString)") {
                 HStack(spacing: 0) {
-                    if !actions.canEdit && item.isWeekly { PlannerWeeklyGlyph().padding(.leading, 10) }
+                    if !actions.canEdit && item.isRecurring { PlannerRepeatGlyph().padding(.leading, 10) }
                     shelfLabel.padding(.leading, actions.canEdit ? 0 : 10)
                 }
                 .contentShape(Rectangle())
@@ -171,8 +171,8 @@ struct PlannerPlanCard: View {
             } else {
                 Group {
                     if isPending { ProgressView().controlSize(.mini) }
-                    else if shelfKind == nil { PlannerPlanGlyph(plan: plan, weekly: item.isWeekly) }
-                    else if item.isWeekly { PlannerWeeklyGlyph() }
+                    else if shelfKind == nil { PlannerPlanGlyph(plan: plan, recurring: item.isRecurring) }
+                    else if item.isRecurring { PlannerRepeatGlyph() }
                     else { Image(systemName: "line.3.horizontal").font(.callout.weight(.medium)) }
                 }
                 .frame(width: 44, height: 44).contentShape(Rectangle())
@@ -181,7 +181,7 @@ struct PlannerPlanCard: View {
         .buttonStyle(.plain).foregroundStyle(.tint).hoverEffect(.highlight)
         .accessibilityLabel(combined ? plan.title : "移动 \(plan.title)")
         .accessibilityValue(status)
-        .accessibilityHint(item.isWeekly ? "长按拖动调整每周安排" : "长按后拖动，也可点选时间")
+        .accessibilityHint(item.isRecurring ? "长按拖动调整重复安排" : "长按后拖动，也可点选时间")
         .accessibilityIdentifier((shelfKind == nil ? "planner-move-" : "planner-shelf-") + plan.id.uuidString)
         .accessibilityAction(named: Text("选择落点")) { actions.select(item) }
         .accessibilityAction(named: Text(completionLabel)) {
@@ -198,7 +198,7 @@ struct PlannerPlanCard: View {
 
     private var annotationLabel: some View {
         HStack(spacing: 4) {
-            PlannerPlanGlyph(plan: plan, weekly: item.isWeekly)
+            PlannerPlanGlyph(plan: plan, recurring: item.isRecurring)
             if density != .marker {
                 annotationTitle
                 if plan.isCompleted { Image(systemName: "checkmark").font(.caption2).accessibilityHidden(true) }
@@ -214,7 +214,7 @@ struct PlannerPlanCard: View {
     }
 
     private var status: String {
-        let kind = item.isWeekly ? "每周重复" : (isTemplate ? "常用气泡" : nil)
+        let kind = item.isRecurring ? "重复安排" : (isTemplate ? "常用气泡" : nil)
         return [timeLabel, kind, isTemplate ? nil : (plan.isCompleted ? "已完成" : "未完成"),
                 conflictsWithSchool ? "与学校安排重叠" : nil,
                 plan.color?.name, plan.icon?.name, plan.reminder == nil ? nil : "已设置提醒"]

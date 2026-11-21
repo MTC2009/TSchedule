@@ -9,6 +9,10 @@
 
 ## Change History
 
+### 2026-11-21 — annual-timetable / cache-first-today
+Model: Codex. Refresh the currently selected verified school term on entering the task list; foreground cached Today also refreshes current tasks. No changes to filters, task completion or the backend.
+
+
 ### 2026-11-21 — verified-semesters
 Model: Codex · Keywords: verified-semesters / deadline-layout
 Changed: Replace the current-term caption with the verified semester menu. Put deadline in the second-row middle slot at three columns.

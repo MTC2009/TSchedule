@@ -22,8 +22,8 @@
 
 ## 在 iPad 上
 
-- **[今日](docs/tschedule-app-store/02-artwork/ipad-13-inch/01-today.png)** — 打开就能看到正在上什么课、在哪里上、还有多久下课。沿时间轴拖到下午，可以提前看下一节；天空的光线也跟着所选时刻变化。
-- **[计划](docs/tschedule-app-store/02-artwork/ipad-13-inch/02-planner.png)** — 竖屏看一天，宽屏看一周。把自己的安排放在学校课表旁，拖到合适的时段，或设为每周重复。移动个人计划不会改动学校课程。
+- **[今日](docs/tschedule-app-store/02-artwork/ipad-13-inch/01-today.png)** — 上课时看教室和下课倒计时；放学后或休息日，看下一个上课日的日期、轮转 Day 和已确认的首节课，点一下就到那天的计划。沿时间轴拖到下午，可以提前看下一节；天空的光线也跟着所选时刻变化。
+- **[计划](docs/tschedule-app-store/02-artwork/ipad-13-inch/02-planner.png)** — 竖屏看一天，宽屏看一周。把自己的安排放在学校课表旁，拖到合适的时段，或按星期、按学校轮转 Day 重复。轮转计划只排在校历确认的教学日。移动个人计划不会改动学校课程。
 - **[任务](docs/tschedule-app-store/02-artwork/ipad-13-inch/03-assignments.png)与[成绩](docs/tschedule-app-store/02-artwork/ipad-13-inch/04-gpa.png)** — 用学期下拉切换学校提供的记录，按课程和截止日期找作业，从课程总评点进每项考核。未公布的成绩不算作零分；个人试算也不会改写已公布成绩。
 - **[考勤](docs/tschedule-app-store/02-artwork/ipad-13-inch/05-attendance.png)** — 按课堂、日常或活动查看考勤，也可以点进一门课，核对具体记录。
 
@@ -45,15 +45,19 @@
    ```
 
 2. 在 Xcode 选择 **Xiaobao** Scheme 和一台 **iPadOS 26 或更高版本**的 iPad 模拟器，按 **⌘R** 运行。
-3. 点「完整校宝」，在学校页面登录后点「完成」，即可从「今日」查看本周课表。需要在自己的设备上运行时，参见 [iPad 工程说明](Xiaobao-iPadOS/README.md)。
+3. 点「完整校宝」，在学校页面登录后点「完成」，即可在「今日」和「计划」查看本机保存的学年课表。需要在自己的设备上运行时，参见 [iPad 工程说明](Xiaobao-iPadOS/README.md)。
 
 ## 数据来源与隐私
 
-课表、任务、考勤、考试、测评和分享的资料目录来自当前登录的校宝账号。进入 GPA 时才读取已公布成绩；历史学期按选择加载。未登录、会话已过期或学校未提供资料时，App 不填充记录；作业提交仍在学校网页完成。
+课表、任务、考勤、考试、测评和分享的资料目录来自当前登录的校宝账号。任务可带已公布的单项分数；当前学期的成绩总览在进入 GPA，或有有效会话且已显示本机「今日」时按需读取；历史学期仅按选择加载。缺少依据的课程和成绩不填充；作业提交仍在学校网页完成。
 
-校务资料只在本机当前会话内读取，不经开发者服务器中转。若主动开启锁屏课表，iPadOS 会在锁屏上显示课程摘要。详见[设备内读取说明](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md)与[可选的本机代登录](Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/README.md)。
+首次登录会把可确认的六日轮转课表保存到本机。「今日」与「计划」共用；翻周、断网或重开不重抓课表，手动更新在「设置 → 更新课表」。确认退出或换号清除旧课表。任务、成绩和考勤只在当前会话内读取，不经开发者服务器中转。若主动开启锁屏课表，iPadOS 会在锁屏上显示课程摘要。详见[设备内读取说明](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md)与[可选的本机代登录](Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/README.md)。
 
 TSchedule 是独立学生项目，并非学校或校宝的官方客户端。界面与读取流程通过隔离测试；学校实际提供的资料以本人账号为准。
+
+在「设置 → 隐私」可离线阅读[隐私政策与使用条款（中英讨论稿）](docs/tschedule-app-store/04-web/README.md)。
+
+课程提醒默认关闭：在「设置 → 提醒」可选择上课时或提前通知。提醒根据本机已确认的课表安排，不显示课程名或教室。个人计划仍可单独设置提醒。
 
 ## 开发
 

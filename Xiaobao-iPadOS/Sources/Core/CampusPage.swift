@@ -45,10 +45,12 @@ struct CampusSchedule: Decodable, Sendable {
     let lessons: [CampusLesson]
     let teaching_slots: [TeachingSlot]?
     let calendarDay: SchoolCalendarDay?
+    private let includesCampusBells: Bool
 
     init(date: String, day: Int?, lessons: [CampusLesson], teaching_slots: [TeachingSlot]? = nil,
-         calendarDay: SchoolCalendarDay? = nil) {
+         calendarDay: SchoolCalendarDay? = nil, includesCampusBells: Bool = true) {
         self.date = date; self.day = day; self.lessons = lessons; self.teaching_slots = teaching_slots
+        self.includesCampusBells = includesCampusBells
         self.calendarDay = calendarDay.flatMap { $0.date == date && $0.isValid(cycleLength: 255) ? $0 : nil }
     }
     private enum CodingKeys: String, CodingKey {
@@ -74,7 +76,7 @@ struct CampusSchedule: Decodable, Sendable {
         guard periods.count == lessons.count else { return nil } // An invalid read is not a free day.
         let schoolDay = calendarDay.map { $0.status == .teaching } ?? (day != nil)
         return LessonTimeline(on: dayStart, periods: periods, teachingSlots: schoolDay ? teaching_slots : nil,
-                              includesCampusActivities: schoolDay)
+                              includesCampusActivities: schoolDay && includesCampusBells)
     }
 }
 struct CampusEvent: Codable, Identifiable, Sendable { let id, title, start: String; let end, kind: String?; let all_day: Bool? }

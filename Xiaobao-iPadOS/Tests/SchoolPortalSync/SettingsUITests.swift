@@ -2,20 +2,28 @@ import XCTest
 
 /// UI only. The fixture starts with synthetic school data; Settings must never fetch grades or submit a password.
 @MainActor final class SettingsUITests: XCTestCase {
-    func testSettingsFollowTheSelectedDataSource() throws {
+    func testShippingSettingsIgnoreLegacySourceAndNeverOfferFixtures() throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
         let defaults = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-xiaobao.cityWeather.followsCity.v1", "NO"]
         func openSettings(school: Bool, largeText: Bool = false) {
             app.launchArguments = defaults + ["-xiaobao.portal.selected", school ? "YES" : "NO"]
+            if !school { app.launchArguments += ["-tschedule.qa.campusSource", "localFixture"] }
             if largeText {
                 app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXL",
                                         "-SettingsFixtureNarrow"]
             }
             app.launch()
             let settings = app.staticTexts["设置"].firstMatch
-            XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+            if largeText {
+                // At accessibility XXL the final rows are below the sidebar's viewport.
+                let sidebar = app.collectionViews["边栏"].firstMatch
+                if sidebar.waitForExistence(timeout:4) {
+                    for _ in 0..<3 where !settings.isHittable { sidebar.swipeUp() }
+                }
+            }
+            XCTAssertTrue(settings.waitForExistence(timeout: 12), "open Settings after cold launch"); settings.tap()
         }
         func row(_ id: String) -> XCUIElement { app.descendants(matching: .any).matching(identifier: id).firstMatch }
         func page(_ id: String) {
@@ -72,7 +80,7 @@ import XCTest
         enter("settings-nickname", "North Star")
         back()
         page("settings-reminders-page")
-        XCTAssertTrue(row("settings-lesson-reminders-paused").exists)
+        XCTAssertFalse(row("settings-lesson-reminders-paused").exists)
         XCTAssertFalse(app.switches["课前提醒"].exists)
         enter("settings-reminder-subtitle", "Studio session")
         back()
@@ -81,12 +89,13 @@ import XCTest
         capture("settings-appearance")
         back()
         page("settings-activity-page")
-        XCTAssertTrue(app.staticTexts["18分钟"].waitForExistence(timeout: 8))
+        XCTAssertTrue(row("settings-activity-preview").waitForExistence(timeout: 8))
+        XCTAssertFalse(app.staticTexts["视觉叙事工作坊"].exists)
         let background = row("settings-activity-background")
         background.tap()
         app.buttons["校园蓝"].tap()
         enter("settings-activity-heading", "Coming up")
-        XCTAssertTrue(app.staticTexts["Coming up"].exists)
+        XCTAssertEqual(app.textFields["settings-activity-heading"].value as? String, "Coming up")
         capture("settings-activity")
         back()
         page("settings-privacy-page")
@@ -98,15 +107,18 @@ import XCTest
         openSettings(school: false)
         page("settings-personal-info-page")
         XCTAssertEqual(app.buttons.matching(identifier: "settings-school-portal").count, 1)
-        XCTAssertFalse(enrollment.exists)
+        XCTAssertTrue(account.waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["查看演示资料"].exists)
+        XCTAssertFalse(app.buttons["连接演示资料服务"].exists)
         XCTAssertFalse(app.buttons["打开完整校宝"].exists)
         XCTAssertEqual(app.textFields["settings-nickname"].value as? String, "North Star")
         back()
         page("settings-reminders-page")
-        XCTAssertTrue(app.switches["课前提醒"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.textFields["settings-reminder-subtitle"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.switches["课前提醒"].exists)
         XCTAssertFalse(row("settings-lesson-reminders-paused").exists)
         XCTAssertEqual(app.textFields["settings-reminder-subtitle"].value as? String, "Studio session")
-        capture("settings-demo")
+        capture("settings-after-legacy-upgrade")
         back()
         page("settings-activity-page")
         XCTAssertEqual(app.textFields["settings-activity-heading"].value as? String, "Coming up")
@@ -125,9 +137,9 @@ import XCTest
         page("settings-personal-info-page")
         // The fixture's session cookies do not survive a process relaunch. Never show a password input here.
         let unavailable = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "登录后可设置")).firstMatch
-        XCTAssertTrue(unavailable.waitForExistence(timeout: 12))
+        XCTAssertTrue(unavailable.waitForExistence(timeout: 12), "show enrollment availability after expiry")
         XCTAssertFalse(app.secureTextFields["school-login-password"].exists)
-        XCTAssertTrue(app.buttons["清除本机校宝登录资料"].exists)
+        XCTAssertTrue(app.buttons["清除本机校宝登录资料"].exists, "explicit school cleanup")
         XCTAssertFalse(app.buttons["退出校宝登录"].exists)
         XCTAssertTrue(web.exists)
         XCTAssertLessThanOrEqual(web.frame.maxX, app.frame.maxX)

@@ -14,11 +14,11 @@ struct OtherItemsView: View {
                 .frame(maxWidth: .infinity)
 
             if model.school.selected {
-                SchoolPortalWebSection(section: section.portalSection)
+                SchoolCollectionList(section: section)
             } else if model.campus.account != nil {
                 // The existing pagination state belongs to the selected collection.
                 CampusPageView(tab: .otherItems, otherItemsSection: section).id(section)
-            } else {
+            } else if model.usesLocalTimetable {
                 LocalOtherItemsView(section: section).id(section)
             }
         }
@@ -118,3 +118,35 @@ struct SchoolWorkDetailView: View {
     }
 }
 
+
+/// List metadata is prefetched under the same verified owner as the rest of the native tabs.
+private struct SchoolCollectionList: View {
+    @Environment(AppModel.self) private var model
+    let section: OtherItemsSection
+
+    var body: some View {
+        let store = model.school, kind = section.collection
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 14) {
+                if let rows = store.collections[kind] {
+                    if rows.isEmpty {
+                        StudentEmptyState(title: "暂无" + section.title, detail: "校宝没有返回可显示的条目。")
+                    } else {
+                        ForEach(rows) { item in
+                            GlassCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(verbatim: item.title).font(.headline)
+                                    if let detail = item.detail { Text(verbatim: detail).font(.subheadline).foregroundStyle(.secondary) }
+                                }.frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }
+                } else if let issue = store.issues[.collection(kind)] {
+                    SchoolPortalRetry(issue: issue) { await store.loadCollection(kind, force: true) }
+                } else { ProgressView("正在读取" + section.title) }
+            }.padding(24).frame(maxWidth: 1100).frame(maxWidth: .infinity)
+        }
+        .task(id: kind) { await store.loadCollection(kind) }
+        .refreshable { await store.loadCollection(kind, force: true) }
+    }
+}

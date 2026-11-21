@@ -79,7 +79,7 @@ struct CampusSchedule: Decodable, Sendable {
 }
 struct CampusEvent: Codable, Identifiable, Sendable { let id, title, start: String; let end, kind: String?; let all_day: Bool? }
 struct CampusCalendar: Decodable, Sendable { let lessons: [CampusLesson]; let events: [CampusEvent]; let deadlines: [CampusWork] }
-struct CampusScore: Codable, Sendable { let type: String; let earned, possible: Double?; let value: String? }
+struct CampusScore: Codable, Equatable, Sendable { let type: String; let earned, possible: Double?; let value: String? }
 struct CampusAssessment: Codable, Identifiable, Sendable {
     let id, title, status: String
     let date, feedback: String?

@@ -1,9 +1,7 @@
 TSchedule is an independent, iPad-only student companion. Its current interface is in Simplified Chinese. It does not create a separate TSchedule account, sell access, or submit or edit school records.
 
-Built-in sample data is available on a fresh install without an external account. If the sidebar is collapsed, open it with the sidebar control. The main screens are Today (今日), Planner (计划), My Tasks (我的任务), GPA, and My Attendance (我的考勤). Choose a teaching day in Planner; open a sample task and a GPA course card to see their details. The sample records are synthetic and do not represent school accounts or official grades.
-
 Live academic records require an existing student account on the supported school portal. Users connect through the school’s official web page inside the app. The authenticated session is used to read the current student’s authorized timetable, tasks, released grades, and attendance. The native app does not send those records or portal credentials to a developer-operated server.
 
-There is a separate optional saved sign-in in Settings > Campus Data (设置 > 校园资料). It is off by default. If a student explicitly enables it, the account credential is kept in the device-only Keychain and may be used only for a deliberate foreground grade visit or refresh that needs reauthentication on the official portal. It can be removed in Settings. The basic portal login does not require this feature.
+There is a separate optional saved sign-in in Settings > Personal Info > Campus Data (设置 > 个人信息 > 校园资料). It is off by default. If a student explicitly enables it, the account credential is kept in the device-only Keychain and may be used once for eligible reauthentication on the official portal: on a foreground launch if expressly enabled, or on a deliberate grade visit. Launch recovery does not read grades. It can be removed in Settings. The basic portal login does not require this feature.
 
-Weather optionally requests a fixed Dongguan city report from Open-Meteo; it does not access the device’s location or send academic records to the weather provider. The built-in sample mode does not require the separate optional demo service.
+Weather optionally requests a fixed Dongguan city report from Open-Meteo; it does not access the device’s location or send academic records to the weather provider.

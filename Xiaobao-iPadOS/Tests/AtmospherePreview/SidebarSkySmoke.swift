@@ -25,6 +25,11 @@ struct SidebarFixtureRoute: ViewModifier {
 struct SidebarSkySmoke: App {
     @State private var model = AppModel()
 
+    static func read(_ key: SchoolPortalRead, expected: String?) async throws -> Data {
+        guard key == .identity else { throw SchoolPortalIssue.unavailable }
+        return try JSONEncoder().encode(["owner": String(repeating: "e", count: 64)])
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView().environment(model).task { await run() }
@@ -51,7 +56,9 @@ struct SidebarSkySmoke: App {
 
     private func run() async {
         guard Bundle.main.bundleIdentifier == "cn.xiaobao.fixture.sidebar-sky",
-              !model.school.selected, model.campus.account == nil else { finish(false, "not a fixture session") }
+              model.school.selected, model.campus.account == nil else { finish(false, "not a fixture session") }
+        model.portal.foreground = false
+        await model.school.verify()
         model.previewWeather(.cloudy)
         model.preferences.liveBackground = false
         model.preferences.sceneMinute = 720
@@ -97,7 +104,6 @@ struct SidebarSkySmoke: App {
         // Settings doesn't open or fetch from the portal. A new identity,
         // unlike a tab change, may replace the whole system split stack.
         model.tab = .settings
-        model.school.select(true)
         guard let sessionSky = await waitFor({ nav(AppTab.settings.title) != nil ? oneSky() : nil }),
               await push(over: sessionSky) else { finish(false, "session detail not shown") }
         model.school.invalidate()
@@ -108,6 +114,7 @@ struct SidebarSkySmoke: App {
         }
         // Sheets are owned by the surrounding root, not by the protected
         // foreground stack. Exercise this without opening a live login page.
+        await model.school.verify()
         model.environmentPresented = true
         guard let sheet = await waitFor({ window.rootViewController?.presentedViewController }) else {
             finish(false, "root sheet did not present")
@@ -118,7 +125,6 @@ struct SidebarSkySmoke: App {
         guard window.rootViewController?.presentedViewController === sheet,
               sheet.viewIfLoaded?.window != nil else { finish(false, "session reset interrupted an independent sheet") }
         model.environmentPresented = false
-        model.school.select(false)
         finish(true, "one sky across six switches and a switch out of detail; pause/resume, session reset and root sheet passed")
     }
 }

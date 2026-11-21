@@ -89,8 +89,21 @@ struct SchoolPortalGrades: Decodable {
     }
 }
 
+enum SchoolPortalCollection: String, CaseIterable { case exams, evaluations, resources }
+
+struct SchoolPortalListItem: Decodable, Identifiable {
+    let id, title: String
+    let detail: String?
+}
+
+struct SchoolPortalTerms: Decodable {
+    struct Term: Decodable, Identifiable { let id, name: String }
+    let current: String
+    let terms: [Term]
+}
+
 struct SchoolPortalTasks: Decodable {
-    struct Row: Decodable {
+    struct Row: Decodable, Equatable {
         let id, title, status: String
         let due, published, course, courseName, kind, grading: String?
         let score: CampusScore?

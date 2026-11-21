@@ -12,6 +12,15 @@ struct LessonActivityAttributes: ActivityAttributes {
         // Optional so a snapshot archived by the previous extension can still close.
         var appearance: LessonActivityAppearance? = nil
 
+        /// A system-archived fixture from an earlier build must not reappear after upgrade.
+        var displayable: Self {
+            #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+            self
+            #else
+            isDemo ? .closed : self
+            #endif
+        }
+
         static let closed = Self(startsAt: nil, endsAt: nil, nextLesson: nil, isDemo: false)
     }
 

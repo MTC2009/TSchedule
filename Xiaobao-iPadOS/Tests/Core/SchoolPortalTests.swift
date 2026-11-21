@@ -6,6 +6,77 @@ import XCTest
     private let day = SchoolClock.dayDate("2025-02-18")!
     private func bytes(_ object: [String: Any]) throws -> Data { try JSONSerialization.data(withJSONObject: object) }
 
+    @MainActor private final class FixtureOwner {
+        var value: String
+        init(_ value: String) { self.value = value }
+    }
+
+    func testSharedSemesterSelectionAndManualSheetCacheRequireTheSameVerifiedOwner() async throws {
+        let current = FixtureOwner(a)
+        var calls: [SchoolPortalRead] = []
+        let store = SchoolPortalStore(selected: true) { [self] read, _ in
+            calls.append(read)
+            let value: Any
+            switch read {
+            case .identity: return try bytes(["owner": current.value])
+            case .terms: value = ["current":"spring", "terms":[["id":"spring","name":"Spring"],["id":"fall","name":"Fall"]]] as [String:Any]
+            case .tasks: value = ["term":"Spring","rows":[]] as [String:Any]
+            case .archivedTasks("fall", _): value = ["term":"Fall","rows":[]] as [String:Any]
+            case .archivedGrades("fall"): value = ["term":"Fall","termID":"fall","courses":[],"gpa":2.5] as [String:Any]
+            case .collection(.exams): value = [["id":"p","title":"Portfolio"]]
+            default: throw SchoolPortalIssue.unavailable
+            }
+            return try bytes(["owner":current.value,"value":value])
+        }
+        await store.verify(); await store.loadTasks(); await store.loadTerms(); store.selectTerm("missing")
+        XCTAssertNil(store.selectedTermID); XCTAssertFalse(calls.contains(.archivedGrades("fall")))
+        store.selectTerm("fall"); XCTAssertNil(store.tasks); await store.loadTasks()
+        XCTAssertEqual(store.tasks?.term, "Fall"); await store.loadGrades(); XCTAssertTrue(store.hasRecentGrades())
+        XCTAssertFalse(store.hasRecentGrades(at: Date().addingTimeInterval(301)))
+        store.selectTerm(nil); XCTAssertNil(store.grades); XCTAssertEqual(store.tasks?.term, "Spring")
+        store.selectTerm("fall"); XCTAssertEqual(store.grades?.termID, "fall")
+        await store.loadCollection(.exams); store.beginManualReview(); store.beginNavigation()
+        XCTAssertNil(store.owner); XCTAssertNil(store.grades); XCTAssertTrue(store.collections.isEmpty)
+        await store.verify(); XCTAssertEqual(store.grades?.termID, "fall"); XCTAssertEqual(store.collections[.exams]?.count,1)
+        store.beginManualReview(); current.value = b; await store.verify()
+        XCTAssertEqual(store.identityIssue, .changed); XCTAssertNil(store.grades); XCTAssertTrue(store.collections.isEmpty)
+    }
+
+    func testChangingTaskRowsMakesTheSameTermGradeOverviewStale() async throws {
+        var title = "Lab preparation"
+        let store = SchoolPortalStore(selected: true) { [self] read, _ in
+            switch read {
+            case .identity: return try bytes(["owner":a])
+            case .grades: return try bytes(["owner":a,"value":["term":"Spring","termID":"s","courses":[],"gpa":3.0] as [String:Any]])
+            case .tasks: return try bytes(["owner":a,"value":["term":"Spring","rows":[["id":"p","title":title,"status":"submitted"]]] as [String:Any]])
+            default: throw SchoolPortalIssue.unavailable
+            }
+        }
+        await store.verify(); await store.loadGrades(); await store.loadTasks()
+        await store.loadTasks(force:true); XCTAssertTrue(store.hasRecentGrades())
+        title = "Revised lab preparation"; await store.loadTasks(force:true)
+        XCTAssertFalse(store.hasRecentGrades()); XCTAssertNotNil(store.grades)
+    }
+
+    func testLaunchRecoveryReadsOnlyIdentityAndWillNotAdoptAnotherStudent() async throws {
+        let current = FixtureOwner(a)
+        var reads: [SchoolPortalRead] = [], signIns = 0
+        let store = SchoolPortalStore(selected:true) { [self] read,_ in
+            reads.append(read); return try bytes(["owner": current.value])
+        }
+        let firstNavigation = store.navigationEpoch
+        store.beginNavigation(); store.invalidate(.login)
+        XCTAssertEqual(store.navigationEpoch, firstNavigation)
+        await store.restoreLogin(for: a) { signIns += 1 }
+        XCTAssertEqual(store.navigationEpoch, firstNavigation)
+        XCTAssertEqual(store.owner, a); XCTAssertEqual(reads,[.identity]); XCTAssertEqual(signIns,1)
+        store.invalidate(.network); XCTAssertNotEqual(store.navigationEpoch, firstNavigation)
+        await store.restoreLogin(for: a) { signIns += 1 }
+        XCTAssertEqual(signIns,1)
+        store.invalidate(.login); current.value = b; await store.restoreLogin(for: a) { signIns += 1 }
+        XCTAssertNil(store.owner); XCTAssertEqual(store.identityIssue,.changed); XCTAssertNil(store.grades)
+    }
+
     private func attendanceReport(courses: [Any] = [], present: Int = 0) -> [String:Any] {
         ["from":"2025-02-01","to":"2025-06-30","termStart":"2025-02-01","termEnd":"2025-06-30",
          "counts":["present":present,"late":0,"early":0,"absent":0],"records":[],"recordTotal":0,"courses":courses]

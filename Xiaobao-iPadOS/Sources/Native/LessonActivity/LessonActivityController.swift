@@ -143,7 +143,7 @@ extension AppModel {
     var lessonActivitySource: LessonActivityController.Source? {
         if school.selected { return school.owner.map(LessonActivityController.Source.school) }
         if let scope = campus.account?.scope { return .connectedDemo(scope) }
-        return campus.notice == nil ? .localDemo : nil
+        return usesLocalTimetable ? .localDemo : nil
     }
 
     func reconcileLessonActivitySource() {

@@ -33,7 +33,7 @@ struct SchoolPortalLoginSettings: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     if let owner = enrollableOwner {
-                        Text("请仅在设有锁屏密码的个人 iPad 上开启。密码存入本机钥匙串，不同步到 iCloud。只有你打开 GPA 且需要重新登录时，才向校宝提交一次。")
+                        Text("请仅在设有锁屏密码的个人 iPad 上开启。密码存入本机钥匙串，不同步到 iCloud。打开 App 或主动查看 GPA 时，优先沿用校宝会话；确实需要登录时才使用保存的账号和密码一次。")
                             .font(.footnote).foregroundStyle(.secondary)
                         SecureField("当前校宝账号的密码", text: $password)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -41,6 +41,12 @@ struct SchoolPortalLoginSettings: View {
                         Button(work == nil ? "保存并开启" : "正在保存…") { enable(owner) }
                             .disabled(password.isEmpty || work != nil)
                             .accessibilityIdentifier("school-login-enable")
+                    }
+                    if let binding = model.schoolLogin.binding {
+                        Toggle("打开 App 时恢复登录", isOn: Binding(get: { binding.restoresOnLaunch == true }, set: { enabled in
+                            do { try model.schoolLogin.setRestoresOnLaunch(enabled) }
+                            catch { message = SchoolPortalEnrollmentError.storage.localizedDescription }
+                        }))
                     }
                     if model.schoolLogin.registered {
                         Button("移除已保存的登录", role: .destructive) {
@@ -76,7 +82,7 @@ struct SchoolPortalLoginSettings: View {
                 guard ticket == id, !Task.isCancelled, model.school.epoch == epoch,
                       model.school.owner == owner, model.tab == .settings, model.portal.foreground,
                       !model.portalPresented else { return }
-                try model.schoolLogin.enable(owner:owner, name:name, password:entered)
+                try model.schoolLogin.enable(owner:owner, name:name, password:entered, restoresOnLaunch:true)
                 expanded = false
             } catch {
                 if !Task.isCancelled && ticket == id {

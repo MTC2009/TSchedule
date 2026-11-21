@@ -34,6 +34,9 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
         } catch { status = error.localizedDescription; return false }
     }
 
+    #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+    @ObservationIgnored var permitsFixtureDelivery: @MainActor () -> Bool = { false }
+
     func schedule(provider: DemoSchoolProvider, lead: Int, morning: Int?) async {
         let token = UUID(); revision = token; working = true
         defer { if revision == token { working = false } }
@@ -74,20 +77,25 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
         } catch { if revision == token { pendingCount = count; status = "部分提醒未能安排：\(error.localizedDescription)" } }
     }
 
+    #endif
+
     func cancelScheduled() async {
         let token = UUID(); revision = token
-        let authorization = await notificationAuthorization()
-        guard revision == token else { return }
         working = false
-        guard let authorization else { status = "暂时无法确认课表提醒已移除。"; return }
-        if authorization == .notDetermined {
-            pendingCount = 0; status = "课表提醒已关闭"; return
-        }
-        let requests = await pendingRequests()
+        // Removal needs no permission prompt. Inspect only the legacy timetable namespace.
+        async let pending = pendingRequests()
+        async let delivered = deliveredRequestIDs()
+        let (requests, shown) = await (pending, delivered)
         guard revision == token else { return }
-        guard let requests else { status = "暂时无法确认课表提醒已移除。"; return }
-        center.removePendingNotificationRequests(withIdentifiers: requests.map(\.identifier).filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) })
-        pendingCount = 0; status = "课表提醒已关闭"
+        if let requests {
+            center.removePendingNotificationRequests(withIdentifiers: requests.map(\.identifier)
+                .filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) })
+            pendingCount = 0
+        }
+        if let shown {
+            center.removeDeliveredNotifications(withIdentifiers: shown.filter { $0.hasPrefix(ReminderPlanner.identifierPrefix) })
+        }
+        status = requests == nil || shown == nil ? "暂时无法确认课表提醒已移除。" : "课表提醒已关闭"
     }
 
     func requestPlanPermission() async {
@@ -296,7 +304,16 @@ final class ReminderService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification) async -> UNNotificationPresentationOptions { [.banner, .sound] }
+        willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        if notification.request.identifier.hasPrefix(ReminderPlanner.identifierPrefix) {
+            #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+            guard await permitsFixtureDelivery() else { return [] }
+            #else
+            return []
+            #endif
+        }
+        return [.banner, .sound]
+    }
 
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse) async {

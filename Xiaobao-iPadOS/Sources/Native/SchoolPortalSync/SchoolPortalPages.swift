@@ -10,7 +10,7 @@ struct SchoolPortalPages: View {
     var body: some View {
         let school = model.school
         if school.owner == nil {
-            if school.isRecoveringGrades {
+            if school.isRecoveringSession {
                 ProgressView("正在恢复校宝登录")
             } else if school.pending.contains(.identity) || model.portal.loading || school.identityIssue == nil {
                 ProgressView("正在确认校宝登录").accessibilityIdentifier("school-identity-pending")
@@ -42,17 +42,6 @@ struct SchoolPortalPages: View {
     }
 }
 
-struct SchoolPortalWebSection: View {
-    @Environment(AppModel.self) private var model
-    let section: String?
-    var body: some View {
-        ContentUnavailableView {
-            Label("在校宝中查看", systemImage: "safari")
-        } description: { Text("这个栏目暂未导入本机。") }
-        actions: { Button("打开校宝") { model.openPortal(section: section) }.buttonStyle(.glass) }
-    }
-}
-
 private struct SchoolPortalToday: View {
     @Environment(AppModel.self) private var model
     var body: some View {
@@ -60,6 +49,7 @@ private struct SchoolPortalToday: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 TodayRotationHeader(date: now, day: model.todayRotationDay, unknownDayTitle: "今日课表")
+                    .accessibilityIdentifier("verified-school-today")
                 if let week = store.week(on: now), let schedule = week.schedule(on: now) {
                     if schedule.lessons.isEmpty {
                         StudentEmptyState(title: "今天没有排课", detail: "校宝本周课表中，这天没有课程。")

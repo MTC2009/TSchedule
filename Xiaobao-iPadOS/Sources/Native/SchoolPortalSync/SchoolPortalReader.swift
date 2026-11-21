@@ -35,7 +35,11 @@ final class SchoolPortalReader {
         case .identity: (op, params) = ("identity", [:])
         case .enrollmentName: (op, params) = ("enrollmentName", [:])
         case .week(let from, let to): (op, params) = ("week", ["from":from, "to":to])
+        case .collection(let kind): (op, params) = (kind.rawValue, [:])
+        case .terms: (op, params) = ("terms", [:])
         case .grades: (op, params) = ("grades", [:])
+        case .archivedGrades(let term): (op, params) = ("grades", ["term":term])
+        case let .archivedTasks(term, scores): (op, params) = ("tasks", ["term":term, "includeScores":scores])
         case .tasks(let includeScores): (op, params) = ("tasks", ["includeScores": includeScores])
         case .attendance(let query):
             var dates: [String: Any] = ["category":query.category.rawValue, "page":query.page]
@@ -48,12 +52,26 @@ final class SchoolPortalReader {
         case let .detail(term, subject, cls, type):
             (op, params) = ("detail", ["term":term, "subject":subject, "cls":cls, "type":String(type)])
         }
+        let arguments: [String: Any] = ["operation":op, "parameters":params, "expected":expected ?? "",
+                                             "salt":salt, "generation":generation.uuidString]
         let value: Any?
         do {
-            value = try await web.callAsyncJavaScript(script,
-                arguments: ["operation":op, "parameters":params, "expected":expected ?? "", "salt":salt,
-                            "generation":generation.uuidString],
-                in: nil, contentWorld: .defaultClient)
+            if request == .identity {
+                // WebKit can suspend a detached document's JS timers. Bound the native wait too.
+                value = try await withCheckedThrowingContinuation { continuation in
+                    let wait = IdentityReply(continuation)
+                    let deadline = Task {
+                        do { try await Task.sleep(for: .seconds(8)) } catch { return }
+                        wait.finish(.failure(SchoolPortalIssue.network))
+                    }
+                    web.callAsyncJavaScript(script, arguments: arguments, in: nil, in: .defaultClient) { result in
+                        deadline.cancel()
+                        wait.finish(result)
+                    }
+                }
+            } else {
+                value = try await web.callAsyncJavaScript(script, arguments: arguments, in: nil, contentWorld: .defaultClient)
+            }
         } catch { throw SchoolPortalIssue.network }
         guard session.webView === web, session.revision == revision, session.readGeneration == generation,
               session.foreground, !session.loading, !web.isLoading, Self.isHome(web.url) else {
@@ -61,5 +79,15 @@ final class SchoolPortalReader {
         }
         guard let text = value as? String, text.utf8.count <= 8_000_000 else { throw SchoolPortalIssue.format }
         return Data(text.utf8)
+    }
+
+    @MainActor private final class IdentityReply {
+        private var continuation: CheckedContinuation<Any?, Error>?
+        init(_ continuation: CheckedContinuation<Any?, Error>) { self.continuation = continuation }
+        func finish(_ result: Result<Any, Error>) {
+            let previous = continuation
+            continuation = nil
+            previous?.resume(with: result.map { Optional($0) })
+        }
     }
 }

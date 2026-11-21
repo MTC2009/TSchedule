@@ -31,13 +31,22 @@
         if (str(letter) && !["-", "--"].includes(str(letter))) return {type:"letter", value:str(letter)};
         return null;
     }
-    function term(rows) {
-        const list = array(rows), active = list.filter(x => x.isNow === true);
-        // No silent substitution of an archived term for an unconfirmed current one.
-        if (active.length !== 1) throw Error("term");
-        const t = active[0], year=num(t.year), sem=num(t.semester);
-        return {id:code(t.id), name:year && sem ? year+"–"+(year+1)+" 学年 · 第 "+sem+" 学期" : title(t.name),
-            start:str(t.startDate)?.slice(0,10), end:str(t.endDate)?.slice(0,10)};
+    function termDirectory(rows) {
+        const list=array(rows), active=list.filter(x=>x.isNow===true);
+        if(active.length!==1 || list.length>128) throw Error("term");
+        const terms=list.map(t=>{
+            const year=num(t.year), sem=num(t.semester);
+            return {id:code(t.id), name:year && sem ? year+"–"+(year+1)+" 学年 · 第 "+sem+" 学期" : title(t.name),
+                start:str(t.startDate)?.slice(0,10), end:str(t.endDate)?.slice(0,10)};
+        });
+        if(new Set(terms.map(t=>t.id)).size!==terms.length) throw Error("term");
+        return {current:code(active[0].id),terms};
+    }
+    function term(rows, selected) {
+        const directory=termDirectory(rows);
+        const result=directory.terms.find(t=>t.id===(selected??directory.current));
+        if(!result) throw Error("term");
+        return result;
     }
     function schedule(rows) {
         return array(rows).map(x => {
@@ -149,5 +158,5 @@
         });
         return {records,recordTotal};
     }
-    return {array, str, id, num, term, schedule, courses, groups, task, attendanceSummary, attendanceCourses, attendanceRecords};
+    return {array, str, id, num, term, termDirectory, schedule, courses, groups, task, attendanceSummary, attendanceCourses, attendanceRecords};
 }

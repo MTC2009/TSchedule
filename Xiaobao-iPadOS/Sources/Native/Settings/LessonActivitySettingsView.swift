@@ -4,17 +4,25 @@ import UIKit
 struct LessonActivitySettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var heading = ""
-    @State private var previewDate = Date()
 
     private var background: LessonActivityAppearance.Background { model.personalization.lessonActivity.background }
     private var appearance: LessonActivityAppearance { .init(background: background, nextHeading: heading) }
 
+    private var preview: LessonActivityAttributes.ContentState {
+        let date = model.now
+        guard model.school.selected, model.school.owner != nil,
+              let week = model.school.week(on: date), let schedule = week.schedule(on: date),
+              let timeline = schedule.timeline(courseName: { week.names[$0] ?? "课程" }),
+              let plan = LessonActivityPlan(timeline: timeline, at: date)
+        else { return .closed }
+        return .init(startsAt: plan.startsAt, endsAt: plan.endsAt, nextLesson: plan.next?.title,
+                     isDemo: false, appearance: appearance)
+    }
+
     var body: some View {
         SettingsForm {
-            Section("锁屏预览 · 示例") {
-                LessonActivityCard(state: .init(startsAt: previewDate.addingTimeInterval(-1_200),
-                    endsAt: previewDate.addingTimeInterval(1_080), nextLesson: "视觉叙事工作坊",
-                    isDemo: false, appearance: appearance), isStale: false, previewDate: previewDate)
+            Section("锁屏预览") {
+                LessonActivityCard(state: preview, isStale: false, previewDate: model.now)
                     .background {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(background.tint ?? Color(uiColor: .secondarySystemBackground))
@@ -32,7 +40,7 @@ struct LessonActivitySettingsView: View {
                 }
                 .accessibilityIdentifier("settings-activity-background")
             } footer: {
-                Text("预览使用示例课表。锁屏的最终外观取决于系统。")
+                Text("有正在进行的课程时，预览使用今天已读取的课表。")
             }
             Section {
                 TextField("下一节课小标题", text: $heading, prompt: Text("下一节课"))

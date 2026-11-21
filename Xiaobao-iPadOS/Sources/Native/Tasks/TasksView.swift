@@ -66,8 +66,8 @@ struct TasksView: View {
                 } else {
                     let available = records
                     TaskFilterBar(tasks: available ?? [], now: model.now, filters: $filters,
-                                  resetEnabled: term != nil || filters != TaskFilters(), reset: reset) {
-                        if model.school.selected { Text(termLabel).font(.caption) } else { termPicker }
+                                  resetEnabled: term != nil || model.school.selectedTermID != nil || filters != TaskFilters(), reset: reset) {
+                        if model.school.selected { SchoolTermMenu { filters = .init(); problem = nil } } else { termPicker }
                     }
                     results(available)
                 }
@@ -75,7 +75,7 @@ struct TasksView: View {
             .padding(24).frame(maxWidth: 1100).frame(maxWidth: .infinity)
         }
         .refreshable { await load(force: true) }
-        .task(id: LoadKey(scope: scope, term: term, active: phase == .active,
+        .task(id: LoadKey(scope: scope, term: model.school.selected ? model.school.selectedTermID : term, active: phase == .active,
                           includesSchoolScores: model.school.allowsTaskScores)) {
             if phase == .active { await load(force: false) }
         }
@@ -176,6 +176,7 @@ struct TasksView: View {
 
     private func reset() {
         filters = TaskFilters()
+        if model.school.selected, let current = model.school.terms?.current { model.selectAcademicTerm(current) }
         if term != nil { term = nil; problem = nil }
     }
 

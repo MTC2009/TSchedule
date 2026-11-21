@@ -36,6 +36,12 @@
 
 ## Change History
 
+### 2026-11-21 — planner-source
+Model: Codex · Keywords: planner-source / fixture-boundary
+Changed: Only the explicit internal local source resolves fixture lessons or work details. A missing service credential is not a timetable.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: Existing planner read projection; no plan record changes.
+
+
 ### 2026-11-21 — 校宝本人资料
 Model: Codex · Keywords: schoolis-webkit / scoped-student-reads  
 Changed: `PlannerSchoolSource` 分开处理门户实际日期和演示轮转，账户或登录代次改变时关闭旧编辑和详情。 Reason: 防止不同账号和课程来源混用。 Affected interfaces: 内部周读取和所有者范围，个人计划格式不变。

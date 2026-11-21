@@ -29,6 +29,13 @@ overlay = scratch / "FixtureEntry.swift"
 entry = entry.replace(".navigationTitle(title)", ".modifier(SidebarFixtureRoute()).navigationTitle(title)")
 overlay.write_text(entry.replace("@main @MainActor", "@MainActor") + "\n" +
                    (tests / "SidebarSkySmoke.swift").read_text())
+# Run the school-only routing with a fixed in-memory student, never a live portal.
+model = (root / "Sources/Native/AppModel.swift").read_text()
+reader = "reader: { try await schoolReader.read($0, expected: $1) }"
+if model.count(reader) != 1:
+    raise SystemExit("Review the fixture's local identity injection")
+model_overlay = scratch / "FixtureAppModel.swift"
+model_overlay.write_text(model.replace(reader, "reader: SidebarSkySmoke.read"))
 graph = plistlib.loads(subprocess.check_output(
     ["plutil", "-convert", "xml1", "-o", "-", str(original / "project.pbxproj")]))
 for obj in graph["objects"].values():
@@ -38,6 +45,8 @@ for obj in graph["objects"].values():
         settings["INFOPLIST_FILE"] = str((root / settings["INFOPLIST_FILE"]).resolve())
     if path == "XiaobaoApp.swift":
         obj.update(path=str(overlay), sourceTree="<absolute>")
+    elif path == "AppModel.swift":
+        obj.update(path=str(model_overlay), sourceTree="<absolute>")
     elif path in {"Sources", "README.md"} or path.startswith(("Resources/", "Config/", "Sources/", "../xiaobao-backend/")):
         obj.update(path=str((root / path).resolve()), sourceTree="<absolute>")
 (project / "project.pbxproj").write_bytes(plistlib.dumps(graph))

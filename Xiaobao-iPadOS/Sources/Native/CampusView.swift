@@ -2,19 +2,14 @@ import SwiftUI
 
 struct CampusConnectionSettings: View {
     @Environment(AppModel.self) private var model
-    @State private var origin = "http://127.0.0.1:3001"
-    @State private var profile = "demo-a"
-    @State private var remember = true
-    @State private var busy = false
-    @State private var message: String?
-    @State private var confirmLogout = false
-    private var clearingSchoolSession: Bool { model.school.selected && model.school.owner == nil }
+    @State private var confirmSchoolLogout = false
+    @State private var clearing = false
 
     private var schoolStatus: String {
         let store = model.school
-        if store.isRecoveringGrades { return "正在恢复登录" }
-        if model.portal.loading || store.pending.contains(.identity) { return "正在确认" }
+        if store.isRecoveringSession { return "正在恢复登录" }
         if store.owner != nil { return "已登录" }
+        if model.portal.loading || store.pending.contains(.identity) { return "正在确认" }
         switch store.identityIssue {
         case .login: return "未登录"
         case .expired: return "登录已过期"
@@ -25,7 +20,6 @@ struct CampusConnectionSettings: View {
         }
     }
 
-    /// One entry within Settings for all three sources; keep the shared sidebar shortcut unchanged.
     private var schoolPortalButton: some View {
         let title: String
         if !model.school.selected || model.school.identityIssue == .login { title = "登录校宝" }
@@ -38,16 +32,52 @@ struct CampusConnectionSettings: View {
 
     var body: some View {
         Section {
+            #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
             if model.school.selected {
-                LabeledContent("校宝账号", value: schoolStatus)
-                    .accessibilityIdentifier("settings-school-status")
-                SchoolPortalLoginSettings()
+                schoolAccount
+                Button("查看演示资料") { model.selectLocalFixture() }
+            } else {
+                FixtureAccountSettings()
                 schoolPortalButton
-                if model.school.owner == nil {
-                    Button("查看演示资料") { model.selectSchool(false) }
+            }
+            #else
+            schoolAccount
+            #endif
+        } header: { Text("校园资料") } footer: {
+            Text("课表、任务、考勤和已公布的成绩仅在本机当前会话中使用。")
+        }
+    }
+
+    @ViewBuilder private var schoolAccount: some View {
+        let clear = model.school.owner == nil
+        LabeledContent("校宝账号", value: schoolStatus)
+            .accessibilityIdentifier("settings-school-status")
+        SchoolPortalLoginSettings()
+        schoolPortalButton
+        Button(clear ? "清除本机校宝登录资料" : "退出校宝登录", role: .destructive) { confirmSchoolLogout = true }
+            .disabled(clearing)
+            .confirmationDialog(clear ? "清除这台 iPad 的校宝登录资料？" : "退出校宝登录？", isPresented: $confirmSchoolLogout) {
+                Button(clear ? "清除登录资料" : "退出校宝登录", role: .destructive) {
+                    clearing = true
+                    Task { await model.portal.reset(persistent: true); clearing = false }
                 }
-                Button(clearingSchoolSession ? "清除本机校宝登录资料" : "退出校宝登录", role: .destructive) { confirmLogout = true }
-            } else if let account = model.campus.account {
+            }
+    }
+}
+
+#if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+private struct FixtureAccountSettings: View {
+    @Environment(AppModel.self) private var model
+    @State private var origin = "http://127.0.0.1:3001"
+    @State private var profile = "demo-a"
+    @State private var remember = true
+    @State private var busy = false
+    @State private var message: String?
+    @State private var confirmLogout = false
+
+    var body: some View {
+        Group {
+            if let account = model.campus.account {
                 LabeledContent("演示资料账户", value: account.profile == "demo-a" ? "学生 A" : account.profile == "demo-b" ? "学生 B" : "已连接")
                 LabeledContent("演示服务会话", value: account.refresh == nil ? "仅本次" : "在此 iPad 保持登录")
                 Picker("资料更新", selection: Binding(get: { model.campus.updatePolicy }, set: { policy in
@@ -67,11 +97,12 @@ struct CampusConnectionSettings: View {
                 if model.campus.updatePolicy == .background, let status = model.backgroundCheckStatus {
                     Text(status).font(.footnote).foregroundStyle(.secondary)
                 }
-                schoolPortalButton
                 Button("退出账号", role: .destructive) { confirmLogout = true }
             } else {
-                LabeledContent("数据来源", value: "本机演示")
-                schoolPortalButton
+                LabeledContent("数据来源", value: model.usesLocalTimetable ? "本机演示" : "资料服务未连接")
+                if !model.usesLocalTimetable, model.campus.notice == nil {
+                    Button("使用本机测试资料") { model.selectLocalFixture() }
+                }
                 DisclosureGroup("连接演示资料服务") {
                     TextField("服务地址", text: $origin).keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                     Picker("资料账户", selection: $profile) {
@@ -83,11 +114,7 @@ struct CampusConnectionSettings: View {
                         Task {
                             defer { busy = false }
                             do {
-                                try await model.campus.connect(origin: origin, profile: profile, remember: remember)
-                                if model.preferences.rememberSession != remember {
-                                    model.preferences.rememberSession = remember
-                                    await model.portal.reset(persistent: remember)
-                                }
+                                try await model.connectFixture(origin: origin, profile: profile, remember: remember)
                                 model.selectedLesson = nil; model.tab = .today
                             } catch { message = error.localizedDescription }
                         }
@@ -95,32 +122,24 @@ struct CampusConnectionSettings: View {
                 }
             }
             if busy { ProgressView() }
-            if !model.school.selected, let text = message ?? model.campus.notice ?? model.campus.syncIssue { Text(text).font(.footnote).foregroundStyle(.secondary) }
-        } header: { Text("校园资料") } footer: {
-            Text(model.school.selected ? "课表、任务、考勤和已公布的成绩仅在本机当前会话中使用。"
-                 : "当前为演示资料。登录校宝后可查看自己的课表、任务、考勤和已公布成绩。")
+            if let text = message ?? model.campus.notice ?? model.campus.syncIssue {
+                Text(text).font(.footnote).foregroundStyle(.secondary)
+            }
         }
         .disabled(busy)
-        .onAppear { remember = model.preferences.rememberSession }
-        .confirmationDialog(clearingSchoolSession ? "清除这台 iPad 的校宝登录资料？" : "退出当前账号？", isPresented: $confirmLogout) {
-            Button(clearingSchoolSession ? "清除登录资料" : "退出账号", role: .destructive) {
-                busy = true; message = nil
+        .confirmationDialog("退出资料服务？", isPresented: $confirmLogout) {
+            Button("退出账号", role: .destructive) {
+                busy = true
                 Task {
                     defer { busy = false }
-                    do {
-                        if model.school.selected {
-                            await model.portal.reset(persistent: model.preferences.rememberSession)
-                            return
-                        }
-                        try await model.campus.logout()
-                        model.scheduleDataCheck()
-                        await model.portal.reset(persistent: model.preferences.rememberSession)
-                    } catch { message = error.localizedDescription }
+                    do { try await model.disconnectFixture() }
+                    catch { message = error.localizedDescription }
                 }
             }
         }
     }
 }
+#endif
 
 struct CampusPageView: View {
     @Environment(AppModel.self) private var model

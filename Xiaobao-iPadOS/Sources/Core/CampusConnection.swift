@@ -196,9 +196,10 @@ func campusTransport() -> CampusSend {
     private let send: CampusSend
     private let now: () -> Date
 
-    init(vault: any CampusVault, root: URL, gradeRoot: URL? = nil, send: @escaping CampusSend = campusTransport(), now: @escaping () -> Date = Date.init) {
+    init(vault: any CampusVault, root: URL, gradeRoot: URL? = nil, restoreOnInit: Bool = true,
+         send: @escaping CampusSend = campusTransport(), now: @escaping () -> Date = Date.init) {
         self.vault = vault; self.root = root; self.gradeRoot = gradeRoot; self.send = send; self.now = now
-        restore()
+        if restoreOnInit { restore() }
     }
 
     func restore() {

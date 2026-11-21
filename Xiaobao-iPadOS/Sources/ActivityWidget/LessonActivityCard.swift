@@ -30,12 +30,19 @@ struct LessonActivityMinutes: View {
     }
 }
 
-/// The Lock Screen and in-app sample use the same hierarchy and truncation.
+/// The Lock Screen and in-app preview use the same hierarchy and truncation.
 struct LessonActivityCard: View {
     let state: LessonActivityAttributes.ContentState
     let isStale: Bool
     var previewDate: Date? = nil
     @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var countdownHeading: String {
+        #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+        if state.isDemo { return "演示 · 距离下课" }
+        #endif
+        return "距离下课"
+    }
 
     var body: some View {
         Group {
@@ -44,7 +51,7 @@ struct LessonActivityCard: View {
                     VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 5) {
                             TScheduleMark(size: 18)
-                            Text(state.isDemo ? "演示 · 距离下课" : "距离下课")
+                            Text(countdownHeading)
                                 .font(.caption.weight(.medium)).foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
@@ -72,7 +79,7 @@ struct LessonActivityCard: View {
             } else {
                 HStack(spacing: 6) {
                     TScheduleMark(size: 18)
-                    Text("课表活动已结束").font(.subheadline)
+                    Text(previewDate == nil ? "课表活动已结束" : "暂无进行中的课程").font(.subheadline)
                     Spacer(minLength: 0)
                 }
             }

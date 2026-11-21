@@ -4,28 +4,28 @@ struct SchoolPortalGradebook: View {
     @Environment(AppModel.self) private var model
     var body: some View {
         let store = model.school, book = store.grades
-        if book == nil && store.pending.contains(.grades) {
-            ProgressView("正在读取本学期成绩")
+        if book == nil && store.pending.contains(store.gradeRead) {
+            ProgressView("正在读取所选学期成绩")
         } else { overview(store, book) }
     }
 
     private func overview(_ store: SchoolPortalStore, _ book: SchoolPortalGrades?) -> some View {
         let summary = book?.gpa.flatMap { $0.isFinite && $0 >= 0 ? GPASummary(value: $0, source: .published) : nil }
-        return GPAOverviewView(isCurrentTerm: true, summary: summary,
-            unavailableMessage: book == nil ? "尚未获取本学期成绩。" :
-                (book?.gpaUnavailable == true ? "本次未能读取学期 GPA。" : "校宝未提供本学期 GPA。"),
+        return GPAOverviewView(isCurrentTerm: store.selectedTermID == nil, summary: summary,
+            unavailableMessage: book == nil ? "尚未获取所选学期成绩。" :
+                (book?.gpaUnavailable == true ? "本次未能读取学期 GPA。" : "校宝未提供所选学期 GPA。"),
             courses: book.map { source in source.courses.map { source.courseDetail($0, groups: store.groups[$0.id]) } } ?? [],
             courseDestination: { AnyView(SchoolPortalCoursePage(id: $0.id)) }) {
-                if let book { Text(book.term) }
+                SchoolTermMenu {}
             } gradeStatus: {
-                if let issue = store.issues[.grades] { Text(issue.message).foregroundStyle(.secondary) }
-                if let book, book.courses.isEmpty { Text("校宝尚未公布本学期的课程成绩。") }
+                if let issue = store.issues[store.gradeRead] { Text(issue.message).foregroundStyle(.secondary) }
+                if let book, book.courses.isEmpty { Text("校宝尚未公布所选学期的课程成绩。") }
                 Button {
-                    model.requestSchoolGrades()
+                    model.requestSchoolGrades(force: true)
                 } label: {
-                    if store.pending.contains(.grades) { Label { Text("正在读取成绩") } icon: { ProgressView() } }
+                    if store.pending.contains(store.gradeRead) { Label { Text("正在读取成绩") } icon: { ProgressView() } }
                     else { Label("刷新 GPA", systemImage: "arrow.clockwise") }
-                }.buttonStyle(.glass).disabled(store.pending.contains(.grades)).accessibilityIdentifier("gpa-check-grades")
+                }.buttonStyle(.glass).disabled(store.pending.contains(store.gradeRead)).accessibilityIdentifier("gpa-check-grades")
             }
     }
 }

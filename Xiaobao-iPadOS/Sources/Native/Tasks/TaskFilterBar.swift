@@ -19,9 +19,9 @@ struct TaskFilterBar<TermControl: View>: View {
                     facet("任务类型", all: "全部类型", options: TaskFilters.workTypes(in: tasks), selection: $filters.workType, id: "type")
                     submissionMenu
                     gradingMenu
-                    termControl()
-                    facet("任务模式", all: "全部模式", options: TaskFilters.modes(in: tasks), selection: $filters.mode, id: "mode")
                     deadlineButton
+                    facet("任务模式", all: "全部模式", options: TaskFilters.modes(in: tasks), selection: $filters.mode, id: "mode")
+                    termControl()
                 }
                 HStack(spacing: 8) {
                     HStack(spacing: 9) {

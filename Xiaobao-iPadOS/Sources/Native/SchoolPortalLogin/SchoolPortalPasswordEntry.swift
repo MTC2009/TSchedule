@@ -69,7 +69,7 @@ import Foundation
                 try check()
                 if !web.isLoading {
                     let here = SchoolPortalPage.issue(at:web.url, foreground:true, loading:false)
-                    if here == nil { return } // The store must independently verify identity and read grades.
+                    if here == nil { return } // The store must independently verify the bound student.
                     guard here == .login else { throw SchoolPortalIssue.interaction }
                     let shape = try await evaluate(web, script, "probe")
                     try check()

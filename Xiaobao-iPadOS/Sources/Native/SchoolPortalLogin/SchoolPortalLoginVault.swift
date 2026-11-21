@@ -28,6 +28,7 @@ enum SchoolPortalEnrollmentError: Error, LocalizedError {
         let id: UUID
         let owner: String
         var paused: Bool
+        var restoresOnLaunch: Bool? = nil // Older bindings permitted a deliberate GPA visit only.
     }
 
     private(set) var binding: Binding?
@@ -67,10 +68,10 @@ enum SchoolPortalEnrollmentError: Error, LocalizedError {
         binding = try? metadata()
     }
 
-    func enable(owner: String, name: String, password: String) throws {
+    func enable(owner: String, name: String, password: String, restoresOnLaunch: Bool = false) throws {
         guard owner.utf8.count == 64, !name.isEmpty, name.utf8.count <= 512 else { throw SchoolPortalEnrollmentError.identity }
         guard !password.isEmpty, password.utf8.count <= 1024 else { throw SchoolPortalEnrollmentError.invalid }
-        let header = Binding(id: UUID(), owner: owner, paused: false)
+        let header = Binding(id: UUID(), owner: owner, paused: false, restoresOnLaunch: restoresOnLaunch)
         let fields: [String:Any] = [
             kSecAttrAccessible as String:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
             kSecAttrGeneric as String:try JSONEncoder().encode(header),
@@ -81,6 +82,12 @@ enum SchoolPortalEnrollmentError: Error, LocalizedError {
         } else { try requireOK(status) }
         defaults.removeObject(forKey:pendingRemoval)
         defaults.set(header.id.uuidString, forKey: preference); registered = true; binding = header
+    }
+
+    func setRestoresOnLaunch(_ enabled: Bool) throws {
+        guard var header = try metadata() else { throw SchoolPortalEnrollmentError.storage }
+        header.restoresOnLaunch = enabled
+        try update(header)
     }
 
     /// Persist the pause *before* releasing the secret. Repeated tabs, crashes and
@@ -95,7 +102,7 @@ enum SchoolPortalEnrollmentError: Error, LocalizedError {
         return (header, secret)
     }
 
-    /// Only the caller that independently reverified this student and read fresh grades may re-arm.
+    /// Only the caller that independently reverified this student may re-arm. A startup identity check never reads GPA.
     func confirm(_ claim: Binding) {
         guard var current = try? metadata(), current == claim, current.paused else { return }
         current.paused = false; try? update(current) // On failure, leave paused.

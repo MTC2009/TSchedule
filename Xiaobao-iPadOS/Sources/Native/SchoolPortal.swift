@@ -17,6 +17,27 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     @ObservationIgnored var onForgetLogin: (@MainActor () -> Void)?
     @ObservationIgnored var manualSheet = false
     @ObservationIgnored private var ordinaryNavigation: WKNavigation?
+    @ObservationIgnored private var navigationDeadline: Task<Void, Never>?
+
+    private func expectNavigation(_ navigation: WKNavigation?) {
+        navigationDeadline?.cancel()
+        ordinaryNavigation = navigation
+        loading = navigation != nil
+        guard let navigation else {
+            errorMessage = SchoolPortalIssue.network.message
+            school?.invalidate(.network)
+            return
+        }
+        navigationDeadline = Task { [weak self, weak navigation] in
+            do { try await Task.sleep(for: .seconds(10)) } catch { return }
+            guard let self, let navigation, self.ordinaryNavigation === navigation else { return }
+            self.ordinaryNavigation = nil
+            self.loading = false
+            self.errorMessage = "校宝网页未及时响应，可以重试。"
+            self.webView.stopLoading()
+            if self.school?.selected == true { self.school?.invalidate(.network) }
+        }
+    }
 
     func reopenForGrades() async throws {
         guard foreground, !loading else { throw SchoolPortalIssue.notReady }
@@ -26,7 +47,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     func cancelGradeEntry() { gradeEntry.cancel(CancellationError()); passwordEntry.cancel() }
 
-    func signInForGrades(allowed: @MainActor () -> Bool, claim: @MainActor () throws -> SchoolPortalLoginSecret) async throws {
+    func signInWithDeviceBinding(allowed: @MainActor () -> Bool, claim: @MainActor () throws -> SchoolPortalLoginSecret) async throws {
         guard foreground, !manualSheet, !loading else { throw SchoolPortalIssue.notReady }
         try await passwordEntry.run(webView, allowed:allowed, claim:claim)
     }
@@ -54,14 +75,13 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
 
     func loadIfNeeded() {
         guard webView.url == nil, !webView.isLoading, !loading else { return }
-        loading = true
-        webView.load(URLRequest(url: Self.url))
+        expectNavigation(webView.load(URLRequest(url: Self.url)))
     }
 
     /// User chose the visible sign-in screen after an interaction-required result.
     func openSignIn() {
-        loading = true; errorMessage = nil
-        webView.load(URLRequest(url: Self.url, cachePolicy: .reloadIgnoringLocalCacheData))
+        errorMessage = nil
+        expectNavigation(webView.load(URLRequest(url: Self.url, cachePolicy: .reloadIgnoringLocalCacheData)))
     }
 
     // The portal and its deep links use the same WebKit store, including the school's own sign-in redirects.
@@ -74,14 +94,19 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         var target = URLComponents(url: Self.url, resolvingAgainstBaseURL: false)!
         target.path = "/Home"; target.fragment = "!/" + route
         guard let url = target.url else { return false }
-        if url != webView.url { loading = true; webView.load(URLRequest(url: url)) }
+        if url != webView.url {
+            // Hash routes can complete in the same document without any WebKit navigation callbacks.
+            // Never mark those as a new document load. A real navigation will notify the delegate.
+            if SchoolPortalReader.isHome(webView.url) { webView.load(URLRequest(url: url)) }
+            else { expectNavigation(webView.load(URLRequest(url: url))) }
+        }
         return true
     }
-    func reload() { errorMessage = nil; if webView.url == nil { loadIfNeeded() } else { webView.reload() } }
+    func reload() { errorMessage = nil; if webView.url == nil { loadIfNeeded() } else { expectNavigation(webView.reload()) } }
 
     func reset(persistent: Bool) async {
         onForgetLogin?()
-        cancelGradeEntry(); ordinaryNavigation = nil
+        cancelGradeEntry(); navigationDeadline?.cancel(); ordinaryNavigation = nil
         cancelSchoolReads()
         if school?.selected == true { school?.invalidate(.login) }
         loading = true
@@ -103,8 +128,8 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         guard webView === self.webView else { return }
         if gradeEntry.owns(navigation) { return }
         gradeEntry.cancel(CancellationError(), stopLoading: false)
-        ordinaryNavigation = navigation
-        loading = true; errorMessage = nil
+        expectNavigation(navigation)
+        errorMessage = nil
         if school?.selected == true { cancelSchoolReads(); school?.beginNavigation() }
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -112,13 +137,12 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         let issue = SchoolPortalPage.issue(at: webView.url, foreground: foreground, loading: false)
         if gradeEntry.owns(navigation) { gradeEntry.finish(navigation, issue: issue); return }
         guard navigation === ordinaryNavigation else { return }
-        ordinaryNavigation = nil; loading = false
+        navigationDeadline?.cancel(); ordinaryNavigation = nil; loading = false
         if foreground, school?.selected == true {
             if let issue {
-                if manualSheet && issue == .login { onForgetLogin?() }
                 school?.invalidate(issue)
             }
-            else if let school {
+            else if let school, !manualSheet {
                 let ticket = school.epoch
                 Task {
                     guard self.foreground, school.epoch == ticket, !self.loading, !self.gradeEntry.pending else { return }
@@ -131,6 +155,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { report(error, webView, navigation) }
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         guard webView === self.webView else { return }
+        navigationDeadline?.cancel(); ordinaryNavigation = nil
         gradeEntry.cancel(SchoolPortalIssue.network)
         if school?.selected == true { school?.invalidate(.network) }
         loading = false; errorMessage = "网页已暂停，点刷新重新载入。"
@@ -140,7 +165,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         guard web === webView else { return }
         if gradeEntry.owns(navigation) { gradeEntry.finish(navigation, issue: .network); return }
         guard let navigation, navigation === ordinaryNavigation else { return }
-        ordinaryNavigation = nil; loading = false
+        navigationDeadline?.cancel(); ordinaryNavigation = nil; loading = false
         errorMessage = error.localizedDescription
         if school?.selected == true { school?.invalidate(.network) }
     }

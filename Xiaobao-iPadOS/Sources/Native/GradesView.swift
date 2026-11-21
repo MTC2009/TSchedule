@@ -17,19 +17,23 @@ struct GradeTrialSettings: View {
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("settings-school-trial-hint")
                 }
-            } else if let scope {
-                if let saved = client.savedGrades {
-                    OfflineGradeLab(saved: saved).id(scope)
-                } else {
-                    Text(!client.readSavedGrades && client.errors[.grades] == nil
-                         ? "正在读取本机成绩。"
-                         : "请先在 GPA 页获取成绩。试算只使用本机已保存的成绩。")
-                        .foregroundStyle(.secondary)
-                }
             } else {
-                let book = model.gradebook
-                let grades = book.terms.first.map { book.grades(termID: $0.id) } ?? []
-                GPAPreviewView(grades: grades, weighted: $model.preferences.weightedGPA)
+                #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+                if let scope {
+                    if let saved = client.savedGrades {
+                        OfflineGradeLab(saved: saved).id(scope)
+                    } else {
+                        Text(!client.readSavedGrades && client.errors[.grades] == nil
+                             ? "正在读取本机成绩。"
+                             : "请先在 GPA 页获取成绩。试算只使用本机已保存的成绩。")
+                            .foregroundStyle(.secondary)
+                    }
+                } else if model.usesLocalTimetable {
+                    let book = model.gradebook
+                    let grades = book.terms.first.map { book.grades(termID: $0.id) } ?? []
+                    GPAPreviewView(grades: grades, weighted: $model.preferences.weightedGPA)
+                }
+                #endif
             }
         }
         .task(id: scope) {
@@ -40,6 +44,7 @@ struct GradeTrialSettings: View {
     }
 }
 
+#if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
 private struct GPAPreviewView: View {
     let grades: [Grade]
     @Binding var weighted: Bool
@@ -89,6 +94,8 @@ private struct GPAPreviewView: View {
         }
     }
 }
+
+#endif
 
 private struct OfflineGradeLab: View {
     let saved: SavedCampusGrades

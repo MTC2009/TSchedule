@@ -4,10 +4,16 @@
 - **Input / entry:** `TasksView()` from the My Tasks destination in `RootView`. Reads the active account or built-in sample through the [task projection](../../Core/Tasks/README.md); the navigation identity clears filters and detail when the account or its task availability changes.
 - **Output:** Term/course/type/mode filters, separate submission and grading filters, school-local due-date range, title search and reset. Cards put the published score above the deadline and teacher; when no score is published, the row is omitted. A bottom-trailing diagonal ribbon with distinct symbols uses gray for unsubmitted, yellow for overdue unsubmitted, blue for submitted work awaiting grading or publication, and green for published grading. VoiceOver reads the submission and grading states separately. Detail shows both as text, along with instructions, answer, published score or released preview, feedback and available file names; no upload or download UI.
 - **Files:** `TasksView.swift` coordinates results and read states; `TaskFilterBar.swift` owns filter controls and date entry; `TaskCard.swift` renders tiles and status; `TaskDetailView.swift` uses `StudentDetailSurface` and the shared glass styling. At usable wide widths, instructions and answer share a row, as do the score and feedback; small panes stack them. No behavior changes in the exam/evaluation/resource pages or in the Planner's existing school-entry detail.
-- **Limits:** Task rows and attachment names are unmodified service or synthetic source values. The real school session supplies the current-term list and source status. Past terms, attachments and submission remain in the school web entry. Grade info, optional fields and archive availability are shown separately from submission and from local offline completion.
+- **Limits:** Task rows and attachment names are unmodified service or synthetic source values. The real school session supplies its own term directory; Tasks and GPA share the selection. Historical task records are requested only for a selected term. Attachments and submission remain in the school web entry. Grade info, optional fields and archive availability are shown separately from submission and from local offline completion.
 - **Test:** Open My Tasks on an iPad simulator, combine facets, open a graded and an ungraded record, return with the same filters, and switch terms. Check the same route with the loopback demo and a previously cached current term. Core tests cover case-insensitive title matching, inclusive dates, paging, old caches and authorization.
 
 ## Change History
+
+### 2026-11-21 — verified-semesters
+Model: Codex · Keywords: verified-semesters / deadline-layout
+Changed: Replace the current-term caption with the verified semester menu. Put deadline in the second-row middle slot at three columns.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: Existing task filters and shared school semester; no submission changes.
+
 
 ### 2026-11-21 — Task grid order
 Model: Codex · Keywords: my-tasks / newest-publication  

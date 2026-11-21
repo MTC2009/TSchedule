@@ -3,7 +3,7 @@ const test=require('node:test'), assert=require('node:assert/strict'), fs=requir
 const {webcrypto}=require('node:crypto');
 const source=name=>fs.readFileSync(path.join(__dirname,'../../Sources/Native/SchoolPortalSync',name+'.js'),'utf8');
 const here='https://tsinglanstudent.schoolis.cn';
-const paths={owner:'/api/MemberShip/GetCurrentStudentInfo',terms:'/api/School/GetSchoolSemesters',
+const paths={exams:'/api/Exam/GetList',evaluations:'/v2/basic/CareerAssessment/MyAssessments',resources:'/v2/clouddisk/StudentShare/SharedToMePagedList',owner:'/api/MemberShip/GetCurrentStudentInfo',terms:'/api/School/GetSchoolSemesters',
     week:'/api/Schedule/ListScheduleByParent', grades:'/api/DynamicScore/GetStuSemesterDynamicScore',
     gpa:'/api/DynamicScore/GetGpa',detail:'/api/DynamicScore/GetDynamicScoreDetail',tasks:'/api/LearningTask/GetList',
     summary:'/api/Attendance/GetAttendanceStatistic',subjects:'/api/Attendance/GetSubjectAttendanceStatistic',
@@ -236,4 +236,35 @@ test('only explicit enrollment returns the current verified login name, never fo
     assert.equal((await h.run('enrollmentName',{},'unbound')).error,'changed');
     const empty=harness({owner:()=>({userId:3})});
     assert.equal((await empty.run('enrollmentName',{},await empty.owner())).error,'unavailable');
+});
+
+test('semester directory is a list, not a read of every semester; selected tasks and GPA use that exact ID',async()=>{
+    const past={id:17,isNow:false,year:2023,semester:1,startDate:'2023-09-01',endDate:'2024-01-20'};
+    const h=harness({terms:()=>[term,past],tasks:u=>{
+        assert.equal(u.searchParams.get('SemesterId'),'17');assert.equal(u.searchParams.get('BeginTime'),past.startDate);
+        return {list:[],totalCount:0};
+    },grades:u=>{assert.equal(u.searchParams.get('semesterId'),'17');return {studentSemesterDynamicScoreBasicDtos:[]};}});
+    const owner=await h.owner(), dir=await h.run('terms',{},owner);
+    assert.equal(dir.value.current,'42');assert.equal(dir.value.terms.length,2);assert.ok(!h.calls.includes('grades'));
+    assert.equal((await h.run('tasks',{term:'17'},owner)).value.rows.length,0);
+    assert.equal((await h.run('grades',{term:'17'},owner)).value.termID,'17');
+    assert.equal((await h.run('tasks',{term:'missing'},owner)).error,'term');
+    assert.equal(h.calls.filter(k=>k==='tasks').length,1);
+});
+
+test('overview lists project visible metadata, use the verified student, and never return file links or assessment answers',async()=>{
+    const h=harness({owner:()=>({userId:42,studentInfoId:28}),resources:(_,request)=>{
+        const body=JSON.parse(request.body);assert.equal(String(body.stuInfoId),'28');assert.equal(body.page.pageIndex,1);
+        return {totalCount:1,list:[{id:6,name:'Reading pack',format:'pdf',path:'excluded-link'}]};
+    },evaluations:(_,request)=>{assert.equal(request.method,'POST');return [{id:2,name:'Studio skills',hasSubmitted:false,answers:'excluded'}];},
+    exams:u=>{assert.equal(u.searchParams.get('SemesterId'),String(term.id));return {totalCount:0,list:[]};}});
+    const owner=await h.owner();
+    for(const op of ['resources','exams','evaluations']) {
+        const result=await h.run(op,{studentId:999},owner);assert.ok(Array.isArray(result.value),op);
+        assert.doesNotMatch(JSON.stringify(result),/excluded|answers|path/);
+    }
+    assert.ok(!h.calls.includes('gpa'));assert.ok(!h.calls.includes('grades'));
+    const unavailable=harness({owner:()=>({userId:10})});
+    assert.equal((await unavailable.run('resources',{},await unavailable.owner())).error,'unavailable');
+    assert.ok(!unavailable.calls.includes('resources'));
 });

@@ -10,6 +10,12 @@ The existing Today timetable can publish one current-lesson snapshot after a del
 - Dependencies / consumers: [plan projection](../../Core/LessonActivity/README.md), [system card and payload](../../ActivityWidget/README.md), Today and AppModel. See [testing](../../../Tests/SchoolPortalSync/README.md).
 
 ## Change History
+
+### 2026-11-21 — activity-owner
+Model: Codex · Keywords: activity-owner / unavailable-service
+Changed: An unavailable fixture service no longer selects a local timetable activity.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: Existing activity source reconciliation.
+
 ### 2026-11-21 — Apply a local style on start
 Model: Codex (GPT-6.2-sol) · Keywords: minute-countdown / activity-style / next-start  
 Changed: The user's foreground action supplies the local appearance, and the existing expiry uses the actual end even while the system renders rounded minutes. Reason: Personalize new cards without refreshing the school data or updating a running card on a settings edit. Affected interfaces: internal `start(_:source:appearance:)` only.

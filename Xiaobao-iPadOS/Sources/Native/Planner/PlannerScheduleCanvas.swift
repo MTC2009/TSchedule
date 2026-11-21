@@ -228,12 +228,12 @@ struct PlannerScheduleCanvas: View {
     }
 
     private func schoolLesson(_ entry: PlannerSchoolEntry) -> Lesson? {
-        guard !model.school.selected, model.campus.account == nil, let id = entry.lessonID else { return nil }
+        guard model.usesLocalTimetable, let id = entry.lessonID else { return nil }
         return model.provider.lessons(on: day.date).first { $0.id == id }
     }
 
     private func schoolWork(_ entry: PlannerSchoolEntry) -> SchoolWork? {
-        guard !model.school.selected, model.campus.account == nil, case .work(let kind, let id) = entry.id else { return nil }
+        guard model.usesLocalTimetable, case .work(let kind, let id) = entry.id else { return nil }
         return StudentServices.work.first { $0.id == id && $0.kind.rawValue == kind }
     }
 

@@ -1,14 +1,20 @@
 # 其余项目
 
-- **用途与边界：** 一个侧栏入口，页内切换考试、测评和资料库。共用任务页样式的网格与课程筛选；详情分别以考场与时间、测评要求、资料正文为重点。不提交测评、获取成绩、下载文件或修改学校数据。
-- **输入：** 本机的 `StudentServices` 示例，或已授权的 `CampusConnection` 考试、测评、资料库与课程名单。已取得完整模块缓存时在全组筛选；旧服务若只给分页，则提示按当前页筛选并保留分页。未同步或无权限不会混入本机数据。
-- **入口与输出：** `OtherItemsView()` 负责分段；`OtherItemsGrid(section:records:filters:showsLocalBookmarks:isPartialPage:campusPage:)` 接受当前栏目、记录与页面筛选状态，默认全部课程。整张卡进入对应详情；返回仍保留筛选。只有本机资料沿用已有收藏。
+- **用途与边界：** 「其余项目」在同一页切换考试、测评和资料库。正式版直接显示当前账号已获授权的目录，不提交测评、不读取成绩或附件，也不修改学校数据。
+- **正式版路径：** `OtherItemsView()` → `SchoolCollectionList` → `SchoolPortalStore.loadCollection`。目录可以在打开页面前准备好；有数据时直接显示，空列表与未获授权分别提示，单项读取失败可单独重试。
+- **开发测试路径：** 隔离的本机 `StudentServices` 或独立 `CampusConnection` 提供网格、课程筛选及详情用例。`OtherItemsGrid(section:records:filters:showsLocalBookmarks:isPartialPage:campusPage:)` 接受栏目、记录与筛选状态。仅本机测试资料有收藏；正式版不回退到这些来源。
 - **主要文件：** `OtherItemsGrid.swift` 是网格与方块；`OtherItemsFilterBar.swift` 复用任务页的菜单标签；`OtherItemsDetails.swift` 按类别展示原内容；`Sources/Core/OtherItemsCatalog.swift` 投影来源并组合筛选。
 - **依赖与消费者：** `StudentServicesView.swift` 与 `CampusView.swift` 使用网格。详情依赖 `StudentDetailSurface`、`GlassCard` 和现有校宝入口。原「计划」仍调用其原有考试详情。
-- **限制：** 连接版资料没有课程关联，显示为「未分科」。课程 ID 已知而课程名称暂未载入时，不标为「未分科」。跨科考试只出现一次，可按已知的多科关联筛选。旧缓存可能缺少考试起止时间或资料分享时间，只有来源可确认时才展示。
-- **测试：** 在 iPad 工程运行 `swift test`，覆盖课程关系、跨科条目、无课程、状态／搜索／收藏组合，以及完整缓存和权限撤销。模拟器验证两种数据来源的三类详情、返回筛选、收藏和横竖屏。
+- **限制：** 正式版只显示学校返回的目录元数据，不展开资料正文。测试网格中的资料若没有课程关联，显示为「未分科」；时间只有来源可确认时才展示。
+- **测试：** 在 iPad 工程运行 `swift test`；`Tests/SchoolPortalSync/` 的读取与模拟器用例验证三类目录的预取和按账号隔离。测试网格另有课程／状态筛选、详情、收藏和横竖屏用例。
 
 ## Change History
+
+### 2026-11-21 — authorized-overviews
+Model: Codex · Keywords: authorized-overviews / native-lists
+Changed: Show verified exam, assessment and shared-file lists directly in the three existing sections. Keep empty results distinct from denied or failed reads.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: SchoolPortalStore.loadCollection; list metadata only.
+
 
 ### 2026-11-21 — 校宝本人资料
 Model: Codex · Keywords: schoolis-webkit / scoped-student-reads  

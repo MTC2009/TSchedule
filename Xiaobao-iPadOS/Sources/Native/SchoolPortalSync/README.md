@@ -8,7 +8,19 @@ Interactive login remains the official Schoolis page. SchoolPortalReader runs fi
 - Tests: [reader, WebKit and optional iPad UI checks](../../../Tests/SchoolPortalSync/README.md). Live acceptance: on your own iPad, sign in normally, open GPA, then leave the account intact until its normal server expiry. Return to GPA without opening the website. Check whether fresh results appear or the app instead requests interactive sign-in. Clearing website data or explicitly logging out also removes the recovery opportunity and is not an expiry test. Never submit credentials, grades, bodies, cookies or screenshots.
 - Limits: the student portal is not a versioned integration API. An access refusal or incompatible reply is reported, not replaced with demo data. Live academic records require the device owner's comparison. Grade overview and task reads use the current term; the timetable follows the selected week; no account write endpoints.
 
+### Overview reads and navigation
+
+The visible tab is served first. `SchoolPortalWarmup.swift` prepares the other authorized overview lists sequentially in the foreground, in memory. `SchoolTermMenu.swift` uses the school semester directory for Tasks and GPA. Only a selected archive is read. Exam rows use the student exam list; evaluations use My Assessments; the resource list uses Shared to Me with the current student's own verified school-supplied scope. No archive scan, attachment URLs, file downloads, answers or grade details are prefetched. The same-origin reader uses the list contracts in the [school's student web client](https://cdn.schoolis.cn/sis/release/student/fe_stu/fe_build/scripts/main.dfaa16ecd7c35ba0dbda.js) and [current student list app](https://cdn.schoolis.cn/sis/sisstureact/pre/17175/assets/js/App-4c7fd13d.js). Unrecognized/denied responses are errors, not empty lists.
+
+Hash-only navigation no longer sets a document-loading flag. Full document loads have a 10 s deadline; an identity read has a separate native 8 s deadline, even if WebKit's JS timers stop. Closing the manual sheet must verify the same student before a short-lived overview can reappear.
+
 ## Change History
+
+### 2026-11-21 — overview-prefetch
+Model: Codex · Keywords: overview-prefetch / identity-deadline
+Changed: Add the shared semester control, three read-only list projections and priority loading; bound identity checks and hash-route handoff.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: Native list/term reads and their SwiftUI consumers; no school writes.
+
 ### 2026-11-21 — Native student attendance and explicit GPA refresh
 Model: Codex · Keywords: native-attendance / mounted-tab / published-gpa-refresh  
 Changed: School attendance now uses a native overview and paged detail rather than a website prompt. GPA refresh is an action, not a grant. The page adapter is bound to the mounted tab so an outgoing tab cannot start the next tab’s read. Reason: keep school navigation and device sign-in separate from student reads. Affected interfaces: two in-process reads and the page adapter; no new password use, application HTTP routes or data stores.

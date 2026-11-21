@@ -31,7 +31,7 @@ Category: Frontend Composite Component · Status: Active. Entry: `SettingsView()
 | `Xiaobao-iPadOS/Sources/Native/Settings/SettingsView.swift` | SettingsForm | content = grouped links, existing grade tools, version | Show all reachable settings without splitting the sidebar |
 | `Xiaobao-iPadOS/Sources/Native/Settings/AppearanceSettingsView.swift` | SettingsForm; existing EnvironmentView via AppModel flag | content = environment trigger and UIKit-managed icon choices | Reuse the existing weather and app appearance controls |
 | `Xiaobao-iPadOS/Sources/Native/Settings/PersonalInfoSettingsView.swift` | SettingsForm; existing CampusConnectionSettings with no overrides | content = campus account/actions and optional local nickname | Keep school login in one place without editing the school profile |
-| `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | SettingsForm | content = sample card and display style fields | Preview styles without starting or extending an Activity |
+| `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | SettingsForm | content = current lesson or empty preview, and display style fields | Preview styles without starting or extending an Activity |
 | `Xiaobao-iPadOS/Sources/Native/Settings/ReminderSettingsView.swift` | SettingsForm | content = local subtitle, test and conditionally available demo reminders | Avoid offering school timetable switches that don't work |
 | `Xiaobao-iPadOS/Sources/Native/Settings/PrivacyPolicyView.swift` | SettingsForm | content = native readable privacy information | Explain local handling and user choices without a web view |
 
@@ -151,7 +151,7 @@ Category: Frontend Utilities / System UI · Status: Implemented. Paths: `<repo-r
 | `Xiaobao-iPadOS/Sources/Native/LessonActivity/LessonActivityController.swift` | ActivityKit and shared ContentState | staleDate = end of active class; pushType = nil; title = bounded; dismissal = immediate; scope/IDs = app memory only | Minimize disclosure and end on logout, source change or stale time |
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift`, `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Own the controller, revoke scope and handle the fixed course link | source = verified school or separate demo; no URL arguments or arbitrary data | Reuse the current timetable and never open a stale user's records |
 | `Xiaobao-iPadOS/Sources/ActivityWidget/LessonActivityWidget.swift` | Read shared ContentState and render LessonActivityCard | end, style and next title = local snapshot; isStale = system; clock = widget clock | Whole-minute readout with no seconds; clear course names when expired |
-| `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | Reuse LessonActivityCard | state = synthetic interval/title with draft style; previewDate = fixed sample anchor | The preview never starts or reads an actual activity |
+| `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | Reuse LessonActivityCard | state = verified current lesson with draft style, otherwise closed; previewDate = model.now | Preview the loaded timetable without starting or reading a system activity |
 | `Xiaobao-iPadOS/Tests/Core/LessonActivityPlanTests.swift`, `Xiaobao-iPadOS/Tests/SchoolPortalSync/LessonActivityUITests.swift` | Core plan and foreground ActivityKit action | synthetic day and loopback portal only | Exercise time boundaries, next-title selection and actual local start/stop |
 
 ## Planner date routing
@@ -814,18 +814,30 @@ Relative path: `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/` · Repository pat
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | Observe pending/grades and loadDetail; refresh through AppModel | initial read = foreground GPA visit; refresh = student action; detail = listed course; key = current term | Real grade screen and on-demand course detail |
 | `Xiaobao-iPadOS/Sources/Native/Planner/PlannerSchoolSource.swift`, `PlannerView.swift`, `PlannerScheduleCanvas.swift` (same directory) | week(on:), loadWeek, epoch and source flags | date = selected week; force = user retry; owner = account namespace | Bounded school track without demo notices or detail links |
 | `Xiaobao-iPadOS/Sources/Native/Tasks/TasksView.swift` | loadTasks, taskRead, current term, projected records | force = user refresh; load identity includes state:allowsTaskScores; no history fallback | Refresh the existing cards after a grade visit without requesting course details |
-| `Xiaobao-iPadOS/Sources/Native/CampusView.swift`, `Settings/ReminderSettingsView.swift`, `GradesView.swift`, `StudentServicesView.swift` (under Native) | Settings, trial inputs, reminder and web-only routing | selected / owner / grades = actual store state; trial = memory only | Keep demo data out of account-dependent settings and sections |
+| `Xiaobao-iPadOS/Sources/Native/CampusView.swift`, `Settings/ReminderSettingsView.swift`, `GradesView.swift`, `StudentServicesView.swift` (under Native) | Settings, verified trial inputs, reminder cleanup and scoped native lists | selected / owner / grades = actual store state; trial = memory only | Keep demo data out of account-dependent settings and sections |
 | `Xiaobao-iPadOS/Tests/Core/SchoolPortalTests.swift`, `Xiaobao-iPadOS/Tests/Core/SchoolPortalAccessTests.swift` | Verify store, document classification, expiry, owner and cancellation fencing | synthetic readers, fixed URLs and scoped test identities | Offline regression checks |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalEntry.swift` | Return typed navigation issues | busy = notReady; timeout = network; terminal issue = delegate input | The store handles a failed entry without guessing its cause |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/SchoolPortalLoginSettings.swift` | enrollmentName(for:), owner and epoch | expected = student already verified on the official page; when = explicit enrollment | Bind only that account, never an arbitrary login name |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/SchoolPortalPasswordEntry.swift`, `SchoolPortalLoginVault.swift` (same directory) | Official URL classifier and typed sign-in failures | main frame, actual navigation; claim = bound owner | Fail closed on unknown pages, changed owner and challenges |
 | `Xiaobao-iPadOS/Tests/SchoolPortalSync/WebKitSmoke.swift` | Instantiate the store and call openGrades with a WebKit navigation | selected = true; reader = loopback WKWebView; reopen = SchoolPortalEntry; classifier = same path on the fixed Home origin | Assert actual fresh grades, scope reset and interactive stop |
-| `Xiaobao-iPadOS/Tests/AtmospherePreview/SidebarSkySmoke.swift` | Select / invalidate the synthetic school scope while on Settings | selected = test true/false; reason = default; no school network read | Assert the navigation no longer shows the previous destination |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SidebarSkySmoke.swift` | Verify and invalidate a test account while on Settings | reader = isolated synthetic identity; reason = default; no school network read | Assert the protected navigation no longer shows the previous destination |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalWarmup.swift` | loadWeek, loadTasks, loadAttendance, loadCollection | verified owner, active tab, current epoch; one secondary overview at a time | Prefetch without GPA, attachments or speculative history |
+
+## Shared school semester menu
+
+Frontend composite · Active · Entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolTermMenu.swift`. Uses the existing `TaskFilterLabel`, verified `SchoolPortalStore` directory and `AppModel.selectAcademicTerm(_:)`. Nil selection denotes the school's current semester. Opening it loads directory metadata, not archive records.
+
+### Consumers
+
+| File | Usage | Explicit parameters / defaults |
+| --- | --- | --- |
+| `Xiaobao-iPadOS/Sources/Native/Tasks/TasksView.swift` | `SchoolTermMenu` inside `TaskFilterBar` | didSelect clears page filters/errors |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | Same menu in the GPA header | no local filter reset; selected GPA loaded by AppModel |
 
 ## School portal WebKit reader and native adapters
 
 Category: Frontend infrastructure / composite views · Status: Active  
-Relative path: `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/` · Repository path: `<repo-root>/Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/`. Entry: `SchoolPortalReader.read(_:expected:)`, `SchoolPortalEntry.reopen(_:home:)`, `SchoolPortalPages(tab:)`, `SchoolPortalAttendancePage`, `SchoolPortalWebSection(section:)`, `SchoolPortalGradebook`, `SchoolPortalCoursePage(id:)`, `SchoolPortalRetry(issue:retry:)`. Dependencies: WebKit, fixed bundled reader/projection scripts, scoped store, existing Today/Planner/Tasks/GPA presentation. Defaults: fixed official Home frame; no credentials exposed, no network target supplied by callers, no writes. [Module contract](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md).
+Relative path: `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/` · Repository path: `<repo-root>/Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/`. Entry: `SchoolPortalReader.read(_:expected:)`, `SchoolPortalEntry.reopen(_:home:)`, `SchoolPortalPages(tab:)`, `SchoolPortalAttendancePage`, `SchoolCollectionList(section:)`, `SchoolPortalGradebook`, `SchoolPortalCoursePage(id:)`, `SchoolPortalRetry(issue:retry:)`. Dependencies: WebKit, fixed bundled reader/projection scripts, scoped store, existing Today/Planner/Tasks/GPA presentation. Defaults: fixed official Home frame; no credentials exposed, no network target supplied by callers, no writes. [Module contract](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md).
 
 ### Consumers
 
@@ -834,7 +846,7 @@ Relative path: `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/` · Repository p
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | Construct reader, classify Home and provide recovery callback | session = existing PortalSession; salt = installation namespace; expected = active owner; reopen = fixed official Home | Wire the real account |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortal.swift` | Validate Home; own, finish or cancel SchoolPortalEntry | URL = fixed official Home; WebKit = same device store; navigation = concrete returned handle | Only one navigation, no login sheet or shared credentials |
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | SchoolPortalPages(tab:) | tab = mounted navigation scope’s tab; environment = AppModel | Route non-Settings tabs for real mode |
-| `Xiaobao-iPadOS/Sources/Native/StudentServicesView.swift` | SchoolPortalWebSection | section = selected existing tab’s portalSection | Keep three official web destinations |
+| `Xiaobao-iPadOS/Sources/Native/StudentServicesView.swift` | loadCollection(_:force:) | group = selected existing section; force only on pull/retry | Native school-provided lists |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalPages.swift` | SchoolPortalGradebook, SchoolPortalAttendancePage and SchoolPortalRetry | destination = mounted tab; issue = identity or week error; retry = same read or grade visit | Reuse account-aware state handling |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalAttendancePage.swift` | SchoolPortalRetry / school attendance store | issue = active report or detail error; retry = same scoped read | Keep failure and retry native |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | SchoolPortalCoursePage and SchoolPortalRetry | id = selected listed course; issue = scoped detail read; retry = same course | Lazy authorized detail |

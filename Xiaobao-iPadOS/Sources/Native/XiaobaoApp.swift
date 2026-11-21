@@ -13,7 +13,7 @@ struct XiaobaoApp: App {
                 .onChange(of: model.school.owner) { _, _ in model.schoolIdentityUpdated() }
                 .onChange(of: model.school.identityIssue) { _, _ in model.schoolIdentityUpdated() }
                 .onOpenURL { model.openLessonActivity($0) }
-                .onChange(of: model.portal.loading || model.school.isRecoveringGrades || model.school.pending.contains(.grades)) {
+                .onChange(of: model.portal.loading || model.school.isRecoveringSession || model.school.pending.contains(model.school.gradeRead)) {
                     _, busy in if !busy { model.startRequestedGradeRead() }
                 }
                 .environment(\.locale, Locale(identifier: "zh_CN"))
@@ -22,7 +22,7 @@ struct XiaobaoApp: App {
                 .tint(.blue)
         }
         .onChange(of: phase, initial: true) { _, phase in
-            if phase == .active { model.lessonActivity.clearOrphans() }
+            if phase == .active { model.lessonActivity.clearOrphans() } else { model.stopLaunchLogin(resetForNextForeground: phase == .background) }
             model.cityWeather.setForeground(phase == .active)
             model.portal.foreground = phase == .active
             if model.school.selected {
@@ -36,6 +36,7 @@ struct XiaobaoApp: App {
                 }
                 return
             }
+            guard model.campusSource == .fixtureService else { return }
             if phase == .background { model.campus.enteredBackground(); model.scheduleDataCheck() }
             if phase == .active { Task { await model.campus.opened() } }
         }
@@ -99,13 +100,17 @@ struct RootView: View {
             model.returnToNow()
             Task { await model.refreshReminders() }
         }
-        .onChange(of: model.campus.notice != nil) { _, _ in
+        .onChange(of: model.usesLocalTimetable) { _, _ in
             model.reconcileLessonActivitySource()
-            Task { await model.refreshPlanReminders() }
+            Task { await model.refreshReminders() }
         }
         .onChange(of: model.activePlanOwner) { _, _ in
             model.selectedLesson = nil
             Task { await model.refreshReminders() }
+        }
+        .task(id: SchoolWarmup(epoch: model.school.epoch, owner: model.school.owner, page: model.tab,
+                               ready: scenePhase == .active && !model.portalPresented)) {
+            if scenePhase == .active, !model.portalPresented { await model.warmSchoolPages() }
         }
         .sheet(isPresented: $model.environmentPresented) {
             EnvironmentView().presentationDetents([.large]).presentationDragIndicator(.visible)
@@ -121,7 +126,7 @@ struct RootView: View {
         }
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
-            if !model.school.selected { model.campus.restore() }
+            if model.campusSource == .fixtureService { model.campus.restore() }
             await model.refreshReminders()
         }
         .task(id: scenePhase) {
@@ -148,18 +153,29 @@ struct RootView: View {
     }
 
     @ViewBuilder private func tabContent(_ tab: AppTab) -> some View {
-        if model.school.selected && tab != .settings {
+        if tab == .settings {
+            SettingsView()
+        } else {
+            #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+            if model.school.selected { SchoolPortalPages(tab: tab) } else { fixtureTab(tab) }
+            #else
             SchoolPortalPages(tab: tab)
-        } else if tab == .grades, model.campus.account != nil {
+            #endif
+        }
+    }
+
+    #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+    @ViewBuilder private func fixtureTab(_ tab: AppTab) -> some View {
+        if tab == .grades, model.campus.account != nil {
             CampusGradebookView()
         } else if tab == .tasks, model.campus.account != nil {
             TasksView()
         } else if tab != .settings, tab != .planner, tab != .otherItems, model.campus.account != nil {
             CampusPageView(tab: tab)
-        } else if tab != .settings, model.campus.account == nil, let notice = model.campus.notice {
+        } else if tab != .settings, !model.usesLocalTimetable, model.campus.account == nil {
             ContentUnavailableView {
                 Label("账号连接", systemImage: "person.crop.circle")
-            } description: { Text(notice) } actions: {
+            } description: { Text(model.campus.notice ?? "尚未连接资料服务。") } actions: {
                 Button("查看账号设置") { model.tab = .settings }
             }
         } else {
@@ -170,9 +186,18 @@ struct RootView: View {
             case .tasks: TasksView()
             case .otherItems: OtherItemsView()
             case .planner: PlannerView().id(model.campus.account?.scope)
-            case .settings: SettingsView()
+            case .settings: EmptyView()
             }
         }
+    }
+
+    #endif
+
+    private struct SchoolWarmup: Equatable {
+        let epoch: UUID
+        let owner: String?
+        let page: AppTab
+        let ready: Bool
     }
 
     private struct NavigationScope: Hashable {
@@ -190,7 +215,7 @@ struct RootView: View {
     }
     private var navigationScope: NavigationScope {
         if model.school.selected {
-            return NavigationScope(tab: model.tab, account: .init(campus: nil, schoolEpoch: model.school.epoch))
+            return NavigationScope(tab: model.tab, account: .init(campus: nil, schoolEpoch: model.school.navigationEpoch))
         }
         let campus = model.campus
         let access = campus.account.map {

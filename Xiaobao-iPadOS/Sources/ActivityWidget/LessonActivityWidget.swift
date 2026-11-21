@@ -5,18 +5,18 @@ import WidgetKit
 @main struct LessonActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LessonActivityAttributes.self) { context in
-            LessonActivityCard(state: context.state, isStale: context.isStale)
-                .activityBackgroundTint(context.state.appearance?.background.tint)
+            LessonActivityCard(state: context.state.displayable, isStale: context.isStale)
+                .activityBackgroundTint(context.state.displayable.appearance?.background.tint)
                 .widgetURL(LessonActivityAttributes.courseLink)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.bottom) {
-                    LessonActivityCard(state: context.state, isStale: context.isStale)
+                    LessonActivityCard(state: context.state.displayable, isStale: context.isStale)
                 }
             } compactLeading: {
                 TScheduleMark(size: 16)
             } compactTrailing: {
-                if let end = context.state.endsAt, !context.isStale, Date() < end {
+                if let end = context.state.displayable.endsAt, !context.isStale, Date() < end {
                     LessonActivityMinutes(endingAt: end).font(.caption.monospacedDigit())
                         .frame(width: 62, alignment: .trailing)
                 } else {

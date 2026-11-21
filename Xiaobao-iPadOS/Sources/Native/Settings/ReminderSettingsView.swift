@@ -33,15 +33,9 @@ struct ReminderSettingsView: View {
             } footer: {
                 Text("副标题仅用于本机个人计划和测试通知。留空保存可清除；已送达的通知不变。")
             }
-            if model.school.selected || model.campus.account != nil {
-                Section("课表提醒") {
-                    Label("课前和晨间提醒目前仅适用于本机演示课表。", systemImage: "bell.slash")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("settings-lesson-reminders-paused")
-                }
-            } else {
-                localReminders
-            }
+            #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
+            if model.usesLocalTimetable { localReminders }
+            #endif
         }
         .navigationTitle("提醒")
         .onAppear { subtitle = model.personalization.reminderSubtitle ?? "" }
@@ -56,6 +50,7 @@ struct ReminderSettingsView: View {
         }
     }
 
+    #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
     /// Built-in timetable only, independent of personal and school records.
     private var localReminders: some View {
         @Bindable var model = model
@@ -90,4 +85,5 @@ struct ReminderSettingsView: View {
             Text("按本机演示课表安排未来 7 天的提醒。")
         }
     }
+    #endif
 }

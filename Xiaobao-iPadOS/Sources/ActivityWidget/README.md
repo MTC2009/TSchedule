@@ -10,6 +10,12 @@ WidgetKit extension embedded in the iPad app. It renders bounded local ActivityK
 - Consumer: [native controller](../Native/LessonActivity/README.md). Test with the main scheme and the isolated iPad fixture; first allow the system activity on the QA Lock Screen. [System-rendered whole-minute card](../../../docs/verification/student-interface/lesson-activity-minutes.png) uses only synthetic content; a simulator rendering does not prove real-device behavior.
 
 ## Change History
+
+### 2026-11-21 — legacy-redaction
+Model: Codex · Keywords: legacy-redaction / loaded-preview
+Changed: Redact previously archived fixture activities on every widget surface; Settings no longer invents a countdown or course.
+Reason: Keep account boundaries explicit and avoid blocking navigation on redundant reads. Affected interfaces: Existing ActivityKit payload remains decodable.
+
 ### 2026-11-21 — Whole-minute countdown and optional styles
 Model: Codex (GPT-6.2-sol) · Keywords: minute-countdown / activity-preview / activity-background  
 Changed: Remove the end clock and second counter, and share the card with Settings. Reason: Use the Lock Screen's own clock for the current time and keep the activity focused on what's left. Affected interfaces: optional style in the local snapshot; expiry and return URL unchanged.

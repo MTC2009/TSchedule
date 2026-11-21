@@ -21,7 +21,7 @@ TSchedule is an independent iPad companion for a school day. See the next class,
 - **My Tasks:** Find assignments, due dates, and published results. This app does not submit schoolwork.
 - **GPA and attendance:** Review available results and course breakdowns. Estimates and practice calculations, where shown, are not official grades.
 
-Connected academic data requires an existing student account on the supported Tsinglan School student portal. This is not an official app of the school or its portal provider. Built-in sample data can be explored without a school account. Screenshots show sample records.
+Connected academic data requires an existing student account on the supported Tsinglan School student portal. This is not an official app of the school or its portal provider. Screenshots contain no real student records.
 
 The current app interface is in Simplified Chinese. Requires iPadOS 26 or later.
 

@@ -19,14 +19,14 @@ async (op, args, expected, salt, p, generation) => {
         const readers=globalThis.tScheduleReads ??= new Map();
         if (!readers.has(generation)) readers.set(generation,new Set());
         active=readers.get(generation); active.add(abort);
-        timer=setTimeout(()=>abort.abort(),45000);
-        async function read(path, qs, data) {
+        timer=setTimeout(()=>abort.abort(),op==="identity"?7000:45000);
+        async function read(path, qs, data, method=data?"POST":"GET") {
             ready();
             const url=new URL(path,origin);
             if (qs) for (const [k,v] of Object.entries(qs)) url.searchParams.set(k,String(v));
-            const res=await fetch(url.href,{method:data?"POST":"GET", credentials:"same-origin", mode:"same-origin",
+            const res=await fetch(url.href,{method, credentials:"same-origin", mode:"same-origin",
                 redirect:"manual",cache:"no-store",signal:abort.signal,
-                headers:data?{"Content-Type":"application/json",Accept:"application/json"}:{Accept:"application/json"},
+                headers:method==="POST"?{"Content-Type":"application/json",Accept:"application/json"}:{Accept:"application/json"},
                 ...(data?{body:JSON.stringify(data)}:{})});
             // An unreadable redirect or maintenance HTML does not identify its destination.
             if (res.type==="opaqueredirect") fail("unavailable");
@@ -57,7 +57,7 @@ async (op, args, expected, salt, p, generation) => {
             // needs the verified account's own login name, never the wider profile.
             const bytes=new TextEncoder().encode(JSON.stringify([salt,origin,p.id(user.orgId),student,member,handle]));
             const hash=await crypto.subtle.digest("SHA-256",bytes);
-            return {owner:Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,"0")).join(""),handle};
+            return {owner:Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,"0")).join(""),handle, studentInfo:stableID(user?.studentInfoId)?user.studentInfoId:null};
         }
         const first=await account(), owner=first.owner;
         if (op==="identity") return {owner};
@@ -66,12 +66,47 @@ async (op, args, expected, salt, p, generation) => {
         if (op==="enrollmentName") {
             if (!first.handle || first.handle.length>512) fail("unavailable");
             value=first.handle;
+        } else if (op==="evaluations") {
+            const list=p.array(await read("/v2/basic/CareerAssessment/MyAssessments",null,null,"POST"));
+            if(list.length>3200) fail("format");
+            value=list.map(x=>({id:p.id(x.id),title:p.str(x.name),detail:
+                x.hasSubmitted===true?"已完成":x.hasSubmitted===false?"未完成":null}));
+        } else if (op==="resources" || op==="exams") {
+            // List metadata only. The resource scope comes from this document's verified student,
+            // never from a client-supplied account, a guessed ID, or a different profile.
+            const resource=op==="resources";
+            if(resource && !first.studentInfo) fail("unavailable");
+            const term=resource?null:p.term(await read("/api/School/GetSchoolSemesters"));
+            if(term && (!term.start || !term.end)) fail("term");
+            const rows=[], seen=new Set(); let total;
+            for(let page=1;page<=64;++page) {
+                const data=resource
+                    ? await read("/v2/clouddisk/StudentShare/SharedToMePagedList",null,{
+                        stuInfoId:first.studentInfo,formats:[],sortModel:{key:0,orderBy:0},page:{pageIndex:page,pageSize:50}})
+                    : await read("/api/Exam/GetList",{SemesterId:term.id,SubjectId:"null",TypeId:"null",Key:"",
+                        BeginTime:term.start,EndTime:term.end,PageSize:50,PageIndex:page,Mode:"null"});
+                const list=p.array(data?.list),count=p.num(data.totalCount??data.total??data.recordCount);
+                if(!Number.isSafeInteger(count)||count<0||count>3200||(total!=null&&total!==count)) fail("format");
+                total=count;
+                for(const x of list){
+                    const id=p.id(x.id??x.examId),title=p.str(x.name)??p.str(x.eName)??p.str(x.title);
+                    if(!id||!title||seen.has(id)) fail("format");seen.add(id);
+                    rows.push({id,title,detail:resource?p.str(x.format):p.str(x.beginTime)?.slice(0,10)});
+                }
+                if(seen.size===total) break;
+                if(!list.length||seen.size>total||page===64) fail("format");
+            }
+            value=rows;
+        } else if (op==="terms") {
+            const {current,terms}=p.termDirectory(await read("/api/School/GetSchoolSemesters"));
+            value={current,terms:terms.map(({id,name})=>({id,name}))};
         } else if (op==="week") {
             if (![args.from,args.to].every(x=>/^\d{4}-\d\d-\d\d$/.test(x)) ||
                 Date.parse(args.to)-Date.parse(args.from)!==6*86400000) fail("format");
             value=p.schedule(await read("/api/Schedule/ListScheduleByParent",null,{beginTime:args.from,endTime:args.to}));
         } else {
-            const term=p.term(await read("/api/School/GetSchoolSemesters"));
+            const selectable=["tasks","grades","detail"].includes(op);
+            const term=p.term(await read("/api/School/GetSchoolSemesters"),selectable?args.term:null);
             const semesterId=term.id;
             if (op==="grades") {
                 const courses=p.courses(await read("/api/DynamicScore/GetStuSemesterDynamicScore",{semesterId}));
@@ -143,7 +178,8 @@ async (op, args, expected, salt, p, generation) => {
             } else fail("format");
         }
         ready();
-        if (owner!==(await account()).owner) fail("changed");
+        const last=await account();
+        if (owner!==last.owner || (op==="resources" && first.studentInfo!==last.studentInfo)) fail("changed");
         return {owner,value};
     } catch(e) {
         const code=["notReady","expired","changed","denied","term","format","unavailable"].includes(e?.message)?e.message:"network";

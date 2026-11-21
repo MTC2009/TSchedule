@@ -1188,6 +1188,28 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "353D5C051D0A74E2532B201E";
 		};
+		"FBBC42B26734D8F9961EBC6B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolPortalWarmup.swift";
+			"path" = "SchoolPortalSync/SchoolPortalWarmup.swift";
+			"sourceTree" = "<group>";
+		};
+		"4E2DA5EAC46CE9183F19985E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FBBC42B26734D8F9961EBC6B";
+		};
+		"1E85E275824DBDD0601406BA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTermMenu.swift";
+			"path" = "SchoolPortalSync/SchoolTermMenu.swift";
+			"sourceTree" = "<group>";
+		};
+		"2D7F784EBEE263AB1AA9B7EE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1E85E275824DBDD0601406BA";
+		};
 		"E869004A1CAE7A1F81020C91" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1412,6 +1434,8 @@
 				"413F55C4B95C5428FA06B009",
 				"AD010FF52A6C224F3FA80BFF",
 				"353D5C051D0A74E2532B201E",
+				"FBBC42B26734D8F9961EBC6B",
+				"1E85E275824DBDD0601406BA",
 				"E869004A1CAE7A1F81020C91",
 				"5194E9EE7D1949B8F6CE0079",
 				"E3475266F73F847BFF61E2BD",
@@ -1704,6 +1728,8 @@
 				"457F13F4B55C74980AB41354",
 				"22DA7ABE837AFB22336B4CBF",
 				"04083CDB77715523830EAC94",
+				"4E2DA5EAC46CE9183F19985E",
+				"2D7F784EBEE263AB1AA9B7EE",
 				"D4A24923919EFAAEF83F1670",
 				"5359F559D433731B3AFCEC9D",
 				"9282D29A8A1B888C86D38C6B",

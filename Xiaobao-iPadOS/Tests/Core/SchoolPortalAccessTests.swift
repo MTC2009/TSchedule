@@ -48,11 +48,11 @@ import XCTest
         XCTAssertEqual(f.entries, 0); XCTAssertEqual(s.grades?.gpa, 2.1)
         f.gradeIssue = .expired
         await f.visit {
-            XCTAssertNil(s.grades); XCTAssertNil(s.owner); XCTAssertTrue(s.isRecoveringGrades)
+            XCTAssertNil(s.grades); XCTAssertNil(s.owner); XCTAssertTrue(s.isRecoveringSession)
             f.gradeIssue = nil; f.value = 3.2
         }
         XCTAssertEqual(f.entries, 1); XCTAssertEqual(s.grades?.gpa, 3.2); XCTAssertEqual(s.owner, f.original)
-        XCTAssertEqual(f.reads, [.identity,.grades,.grades,.identity,.grades]); XCTAssertFalse(s.isRecoveringGrades)
+        XCTAssertEqual(f.reads, [.identity,.grades,.grades,.identity,.grades]); XCTAssertFalse(s.isRecoveringSession)
     }
 
     func testExpiredIdentityWaitsForVisitEvenAfterBackgroundOrDocumentLoad() async {
@@ -178,7 +178,7 @@ import XCTest
         await f.visit(); await s.verify(); XCTAssertEqual(f.entries, 1)
         s.invalidate(.login); await s.verify()
         try XCTUnwrap(release).resume(); await old.value
-        XCTAssertEqual(s.owner, f.original); XCTAssertNil(s.grades); XCTAssertFalse(s.isRecoveringGrades)
+        XCTAssertEqual(s.owner, f.original); XCTAssertNil(s.grades); XCTAssertFalse(s.isRecoveringSession)
         XCTAssertEqual(f.reads, [.identity,.grades,.identity])
     }
 
@@ -196,6 +196,6 @@ import XCTest
         await fulfillment(of: [started], timeout: 2); visit.cancel()
         try XCTUnwrap(release).resume(returning: Data("{\"owner\":\"\(owner)\",\"value\":{\"term\":\"T\",\"termID\":\"t\",\"courses\":[]}}".utf8))
         await visit.value
-        XCTAssertNil(store.grades); XCTAssertTrue(store.pending.isEmpty); XCTAssertFalse(store.isRecoveringGrades)
+        XCTAssertNil(store.grades); XCTAssertTrue(store.pending.isEmpty); XCTAssertFalse(store.isRecoveringSession)
     }
 }

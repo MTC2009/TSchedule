@@ -7,7 +7,10 @@ struct PlannerSchoolSource {
     let model: AppModel
     let dates: [Date]
 
-    var publication: PublishedSchoolCalendar? { model.school.selected ? nil : .bundledHS }
+    var publication: PublishedSchoolCalendar? {
+        guard !model.school.selected, model.usesLocalTimetable || model.campus.account != nil else { return nil }
+        return .bundledHS
+    }
 
     var calendarPage: CampusPage? {
         guard let first = dates.first, let last = dates.last else { return nil }
@@ -29,7 +32,7 @@ struct PlannerSchoolSource {
                 week?.names[$0] ?? "课程"
             }, nil)
         }
-        if model.campus.account == nil {
+        if model.usesLocalTimetable {
             let school = PlannerSchoolDay.local(on: date, provider: model.provider, work: StudentServices.work(on: date))
             return (school, model.provider.schoolCalendar.publishedDay(on: date))
         }

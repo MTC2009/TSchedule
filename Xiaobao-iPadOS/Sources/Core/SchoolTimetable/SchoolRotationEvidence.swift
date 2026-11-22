@@ -20,19 +20,22 @@ enum SchoolRotationEvidence {
     static func lineup(in observations: [Observation], usesCampusBells: Bool) -> [Period]? {
         guard observations.count >= 2 else { return nil }
         let occurrences = observations.map(\.periods)
-        let wholeDay = agreement(occurrences)
-        guard usesCampusBells else { return wholeDay }
+        guard usesCampusBells else { return agreement(occurrences) }
+        let daytimeObservations = observations.filter(\.observesLineup)
+        // Identical late-only exports can both be incomplete. A recurring lineup needs
+        // two dated daytime observations, including explicitly all-vacant days.
+        guard daytimeObservations.count >= 2 else { return nil }
+
         let vacancies = Set(observations.flatMap(\.vacancies))
         func respectsVacancies(_ lessons: [Period]) -> Bool {
             !lessons.contains { p in vacancies.contains { $0.start < p.end && p.start < $0.end } }
         }
-        if let wholeDay, (!wholeDay.isEmpty || observations.filter(\.fullyVacant).count >= 2),
-           respectsVacancies(wholeDay) { return wholeDay }
+        if let wholeDay = agreement(occurrences), respectsVacancies(wholeDay) { return wholeDay }
 
-        let daytime = observations.filter(\.observesLineup).map { $0.periods.filter(isDaytime) }
         // Compare all actual daytime observations (not a majority); absence of daytime
         // rows at the publication edge must not veto several independently matching days.
-        guard daytime.count >= 2, let instruction = agreement(daytime), respectsVacancies(instruction),
+        let daytime = daytimeObservations.map { $0.periods.filter(isDaytime) }
+        guard let instruction = agreement(daytime), respectsVacancies(instruction),
               instruction.contains(where: { CampusBells.isTeachingPeriod(start: $0.start, end: $0.end) }) else { return nil }
 
         let late = occurrences.map { $0.filter { !isDaytime($0) } }

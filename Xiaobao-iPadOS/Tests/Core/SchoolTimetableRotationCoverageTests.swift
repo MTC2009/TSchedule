@@ -79,6 +79,82 @@ import XCTest
               kind:kind, end:date+"T"+end+":00+08:00", room:nil, allDay:false)
     }
 
+    private let eveningSamples = [SchoolClock.date(2027, 3, 9), SchoolClock.date(2027, 3, 17)]
+    private let withheldDate = SchoolClock.date(2027, 3, 25)
+    private let eveningTitle = "Bookbinding studio"
+    private let eveningStart = 18 * 60 + 34
+
+    private func eveningSample(on date: Date, vacancies: [TeachingSlot] = []) throws -> SchoolPortalWeek {
+        let key = SchoolClock.key(date)
+        let blanks = vacancies.map { special(key, "", .vacant, SchoolClock.time($0.start), SchoolClock.time($0.end)) }
+        let lesson = special(key, eveningTitle, .lesson, SchoolClock.time(eveningStart), "19:05")
+        return try .init(week: .init(containing: date), rows: blanks + [lesson])
+    }
+
+    func testLateAgreementIsNotDaytimeCoverage() throws {
+        let cal = try calendar()
+        let rotation = try XCTUnwrap(cal.day(on: withheldDate).teachingDay)
+        XCTAssertEqual(eveningSamples.compactMap { cal.day(on: $0).teachingDay }, [rotation, rotation])
+        let all = CampusBells.teachingSlots
+        let partial = Array(all.prefix(1))
+        for (first, second, mayRepeat) in [(all, all, true), (all, partial, false), (partial, partial, false), ([], [], false)] {
+            var book = SchoolTimetable(owner: "fixture", calendar: cal, now: eveningSamples[0])
+            for (date, blanks) in zip(eveningSamples, [first, second]) {
+                try book.absorb(eveningSample(on: date, vacancies: blanks), calendar: cal)
+            }
+            let details = "Daytime slots supplied: \(first.count) and \(second.count)"
+            for date in eveningSamples {
+                XCTAssertEqual(book.day(on: date, calendar: cal)?.timeline?.blocks.compactMap(\.lesson).map(\.name),
+                               [eveningTitle], details)
+                XCTAssertTrue(book.lessonReminders(now: date, lead: 5, calendar: cal).map(\.fireDate)
+                    .contains(SchoolClock.at(minute: eveningStart - 5, on: date)), details)
+            }
+            let future = try XCTUnwrap(book.day(on: withheldDate, calendar: cal))
+            XCTAssertEqual(book.rotations[rotation] != nil, mayRepeat, details)
+            XCTAssertEqual(future.schedule?.hasConfirmedRoster, mayRepeat, details)
+            XCTAssertEqual(future.timeline?.blocks.compactMap(\.lesson).map(\.name), mayRepeat ? [eveningTitle] : [], details)
+            XCTAssertEqual(book.lessonReminders(now: withheldDate, lead: 5, calendar: cal).map(\.fireDate),
+                           mayRepeat ? [SchoolClock.at(minute: eveningStart - 5, on: withheldDate)] : [], details)
+        }
+    }
+
+    func testRestoringOldLateOnlyRotationRechecksEvidenceWithoutChangingArchive() async throws {
+        let cal = try calendar()
+        var source = SchoolTimetable(owner: "fixture", calendar: cal, now: eveningSamples[0])
+        for date in eveningSamples {
+            try source.absorb(eveningSample(on: date), calendar: cal)
+        }
+        var legacy = try XCTUnwrap(PropertyListSerialization.propertyList(from: PropertyListEncoder().encode(source),
+                                                                          format: nil) as? [String: Any])
+        let rotation = try XCTUnwrap(cal.day(on: withheldDate).teachingDay)
+        legacy["rotations"] = [String(rotation): [["title": eveningTitle, "start": eveningStart, "end": 19 * 60 + 5]]]
+        let registration = UUID(), suite = "LateRotationRestoreTests." + registration.uuidString
+        let settings = try XCTUnwrap(UserDefaults(suiteName: suite))
+        settings.set(registration.uuidString, forKey: "tschedule.timetable.v1.registration")
+        settings.set(registration.uuidString, forKey: "tschedule.timetable.v1.lessonOptIn")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent(suite + ".plist")
+        let bytes = try PropertyListSerialization.data(fromPropertyList:
+            ["version": 1, "registration": registration.uuidString, "timetable": legacy], format: .binary, options: 0)
+        try bytes.write(to: file)
+        defer { settings.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: file) }
+        let store = SchoolTimetableStore(file: file, defaults: settings, publication: cal)
+        let restored = try XCTUnwrap(store.visible)
+        XCTAssertTrue(store.lessonRemindersEnabled, "The existing opt-in must not be revoked to avoid a false alert")
+        XCTAssertNil(restored.rotations[rotation])
+        XCTAssertEqual(restored.day(on: withheldDate, calendar: cal)?.schedule?.hasConfirmedRoster, false)
+        XCTAssertTrue(restored.lessonReminders(now: withheldDate, lead: store.lessonLead, calendar: cal).isEmpty)
+        let lastDated = try XCTUnwrap(eveningSamples.last)
+        XCTAssertEqual(restored.day(on: lastDated, calendar: cal)?.schedule?.lessons.map(\.course_id), [eveningTitle])
+        XCTAssertEqual(restored.lessonReminders(now: lastDated, lead: store.lessonLead, calendar: cal).map(\.fireDate),
+                       [SchoolClock.at(minute: eveningStart - store.lessonLead, on: lastDated)])
+        await store.update(for: "fixture", calendar: cal, now: withheldDate, manual: false, current: { true }) { _ in
+            XCTFail("Revalidating the local timetable must not contact the portal")
+            throw SchoolPortalIssue.network
+        }
+        XCTAssertEqual(try Data(contentsOf: file), bytes)
+        XCTAssertEqual(store.reminderRegistration, registration.uuidString)
+    }
+
     func testTruncatedPublicationDoesNotInvalidateRotationOrHideDatedEvening() throws {
         let cal = try calendar(), asOf = SchoolClock.date(2027,3,4)
         let evening = "2027-03-17", empty = "2027-03-18", event = "2027-03-19", interior = "2027-03-05"

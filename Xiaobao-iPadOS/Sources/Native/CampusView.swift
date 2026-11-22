@@ -7,28 +7,28 @@ struct CampusConnectionSettings: View {
 
     private var schoolStatus: String {
         let store = model.school
-        if store.isRecoveringSession { return "正在恢复登录" }
-        if store.owner != nil { return "已登录" }
-        if model.portal.loading || store.pending.contains(.identity) { return "正在确认" }
+        if store.isRecoveringSession { return String(localized: "正在恢复登录") }
+        if store.owner != nil { return String(localized: "已登录") }
+        if model.portal.loading || store.pending.contains(.identity) { return String(localized: "正在确认") }
         switch store.identityIssue {
-        case .login: return "未登录"
-        case .expired: return "登录已过期"
-        case .changed, .interaction: return "需本人确认"
-        case .signInTimeout: return "登录结果超时"
-        case .signInRejected: return "登录未成功"
-        case .notReady, nil: return "正在等待页面"
-        case .network: return "暂时无法连接"
-        default: return "暂时无法读取资料"
+        case .login: return String(localized: "未登录")
+        case .expired: return String(localized: "登录已过期")
+        case .changed, .interaction: return String(localized: "需本人确认")
+        case .signInTimeout: return String(localized: "登录结果超时")
+        case .signInRejected: return String(localized: "登录未成功")
+        case .notReady, nil: return String(localized: "正在等待页面")
+        case .network: return String(localized: "暂时无法连接")
+        default: return String(localized: "暂时无法读取资料")
         }
     }
 
     private var schoolPortalButton: some View {
         let title: String
-        if !model.school.selected || model.school.identityIssue == .login { title = "登录校宝" }
-        else if model.school.identityIssue == .expired { title = "重新登录校宝" }
-        else if [.changed, .interaction].contains(model.school.identityIssue) { title = "前往校宝确认账号" }
-        else if [.signInTimeout, .signInRejected].contains(model.school.identityIssue) { title = "查看校宝登录页" }
-        else { title = "打开校宝网页" }
+        if !model.school.selected || model.school.identityIssue == .login { title = String(localized: "登录校宝") }
+        else if model.school.identityIssue == .expired { title = String(localized: "重新登录校宝") }
+        else if [.changed, .interaction].contains(model.school.identityIssue) { title = String(localized: "前往校宝确认账号") }
+        else if [.signInTimeout, .signInRejected].contains(model.school.identityIssue) { title = String(localized: "查看校宝登录页") }
+        else { title = String(localized: "打开校宝网页") }
         return Button(title, systemImage: "safari") { model.openPortal() }
             .accessibilityIdentifier("settings-school-portal")
     }
@@ -57,10 +57,10 @@ struct CampusConnectionSettings: View {
             .accessibilityIdentifier("settings-school-status")
         SchoolPortalLoginSettings()
         schoolPortalButton
-        Button(clear ? "清除本机校宝登录资料" : "退出校宝登录", role: .destructive) { confirmSchoolLogout = true }
+        Button(clear ? String(localized: "清除本机校宝登录资料") : String(localized: "退出校宝登录"), role: .destructive) { confirmSchoolLogout = true }
             .disabled(clearing)
-            .confirmationDialog(clear ? "清除这台 iPad 的校宝登录资料？" : "退出校宝登录？", isPresented: $confirmSchoolLogout) {
-                Button(clear ? "清除登录资料" : "退出校宝登录", role: .destructive) {
+            .confirmationDialog(clear ? String(localized: "清除这台 iPad 的校宝登录资料？") : String(localized: "退出校宝登录？"), isPresented: $confirmSchoolLogout) {
+                Button(clear ? String(localized: "清除登录资料") : String(localized: "退出校宝登录"), role: .destructive) {
                     clearing = true
                     Task { await model.portal.reset(persistent: true); clearing = false }
                 }
@@ -83,8 +83,8 @@ private struct FixtureAccountSettings: View {
     var body: some View {
         Group {
             if let account = model.campus.account {
-                LabeledContent("演示资料账户", value: account.profile == "demo-a" ? "学生 A" : account.profile == "demo-b" ? "学生 B" : "已连接")
-                LabeledContent("演示服务会话", value: account.refresh == nil ? "仅本次" : "在此 iPad 保持登录")
+                LabeledContent("演示资料账户", value: account.profile == "demo-a" ? String(localized: "学生 A") : account.profile == "demo-b" ? String(localized: "学生 B") : String(localized: "已连接"))
+                LabeledContent("演示服务会话", value: account.refresh == nil ? String(localized: "仅本次") : String(localized: "在此 iPad 保持登录"))
                 Picker("资料更新", selection: Binding(get: { model.campus.updatePolicy }, set: { policy in
                     Task {
                         do { try await model.campus.setUpdatePolicy(policy); model.scheduleDataCheck(); message = nil }
@@ -97,14 +97,14 @@ private struct FixtureAccountSettings: View {
                     Task { _ = await model.campus.checkAll() }
                 }.disabled(model.campus.syncing)
                 if let time = model.campus.lastFullCheck {
-                    LabeledContent("上次完整检查", value: time.formatted(date: .abbreviated, time: .shortened))
+                    LabeledContent("上次完整检查", value: schoolDateLabel(time, format: "yyyy年M月d日 HH:mm"))
                 }
                 if model.campus.updatePolicy == .background, let status = model.backgroundCheckStatus {
                     Text(status).font(.footnote).foregroundStyle(.secondary)
                 }
                 Button("退出账号", role: .destructive) { confirmLogout = true }
             } else {
-                LabeledContent("数据来源", value: model.usesLocalTimetable ? "本机演示" : "资料服务未连接")
+                LabeledContent("数据来源", value: model.usesLocalTimetable ? String(localized: "本机演示") : String(localized: "资料服务未连接"))
                 if !model.usesLocalTimetable, model.campus.notice == nil {
                     Button("使用本机测试资料") { model.selectLocalFixture() }
                 }
@@ -179,7 +179,7 @@ struct CampusPageView: View {
     private func name(_ id: String) -> String {
         if case .courses(let values) = model.campus.pages[.courses]?.content,
            let course = values.first(where: { $0.id == id }) { return course.name }
-        return "课程名称待载入"
+        return String(localized: "课程名称待载入")
     }
     var body: some View {
         pageView
@@ -198,7 +198,7 @@ struct CampusPageView: View {
                 }
                 if let snapshot = model.campus.pages[page] {
                     HStack {
-                        Text("上次检查 \(snapshot.cache.checked.formatted(date: .abbreviated, time: .shortened))")
+                        Text("上次检查 \(schoolDateLabel(snapshot.cache.checked, format: "yyyy年M月d日 HH:mm"))")
                             .font(.caption).foregroundStyle(.secondary)
                         Spacer()
                         Button("刷新", systemImage: "arrow.clockwise") { Task { await load(force: true) } }.buttonStyle(.glass)
@@ -279,7 +279,7 @@ struct CampusPageView: View {
         return Dictionary(roster.map { ($0.id, $0.name) }, uniquingKeysWith: { existing, _ in existing })
     }
     @ViewBuilder private func attendanceSummary(_ report: CampusAttendance) -> some View {
-        row("出勤率", rate(report.totals))
+        row(String(localized: "出勤率"), rate(report.totals))
         GlassCard(padding: 18, shape: .rect(cornerRadius: 18)) {
             VStack(alignment: .leading, spacing: 14) {
                 Text("考勤详情").font(.headline).accessibilityAddTraits(.isHeader)
@@ -301,9 +301,9 @@ struct CampusPageView: View {
     private func row(_ title: String, _ value: String) -> some View {
         GlassCard { LabeledContent(title, value: value) }
     }
-    private func dateTime(_ value: String) -> String { campusInstant(value).map { $0.formatted(date: .abbreviated, time: .shortened) } ?? value }
-    private func rate(_ counts: CampusCounts) -> String { counts.present_rate.map { $0.formatted(.percent.precision(.fractionLength(1))) } ?? "暂无记录" }
+    private func dateTime(_ value: String) -> String { campusInstant(value).map { schoolDateLabel($0, format: "yyyy年M月d日 HH:mm") } ?? value }
+    private func rate(_ counts: CampusCounts) -> String { counts.present_rate.map { $0.formatted(.percent.precision(.fractionLength(1))) } ?? String(localized: "暂无记录") }
     private func stateLabel(_ state: String) -> String {
-        ["graded":"已评分", "pending":"待处理", "submitted":"已提交", "completed":"已完成", "missing":"未交", "excused":"免交"][state] ?? state
+        ["graded":String(localized: "已评分"), "pending":String(localized: "待处理"), "submitted":String(localized: "已提交"), "completed":String(localized: "已完成"), "missing":String(localized: "未交"), "excused":String(localized: "免交")][state] ?? state
     }
 }

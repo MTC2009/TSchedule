@@ -7,7 +7,7 @@ struct WeatherCity: Sendable {
     let latitude: Double
     let longitude: Double
 
-    static let campus = WeatherCity(id: "cn-guangdong-dongguan", name: "东莞",
+    static let campus = WeatherCity(id: "cn-guangdong-dongguan", name: String(localized: "东莞"),
                                     latitude: 23.02, longitude: 113.75)
 }
 

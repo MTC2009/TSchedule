@@ -76,12 +76,12 @@ private struct LocalOtherItemsView: View {
             (kind == .exam && (end ?? date) < model.now)
     }
     func statusTitle(model: AppModel) -> String {
-        if kind == .task && model.completedDemoTaskIDs.contains(id) { return "本地完成" }
-        if kind == .exam && isFinished(model: model) { return "已结束" }
-        if status == .submitted { return "已提交" }
-        if status == .completed { return "已完成" }
-        if kind == .exam { return "待考试" }
-        return date < model.now ? "已逾期" : "待完成"
+        if kind == .task && model.completedDemoTaskIDs.contains(id) { return String(localized: "本地完成") }
+        if kind == .exam && isFinished(model: model) { return String(localized: "已结束") }
+        if status == .submitted { return String(localized: "已提交") }
+        if status == .completed { return String(localized: "已完成") }
+        if kind == .exam { return String(localized: "待考试") }
+        return date < model.now ? String(localized: "已逾期") : String(localized: "待完成")
     }
     func statusColor(model: AppModel) -> Color {
         isFinished(model: model) ? .teal : (date < model.now && kind != .exam ? .orange : .blue)
@@ -94,7 +94,7 @@ struct SchoolWorkDetailView: View {
     var allowsLocalCompletion = true
     var body: some View {
         StudentDetailSurface {
-            StudentPageHeader(title: item.title, subtitle: item.course, portalSection: item.kind.title)
+            StudentPageHeader(title: item.title, subtitle: item.course, portalSection: item.kind.portalSection)
             GlassCard {
                 VStack(alignment: .leading, spacing: 22) {
                     Label(item.statusTitle(model: model), systemImage: item.kind.symbol).font(.headline).foregroundStyle(item.statusColor(model: model))
@@ -107,7 +107,7 @@ struct SchoolWorkDetailView: View {
             }
             if allowsLocalCompletion && item.kind == .task && item.status == .pending {
                 VStack(alignment: .leading, spacing: 12) {
-                    Button(model.completedDemoTaskIDs.contains(item.id) ? "撤销本地完成" : "标记本地完成", systemImage: "checkmark.circle") { model.toggleDemoTask(item.id) }.buttonStyle(.glassProminent)
+                    Button(model.completedDemoTaskIDs.contains(item.id) ? String(localized: "撤销本地完成") : String(localized: "标记本地完成"), systemImage: "checkmark.circle") { model.toggleDemoTask(item.id) }.buttonStyle(.glassProminent)
                     Text("仅保存在这台设备，不会向校宝提交作业或改变学校记录。").font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -130,20 +130,20 @@ private struct SchoolCollectionList: View {
             LazyVStack(alignment: .leading, spacing: 14) {
                 if let rows = store.collections[kind] {
                     if rows.isEmpty {
-                        StudentEmptyState(title: "暂无" + section.title, detail: "校宝没有返回可显示的条目。")
+                        StudentEmptyState(title: section.emptyTitle, detail: String(localized: "校宝没有返回可显示的条目。"))
                     } else {
                         ForEach(rows) { item in
                             GlassCard {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(verbatim: item.title).font(.headline)
-                                    if let detail = item.detail { Text(verbatim: detail).font(.subheadline).foregroundStyle(.secondary) }
+                                    if let detail = item.detailLabel { Text(verbatim: detail).font(.subheadline).foregroundStyle(.secondary) }
                                 }.frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
                     }
                 } else if let issue = store.issues[.collection(kind)] {
                     SchoolPortalRetry(issue: issue) { await store.loadCollection(kind, force: true) }
-                } else { ProgressView("正在读取" + section.title) }
+                } else { ProgressView("正在读取") }
             }.padding(24).frame(maxWidth: 1100).frame(maxWidth: .infinity)
         }
         .task(id: kind) { await store.loadCollection(kind) }

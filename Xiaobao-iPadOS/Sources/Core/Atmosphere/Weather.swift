@@ -1,3 +1,5 @@
+import Foundation
+
 /// An illustration condition from the city model or a manual choice. Persist raw values, not titles.
 public enum Weather: String, CaseIterable, Codable, Identifiable, Sendable {
     case sunny, cloudy, overcast
@@ -13,41 +15,41 @@ public enum Weather: String, CaseIterable, Codable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .sunny: "晴"
-        case .cloudy: "多云"
-        case .overcast: "阴"
-        case .shower: "阵雨"
-        case .lightRain: "小雨"
-        case .moderateRain: "中雨"
-        case .heavyRain: "大雨"
-        case .rainstorm: "暴雨"
-        case .severeRainstorm: "大暴雨"
-        case .extremeRainstorm: "特大暴雨"
-        case .lightToModerateRain: "小雨–中雨"
-        case .moderateToHeavyRain: "中雨–大雨"
-        case .heavyRainToRainstorm: "大雨–暴雨"
-        case .rainstormToSevereRainstorm: "暴雨–大暴雨"
-        case .severeToExtremeRainstorm: "大暴雨–特大暴雨"
-        case .sleet: "雨夹雪"
-        case .freezingRain: "冻雨"
-        case .snowShower: "阵雪"
-        case .lightSnow: "小雪"
-        case .moderateSnow: "中雪"
-        case .heavySnow: "大雪"
-        case .blizzard: "暴雪"
-        case .lightToModerateSnow: "小雪–中雪"
-        case .moderateToHeavySnow: "中雪–大雪"
-        case .heavySnowToBlizzard: "大雪–暴雪"
-        case .thunderstorm: "雷阵雨"
-        case .thunderstormWithHail: "雷阵雨伴有冰雹"
-        case .hail: "冰雹"
-        case .typhoon: "台风"
-        case .fog: "雾"
-        case .haze: "霾"
-        case .floatingDust: "浮尘"
-        case .blowingSand: "扬沙"
-        case .dustStorm: "沙尘暴"
-        case .severeDustStorm: "强沙尘暴"
+        case .sunny: String(localized: "晴")
+        case .cloudy: String(localized: "多云")
+        case .overcast: String(localized: "阴")
+        case .shower: String(localized: "阵雨")
+        case .lightRain: String(localized: "小雨")
+        case .moderateRain: String(localized: "中雨")
+        case .heavyRain: String(localized: "大雨")
+        case .rainstorm: String(localized: "暴雨")
+        case .severeRainstorm: String(localized: "大暴雨")
+        case .extremeRainstorm: String(localized: "特大暴雨")
+        case .lightToModerateRain: String(localized: "小雨–中雨")
+        case .moderateToHeavyRain: String(localized: "中雨–大雨")
+        case .heavyRainToRainstorm: String(localized: "大雨–暴雨")
+        case .rainstormToSevereRainstorm: String(localized: "暴雨–大暴雨")
+        case .severeToExtremeRainstorm: String(localized: "大暴雨–特大暴雨")
+        case .sleet: String(localized: "雨夹雪")
+        case .freezingRain: String(localized: "冻雨")
+        case .snowShower: String(localized: "阵雪")
+        case .lightSnow: String(localized: "小雪")
+        case .moderateSnow: String(localized: "中雪")
+        case .heavySnow: String(localized: "大雪")
+        case .blizzard: String(localized: "暴雪")
+        case .lightToModerateSnow: String(localized: "小雪–中雪")
+        case .moderateToHeavySnow: String(localized: "中雪–大雪")
+        case .heavySnowToBlizzard: String(localized: "大雪–暴雪")
+        case .thunderstorm: String(localized: "雷阵雨")
+        case .thunderstormWithHail: String(localized: "雷阵雨伴有冰雹")
+        case .hail: String(localized: "冰雹")
+        case .typhoon: String(localized: "台风")
+        case .fog: String(localized: "雾")
+        case .haze: String(localized: "霾")
+        case .floatingDust: String(localized: "浮尘")
+        case .blowingSand: String(localized: "扬沙")
+        case .dustStorm: String(localized: "沙尘暴")
+        case .severeDustStorm: String(localized: "强沙尘暴")
         }
     }
 
@@ -92,11 +94,11 @@ public enum WeatherCategory: String, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .sky: "晴空与云层"
-        case .rain: "降雨"
-        case .snowAndIce: "降雪与结冰"
-        case .storm: "雷暴与强风"
-        case .visibility: "雾、霾与沙尘"
+        case .sky: String(localized: "晴空与云层")
+        case .rain: String(localized: "降雨")
+        case .snowAndIce: String(localized: "降雪与结冰")
+        case .storm: String(localized: "雷暴与强风")
+        case .visibility: String(localized: "雾、霾与沙尘")
         }
     }
     public var conditions: [Weather] { Weather.allCases.filter { $0.category == self } }

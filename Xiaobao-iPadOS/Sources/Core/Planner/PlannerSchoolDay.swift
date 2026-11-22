@@ -3,23 +3,25 @@ import Foundation
 struct PlannerSchoolEntry: Identifiable {
     enum ID: Hashable {
         case block(LessonTimeline.Block.ID)
+        case routine(PlannerCampusPeriod, anchor: Date)
         case event(String)
         case work(kind: String?, id: String)
     }
 
     enum Kind: Equatable {
-        case lesson, freeblock, assembly, lunch
+        case lesson, freeblock, assembly, lunch, optionalBlock, campusRoutine
         case calendar, activity
         case exam, taskDeadline, examDeadline, evaluationDeadline, deadline
 
         var isDeadline: Bool {
             switch self {
             case .taskDeadline, .examDeadline, .evaluationDeadline, .deadline: true
-            case .lesson, .freeblock, .assembly, .lunch, .calendar, .activity, .exam: false
+            case .lesson, .freeblock, .assembly, .lunch, .optionalBlock, .campusRoutine, .calendar, .activity, .exam: false
             }
         }
 
-        var occupiesTime: Bool { self != .freeblock && !isDeadline }
+        var isReferenceOnly: Bool { self == .optionalBlock || self == .campusRoutine }
+        var occupiesTime: Bool { self != .freeblock && !isReferenceOnly && !isDeadline }
     }
 
     let id: ID
@@ -29,10 +31,26 @@ struct PlannerSchoolEntry: Identifiable {
     let start: Date
     let end: Date?
     let allDay: Bool
+    var metadata: TimetableLessonMetadata? = nil
 
     var lessonID: String? {
         guard case .block(.lesson(let id)) = id else { return nil }
         return id
+    }
+
+    var isMeal: Bool {
+        if kind == .lunch { return true }
+        switch id {
+        case .routine(.breakfast, _), .routine(.dinner, _): return true
+        default: return false
+        }
+    }
+
+    /// A previous night's sleep is drawn from midnight but must not pull the
+    /// initial day/week viewport away from the first scheduled morning entry.
+    var isOvernightContinuation: Bool {
+        guard case .routine(.sleep, let night) = id else { return false }
+        return !SchoolClock.calendar.isDate(night, inSameDayAs: start)
     }
 }
 
@@ -43,6 +61,7 @@ struct PlannerSchoolDay {
     let hasTimetable: Bool
     let hasCalendar: Bool
     let entries: [PlannerSchoolEntry]
+    private(set) var hasStandardBells = false
 
     static func local(on date: Date, provider: DemoSchoolProvider, work: [SchoolWork]) -> Self {
         let lessons = provider.lessons(on: date)
@@ -69,7 +88,7 @@ struct PlannerSchoolDay {
             return blockEntry(block)
         }
         return .init(rotationDay: provider.day(on: date), hasTimetable: timeline != nil, hasCalendar: true,
-                     entries: blocks + workEntries)
+                     entries: blocks + workEntries, hasStandardBells: timeline != nil && provider.day(on: date) != nil)
     }
 
     static func connected(on date: Date, schedule: CampusSchedule?, calendar: CampusCalendar?,
@@ -86,7 +105,7 @@ struct PlannerSchoolDay {
                   start <= begins, begins < ends, ends <= nextDay else { return nil }
             return PlannerSchoolEntry(id: .block(.lesson(lesson.id)), kind: .lesson,
                                       title: courseName(lesson.course_id), location: lesson.room,
-                                      start: begins, end: ends, allDay: false)
+                                      start: begins, end: ends, allDay: false, metadata: lesson.metadata)
         } ?? [])
         let eventEntries = calendar?.events.compactMap { event -> PlannerSchoolEntry? in
             guard let begins = campusInstant(event.start), begins < nextDay else { return nil }
@@ -109,18 +128,20 @@ struct PlannerSchoolDay {
                          location: nil, start: due, end: nil, allDay: false)
         } ?? []
         return .init(rotationDay: timeline == nil ? nil : schedule?.day,
-                     hasTimetable: timeline != nil, hasCalendar: calendar != nil,
-                     entries: timetableEntries + eventEntries + deadlineEntries)
+                     hasTimetable: timeline != nil && schedule?.hasConfirmedRoster == true, hasCalendar: calendar != nil,
+                     entries: timetableEntries + eventEntries + deadlineEntries,
+                     hasStandardBells: timeline != nil && schedule?.teaching_slots?.sorted { $0.start < $1.start } == CampusBells.teachingSlots)
     }
 
-    private static func blockEntry(_ block: LessonTimeline.Block) -> PlannerSchoolEntry {
+    static func blockEntry(_ block: LessonTimeline.Block) -> PlannerSchoolEntry {
         let kind: PlannerSchoolEntry.Kind = switch block {
         case .lesson: .lesson
         case .freeblock: .freeblock
         case .activity(.assembly, _): .assembly
         case .activity(.lunch, _): .lunch
+        case .reference: .campusRoutine
         }
-        return .init(id: .block(block.id), kind: kind, title: block.title, location: block.lesson?.room,
-                     start: block.start, end: block.end, allDay: false)
+        return .init(id: .block(block.id), kind: kind, title: block.title, location: block.location,
+                     start: block.start, end: block.end, allDay: false, metadata: block.metadata)
     }
 }

@@ -1,6 +1,10 @@
 # 审核资料 · 尚未提交
 
-[英文审核备注](review-notes.en.txt)可以作为 App Store Connect 的 Notes。审核前须取得学校批准的独立审核账号，确保可访问对应的虚构测试记录。不要共享个人学生账号。凭据只由发布者填入 App Review Information 的登录栏，不进入仓库、截图或支持网页。
+[英文审核备注](review-notes.en.txt)可以作为 App Store Connect 的 Notes。目前没有隔离测试账号，审核账户栏仍留空；不要提供真实学生账号或密码。若后续取得获准的独立账号，先确认能在审核环境访问合成校务记录，凭据只由发布者填入 App Review Information，不进入仓库、截图或支持网页。
+
+## 可询问 Apple 的替代方式
+
+若因隐私或安全原因无法提供演示账号，[审核指南 §2.1(a)](https://developer.apple.com/app-store/review/guidelines/) 允许在 Apple 事先同意后，用内置、能展示完整功能的演示模式替代。拟议模式从未登录状态明确进入，使用合成数据展示课表、个人计划、作业、GPA 和考勤，不连接真实校宝、不读取本人数据或使用已保存登录；审核备注应据实说明真实版的登录与使用范围。当前 Release 未包含此模式，内部 Debug 测试入口和宣传片不能直接替代。未询问 Apple，未提交审核。
 
 ## 如果选择 Unlisted
 

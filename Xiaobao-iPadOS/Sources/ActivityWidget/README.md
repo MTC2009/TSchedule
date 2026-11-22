@@ -24,3 +24,6 @@ Verification: On the iPadOS 27 simulator's system Lock Screen surface the left r
 ### 2026-11-21 — Native Lock Screen card
 Model: Codex (GPT-6.2-sol) · Keywords: lesson-activity / light-dark-brand / tail-truncation  
 Changed: embed a new WidgetKit target with the local lesson card, its content contract and the existing brand asset. Reason: display the two school times/names with native system handling. Affected interfaces: local payload and fixed widget navigation only.
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. App-authored Lock Screen headings, countdown units, VoiceOver hints and ended states follow the extension’s bundled language; a supplied next-class name and custom heading remain verbatim. Interface: shared catalog and display locale, no ActivityKit schema change. [Language boundary and regression tests](../Core/Localization/README.md).

@@ -37,6 +37,57 @@ final class PlannerRotationTests: XCTestCase {
         FileManager.default.temporaryDirectory.appendingPathComponent("PlannerRotation-\(UUID()).plist")
     }
 
+    @MainActor func testRemovalScopesPreserveHistoryTemplatesAndUnrelatedCopiesForBothRecurrences() async throws {
+        let cal = try publication()
+        for (rule, offsets): (PlanRecurrence, [Int]) in [(.rotationDay(5), [0,5,11]), (.weekday(2), [0,7,14])] {
+            let file = archiveURL(), store = PlanStore(file: file), session = UUID(), now = date(-1)
+            let plan = try XCTUnwrap(PersonalPlan(day: key(0), title: "Pin swatches",
+                                      time: PlanTime(startMinute: 12), reminder: .thirtyMinutes))
+            let copy = try XCTUnwrap(PersonalPlan(day: key(offsets[1]), title: plan.title, time: plan.time))
+            _ = try await store.create(copy, for: .local)
+            let original = try await store.apply(.save(.init(target: .create, plan: plan, reusable: true,
+                recurrence: rule, effectiveDay: plan.day)), for: .local, session: session, calendar: cal)
+            func item(_ state: PlanStore.EditorState, _ index: Int) -> PersonalPlan? {
+                state.schedule.day(key(offsets[index]), calendar: cal).plans.first { $0.id == plan.id }
+            }
+            let anchor = try XCTUnwrap(item(original, 1))
+            let one = try await store.apply(.remove(anchor, .onlyThis), for: .local, session: session, calendar: cal)
+            XCTAssertNotNil(item(one, 0)); XCTAssertNil(item(one, 1)); XCTAssertNotNil(item(one, 2))
+            XCTAssertEqual(one.schedule.plans, [copy])
+            XCTAssertEqual(one.schedule.bubbles.first?.nextOccurrence(from: anchor.day, calendar: cal), item(one, 2))
+            let cold = try await PlanStore(file: file).readSchedule(for: .local)
+            XCTAssertEqual(cold, one.schedule)
+            let alerts = PlanReminderPlanner.make(now: now, schedule: cold, calendar: cal)
+            XCTAssertTrue(alerts.allSatisfy { $0.timing == .once })
+            for index in 0..<3 {
+                let fire = SchoolClock.at(minute: 12, on: date(offsets[index])).addingTimeInterval(-1800)
+                XCTAssertEqual(alerts.contains { $0.nextFire == fire }, index != 1)
+            }
+            if case .weekday = rule {
+                let later = SchoolClock.at(minute: 12, on: date(42)).addingTimeInterval(-1800)
+                XCTAssertTrue(alerts.contains { $0.nextFire == later })
+                let afterException = PlanReminderPlanner.make(now: date(8), schedule: cold, calendar: cal)
+                XCTAssertEqual(afterException.first?.timing, .weekly(weekday: 1, minute: 1422))
+            }
+            do {
+                _ = try await store.apply(.remove(anchor, .thisAndLater), for: .local, session: session, calendar: cal)
+                XCTFail("A removed or stale occurrence must not silently remove future dates")
+            } catch PlanStore.StoreError.missingPlan {}
+            let undone = try await store.step(.undo, for: .local, session: session)
+            XCTAssertEqual(undone.schedule, original.schedule)
+            let stop = try await store.apply(.remove(anchor, .thisAndLater), for: .local, session: session, calendar: cal)
+            XCTAssertNotNil(item(stop, 0)); XCTAssertNil(item(stop, 1)); XCTAssertNil(item(stop, 2))
+            XCTAssertEqual(stop.schedule.plans, [copy])
+            XCTAssertTrue(stop.schedule.bubbles[0].reusable)
+            XCTAssertEqual(PlanReminderPlanner.make(now: now, schedule: stop.schedule, calendar: cal).map(\.nextFire),
+                           [SchoolClock.at(minute: 12, on: date(0)).addingTimeInterval(-1800)])
+            let back = try await store.step(.undo, for: .local, session: session)
+            XCTAssertEqual(back.schedule, original.schedule)
+            let again = try await store.step(.redo, for: .local, session: session)
+            XCTAssertEqual(again.schedule, stop.schedule)
+        }
+    }
+
     @MainActor func testExistingWeekdayArchiveOpensUnchangedAndSwitchesFromEffectiveDate() async throws {
         // These keys are the shipping pre-rotation format, not an encode/decode
         // round-trip through the new Revision model.

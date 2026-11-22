@@ -167,8 +167,8 @@ private struct PlannerPlanGroupCapsule: View {
     }
 
     private func detailTime(_ plan: PersonalPlan) -> String {
-        let time = plan.time.map(PlannerScheduleCanvas.timeLabel) ?? "待安排"
-        return recurringIDs.contains(plan.id) ? time + " · 重复安排" : time
+        let time = plan.time.map(PlannerScheduleCanvas.timeLabel) ?? String(localized: "待安排")
+        return recurringIDs.contains(plan.id) ? time + String(localized: " · 重复安排") : time
     }
 
     private func item(_ plan: PersonalPlan) -> PlanPlacementItem {
@@ -181,7 +181,7 @@ private struct PlannerPlanGroupCapsule: View {
                 presented = false
                 actions.select(item(plan))
             }
-            Button(plan.isCompleted ? "取消完成" : "完成", systemImage: "checkmark.circle") {
+            Button(plan.isCompleted ? String(localized: "取消完成") : String(localized: "完成"), systemImage: "checkmark.circle") {
                 presented = false
                 actions.toggleCompletion(plan)
             }

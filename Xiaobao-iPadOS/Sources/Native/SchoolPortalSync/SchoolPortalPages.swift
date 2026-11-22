@@ -13,6 +13,10 @@ struct SchoolPortalPages: View {
             SchoolPortalToday()
         } else if tab == .planner, model.localSchoolTimetable != nil {
             PlannerView()
+        } else if tab == .grades, model.cachedGradeSnapshot != nil {
+            SchoolPortalGradebook()
+        } else if tab == .grades, !model.schoolNetworkAvailable {
+            StudentEmptyState(title: String(localized: "当前未联网"), detail: String(localized: "尚未保存过成绩，联网后再读取。"))
         } else if tab == .tasks, model.canDisplaySavedAssignments {
             TasksView()
         } else if school.owner == nil {
@@ -61,6 +65,12 @@ private struct SchoolPortalToday: View {
                     Text("校历标为非教学日；下列是校宝当天单独列出的课次，不计入轮转。")
                         .font(.callout).foregroundStyle(.secondary)
                 }
+                if day?.schedule?.hasConfirmedRoster == false {
+                    Text("当天课表尚未确认，可在设置中更新。").font(.callout).foregroundStyle(.secondary)
+                } else if day?.usesDaytimeRotation == true {
+                    Text("白天按轮转课表显示").font(.callout).foregroundStyle(.secondary)
+                }
+                if day?.studyTimePending == true && model.personalization.shows(.tssa) { Text("TSSA 节次待确认").font(.callout).foregroundStyle(.secondary) }
                 if let day, day.schedule != nil {
                     let next = PublishedSchoolCalendar.bundledHS.flatMap {
                         model.localSchoolTimetable?.nextSchoolDay(after: now, calendar: $0)
@@ -72,6 +82,9 @@ private struct SchoolPortalToday: View {
                 } else {
                     StudentEmptyState(title: String(localized: "当天课表尚未确认"),
                                       detail: model.timetable.message ?? String(localized: "可在设置中更新课表。未确认的课程不会按空课表显示。"))
+                    if model.activePlanOwner != nil {
+                        TodayTimetableView(timeline: nil, nextSchoolDay: nil, noClassNotice: day?.calendarDay.notices.first)
+                    }
                 }
             }.padding(24).frame(maxWidth: 1000).frame(maxWidth: .infinity)
         }

@@ -8,8 +8,15 @@ struct XiaobaoApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
-                .onChange(of: phase == .active && model.school.selected && model.tab == .grades && !model.portalPresented,
+                .onChange(of: model.schoolContentVisible && model.school.selected && model.tab == .grades && !model.portalPresented,
                           initial: true) { _, visible in model.setGradePageActive(visible) }
+                .onChange(of: model.schoolNetworkAvailable) { _, online in
+                    guard online, phase == .active, model.school.selected else { return }
+                    Task {
+                        await model.checkPortalSession()
+                        if model.tab == .grades { model.requestSchoolGrades(explicit: false) }
+                    }
+                }
                 .onChange(of: model.school.owner) { _, _ in model.schoolIdentityUpdated() }
                 .onChange(of: model.school.identityIssue) { _, _ in model.schoolIdentityUpdated() }
                 .onOpenURL { model.openLessonActivity($0) }
@@ -22,17 +29,16 @@ struct XiaobaoApp: App {
                 .tint(.blue)
         }
         .onChange(of: phase, initial: true) { _, phase in
+            let arriving = model.updateSchoolScene(phase)
             if phase == .active { model.lessonActivity.clearOrphans() } else { model.stopLaunchLogin(resetForNextForeground: phase == .background) }
             model.cityWeather.setForeground(phase == .active)
-            model.portal.foreground = phase == .active
-            model.timetableForeground = phase == .active
-            if phase == .active { model.timetable.restore(); model.assignments.restore() }
-            if phase == .background { model.timetable.cancel() }
+            if arriving { model.timetable.restore(); model.assignments.restore(); model.gradeCache.restore() }
+            if phase == .background { model.timetable.cancel(); model.stopTaskMaterials() }
             if model.school.selected {
                 if phase == .background {
                     model.setGradePageActive(false); model.portal.cancelSchoolReads(); model.school.suspend()
                 }
-                if phase == .active {
+                if arriving {
                     model.schoolLogin.refresh()
                     if let bound = model.schoolLogin.binding { model.school.rememberComparison(bound.owner) }
                     Task { await model.checkPortalSession(); model.startRequestedGradeRead() }
@@ -111,8 +117,12 @@ struct RootView: View {
             Task { await model.refreshReminders() }
         }
         .onChange(of: model.reminderAccess) { _, access in
-            model.selectedLesson = nil
+            if access == .revoked { model.selectedLesson = nil }
             if access != .waiting { Task { await model.refreshPlanReminders() } }
+        }
+        .onChange(of: navigationScope.account) { _, _ in model.selectedLesson = nil }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background { model.selectedLesson = nil }
         }
         .onChange(of: model.planRotationCalendar?.sourceSHA256) { _, _ in
             if scenePhase == .active { Task { await model.refreshPlanReminders() } }
@@ -120,11 +130,11 @@ struct RootView: View {
         // Changing tabs does not cancel/restart a first import, and browsing dates never
         // schedules it. The store independently fences the session and skips a saved book.
         .task(id: SchoolWarmup(epoch: model.school.epoch, owner: model.school.owner, page: .today,
-                               ready: scenePhase == .active && !model.portalPresented)) {
+                               ready: model.schoolContentVisible && model.schoolNetworkAvailable && !model.portalPresented)) {
             if scenePhase == .active, !model.portalPresented { await model.updateSchoolTimetable(manual: false) }
         }
         .task(id: SchoolWarmup(epoch: model.school.epoch, owner: model.school.owner, page: model.tab,
-                               ready: scenePhase == .active && !model.portalPresented)) {
+                               ready: model.schoolContentVisible && model.schoolNetworkAvailable && !model.portalPresented)) {
             if scenePhase == .active, !model.portalPresented { await model.warmSchoolPages() }
         }
         .sheet(isPresented: $model.environmentPresented) {
@@ -133,8 +143,8 @@ struct RootView: View {
         .sheet(isPresented: $model.portalPresented, onDismiss: {
             Task { await model.finishManualPortal() }
         }) { SchoolPortalView() }
-        .sheet(item: $model.selectedLesson) { lesson in
-            LessonDetailView(lesson: lesson).presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        .sheet(item: $model.selectedLesson) { detail in
+            LessonDetailView(detail: detail).presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
         }
         .onChange(of: model.notifications.route) { _, route in
             if let route { model.openNotification(route) }
@@ -190,7 +200,7 @@ struct RootView: View {
         } else if tab != .settings, !model.usesLocalTimetable, model.campus.account == nil {
             ContentUnavailableView {
                 Label("账号连接", systemImage: "person.crop.circle")
-            } description: { Text(model.campus.notice ?? "尚未连接资料服务。") } actions: {
+            } description: { Text(model.campus.notice ?? String(localized: "尚未连接资料服务。")) } actions: {
                 Button("查看账号设置") { model.tab = .settings }
             }
         } else {
@@ -280,6 +290,6 @@ struct AppScreen<Content: View>: View {
     }
 }
 
-#Preview("iPad 原生玻璃") {
+#Preview(String(localized: "iPad 原生玻璃")) {
     RootView().environment(AppModel())
 }

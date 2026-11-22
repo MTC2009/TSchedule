@@ -26,7 +26,7 @@ struct PlannerDay {
         }
         var canBeFocus: Bool {
             switch self {
-            case .school(let entry): entry.kind != .freeblock
+            case .school(let entry): entry.kind != .freeblock && !entry.kind.isReferenceOnly
             case .personal(let plan, _, _): !plan.isCompleted
             }
         }

@@ -55,12 +55,34 @@
     function schedule(rows) {
         return array(rows).map(x => {
             if (![1,2,3,4].includes(x.scheduleType)) return bad();
-            const name=title(x.name,x.eName), start=instant(x.beginTime), end=instant(x.endTime);
+            const name=str(x.name) ?? str(x.eName), start=instant(x.beginTime), end=instant(x.endTime);
             const lesson=x.scheduleType===3 || x.scheduleType===4;
             if (!start || (lesson && (!end || end<=start)) || (end && end<start)) return bad();
-            const course=key(code(x.classId ?? x.classInfo?.id,false), code(x.subjectId,false), name);
+            const cls=code(x.classId ?? x.classInfo?.id,false), subject=code(x.subjectId,false);
+            if (!name) {
+                // A blank named field in a timed, unassigned teaching row is different
+                // from a failed response, a nameless assigned subject, or an all-day notice.
+                if (!lesson || subject || x.isAllDay===true || !("name" in x || "eName" in x) ||
+                    [x.name,x.eName].some(v=>v!=null && typeof v!=="string")) return bad();
+                return {id:key("vacant",start,end),kind:"vacant",name:"",start,end,course:"",room:null,allDay:false};
+            }
+            // No shared class identifier: preserve both records rather than merge by title.
+            const course=cls ? key(cls,subject,name) : key(null,subject,name,start,end);
+            // Only the labeled display fields of this already-authorized occurrence.
+            // Do not retain class lists, teacher IDs, student records or HTML.
+            const teachers=Array.isArray(x.teacherNames) ? x.teacherNames.map(str).filter(Boolean).join(" / ") : str(x.teacherNames);
+            const metadata=lesson ? {
+                grade:str(x.gradeName) ?? str(x.classInfo?.gradeName),
+                className:str(x.className) ?? str(x.classInfo?.name),
+                teacher:str(x.teacherName) ?? str(teachers) ?? str(x.classInfo?.teacherName),
+                note:str(x.remark) ?? str(x.remarks)
+            } : null;
+            if (metadata) for (const field of Object.keys(metadata)) {
+                if (!metadata[field] || metadata[field].length > 1024) delete metadata[field];
+            }
             return {id:key(x.scheduleType, code(x.id ?? x.ID,false), course, start, end),
                 kind:lesson?"lesson":x.scheduleType===1?"activity":"calendar", name, start, end,
+                ...(metadata && Object.keys(metadata).length ? {metadata} : {}),
                 course, room:str(x.playgroundName) ?? str(x.playgroundEName), allDay:x.isAllDay===true};
         });
     }
@@ -68,8 +90,10 @@
         return array(data?.studentSemesterDynamicScoreBasicDtos).map(x => {
             const subject=code(x.subjectId), cls=code(x.classId,false), type=x.scoreType;
             if (type!==1 && type!==2) return bad();
+            const evaluationName=str(x.subjectEName);
             return {id:key(cls,subject), subject, cls, type, name:title(x.subjectName,x.subjectEName),
                 className:str(x.className) ?? str(x.classEName),
+                ...(evaluationName ? {evaluationName} : {}),
                 score:type===1 ? mark(x.subjectScore,x.subjectTotalScore,null) : mark(null,null,x.levelString)};
         });
     }
@@ -90,7 +114,7 @@
                 const result=published && !absent && x.scoreIsNull!==true ?
                     (useLevel ? mark(null,null,x.levelString) : mark(x.score,x.totalScore,null)) : null;
                 return {id:key(pos,i,code(x.id,false)),title:title(x.name),date:instant(x.date),
-                    status:result?"graded":!published?"未发布":absent?"缺考":"未提供成绩",score:result};
+                    status:result?"graded":!published?"unpublished":absent?"absent":"no_mark",score:result};
             });
             out.push({id:pos,title:lineage.join(" / "),nested:nesting>0,
                 weight:proportion!==null && proportion>=0 && proportion<=100 ? proportion/100 : null,
@@ -101,7 +125,7 @@
         return out;
     }
     function task(x, includeScores = false) {
-        if (x.learningTaskState===1) return null; // not published
+        if (num(x.learningTaskState)===1) return null; // not published
         const subject=code(x.subjectId,false), courseName=str(x.subjectName) ?? str(x.subjectEName);
         const course=courseName ? key("subject",subject,courseName) : null;
         const state=x.learningTaskState, sync=x.isSynchroToMobiled, exempt=x.isExempt===true || x.isExempt===1;
@@ -118,12 +142,52 @@
         // A marked offline task does not prove an online student submission.
         return {id:code(x.id ?? x.learningTaskId), title:title(x.name,x.learningTaskName),
             due:instant(x.endTime), published:instant(x.publishTime), course, courseName,
+            detailReadable:!!id(x.id) && !/^(?:0+|-\d+)$/.test(id(x.id)) && num(x.sourceType)!==2 && !x.isFirstSubmissionClosed,
+            feedbackReleased:sync==null ? null : sync===1 || sync===true,
             deadlineEligible:state===2 && !x.stuCommitTime && (x.isExempt==null || x.isExempt===false || x.isExempt===0) &&
                 /^\d{4}-\d\d-\d\d[T ]\d\d:\d\d/.test(str(x.endTime)??""),
             kind:str(x.learningTaskTypeName) ?? str(x.typeName),
             status:state===3 || instant(x.stuCommitTime) ? "submitted" : state===2 && !x.isExempt?"pending":"unavailable",
             grading:exempt?"excused":score?"graded":state===4 ? (sync===0 || sync===false?"graded_unpublished":"graded") :
                 state===5?"in_progress":null,score};
+    }
+    // Match the student detail page, not the similarly named gradebook. Only a
+    // second, explicit file selection may lift a single current link out of WebKit.
+    function taskMaterial(x, scope, pick) {
+        if (!x || typeof x!=="object" || !["content","learningTaskDocuments","remark","learningTaskStudentDocuments","comment","teacherCommentDocuments"].some(k=>Object.hasOwn(x,k))) bad();
+        const flag=v=>v===1 || v===true, status=num(x.learningTaskState), mode=num(x.mode);
+        if (status===1 || x.isFirstSubmissionClosed || num(x.sourceType)===2) throw Error("denied");
+        const release=scope.release===false ? false : x.isSynchroToMobiled==null ? null : flag(x.isSynchroToMobiled);
+        const committed=mode==null || (mode===0 && status==null && !str(x.stuCommitTime)) ? null :
+            mode===0 && (status===3 || status===4 || status===5 || !!str(x.stuCommitTime));
+        let match=null;
+        function part(section, textKey, fileKey, visible) {
+            if (visible!==true) return {state:visible==null?"unknown":"hidden",text:null,files:[]};
+            if (!Object.hasOwn(x,textKey) && !Object.hasOwn(x,fileKey)) return {state:"unknown",text:null,files:[]};
+            if (x[textKey]!=null && typeof x[textKey]!=="string") bad();
+            const text=str(x[textKey]), docs=array(x[fileKey]??[]);
+            if ((text?.length??0)>128000 || docs.length>128) bad();
+            const files=docs.map(doc=>{
+                const name=str(doc?.name); if (!name || name.length>255) bad();
+                const fileID=id(doc.id), hasID=fileID && fileID!=="0" && /^[A-Za-z0-9_-]{1,128}$/.test(fileID), fileKey=hasID?"id:"+fileID:"name:"+name;
+                let url=null;
+                if (str(doc.url)) {
+                    try { const u=new URL(doc.url,scope.origin); if(u.protocol==="https:" && !u.username && !u.password && (!u.port || u.port==="443")) url=u.href; } catch {}
+                } else if (hasID && section==="answer") {
+                    const u=new URL("/api/LearningTask/DownloadDocument",scope.origin);
+                    u.searchParams.set("documentId",fileID);u.searchParams.set("learningTaskId",scope.task);u.searchParams.set("documentType","2");url=u.href;
+                }
+                if (pick && pick.section===section && pick.key===fileKey && pick.name===name && url) match={url,name};
+                return {key:fileKey,name,downloadable:url!==null};
+            });
+            if (new Set(files.map(f=>f.key)).size!==files.length) bad(); // ambiguous identity cannot be downloaded
+            return {state:"available",text,files};
+        }
+        const body=part("instructions","content","learningTaskDocuments",true);
+        const answer=part("answer","remark","learningTaskStudentDocuments",committed);
+        const feedback=part("feedback","comment","teacherCommentDocuments",mode===1 || release===false ? false : mode===0 ? release : null);
+        if (pick && !match) throw Error("unavailable");
+        return pick ? match : {instructions:body,answer,feedback,submitted:committed?instant(x.stuCommitTime):null};
     }
     const states = ["present","late","early","absent"];
     const count = x => Number.isSafeInteger(x) && x>=0 && x<=10000000 ? x : bad();
@@ -164,5 +228,5 @@
         });
         return {records,recordTotal};
     }
-    return {array, str, id, num, term, termDirectory, schedule, courses, groups, task, attendanceSummary, attendanceCourses, attendanceRecords};
+    return {array, str, id, num, term, termDirectory, schedule, courses, groups, task, taskMaterial, attendanceSummary, attendanceCourses, attendanceRecords};
 }

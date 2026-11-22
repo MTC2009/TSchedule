@@ -74,11 +74,11 @@ struct AppearanceSettingsView: View {
             }
         }
 
-        var title: LocalizedStringKey {
+        var title: String {
             switch self {
-            case .automatic: "跟随系统"
-            case .light: "浅色校园"
-            case .dark: "深色校园"
+            case .automatic: String(localized: "跟随系统")
+            case .light: String(localized: "浅色校园")
+            case .dark: String(localized: "深色校园")
             }
         }
 

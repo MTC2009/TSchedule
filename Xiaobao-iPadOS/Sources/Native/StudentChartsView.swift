@@ -22,7 +22,7 @@ struct AssessmentHistoryChart: View {
                     detailPlot(domain: domain)
                 }
             } else {
-                Text(presentation == .preview ? "暂无可绘制的考核" : "所选日期内没有已评分的数值记录。")
+                Text(presentation == .preview ? String(localized: "暂无可绘制的考核") : String(localized: "所选日期内没有已评分的数值记录。"))
                     .font(.callout).foregroundStyle(.secondary)
                     .frame(minHeight: presentation == .preview ? 86 : 120)
             }
@@ -32,10 +32,10 @@ struct AssessmentHistoryChart: View {
     private func plot(selectedDay: Date?) -> some View {
         Chart {
             ForEach(points) { point in
-                LineMark(x: .value("考核日期", point.day), y: .value("得分率", point.percentage),
-                         series: .value("连续记录", point.segment))
+                LineMark(x: .value(String(localized: "考核日期"), point.day), y: .value(String(localized: "得分率"), point.percentage),
+                         series: .value(String(localized: "连续记录"), point.segment))
                     .interpolationMethod(.linear).foregroundStyle(Color.accentColor).accessibilityHidden(true)
-                PointMark(x: .value("考核日期", point.day), y: .value("得分率", point.percentage))
+                PointMark(x: .value(String(localized: "考核日期"), point.day), y: .value(String(localized: "得分率"), point.percentage))
                     .symbolSize(presentation == .preview ? 22 : (point.day == selectedDay ? 80 : 40))
                     .foregroundStyle(Color.accentColor)
                     .accessibilityLabel("\(schoolDateLabel(point.day))，\(point.title)")
@@ -85,7 +85,7 @@ struct AssessmentHistoryChart: View {
                     Text("\(schoolDateLabel(point.day, format: "M月d日")) · \(point.title)  \(compactNumber(point.percentage))%").font(.callout)
                 }
             } else {
-                Text(points.count == 1 ? "此日期范围内有 1 次已评分考核。" : "点选日期查看对应考核。")
+                Text(points.count == 1 ? String(localized: "此日期范围内有 1 次已评分考核。") : String(localized: "点选日期查看对应考核。"))
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -161,7 +161,7 @@ struct AttendanceCourseTable<Destination: View>: View {
                     Text(attendancePercent(row.presentRate)).font(.callout.weight(.medium)).monospacedDigit()
                     if destination != nil { disclosure }
                 }
-                Text(row.counts.map(namedCounts) ?? "暂无可用的考勤数据").font(.callout)
+                Text(row.counts.map(namedCounts) ?? String(localized: "暂无可用的考勤数据")).font(.callout)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             if let counts = row.counts, counts.total > 0 {
@@ -175,14 +175,14 @@ struct AttendanceCourseTable<Destination: View>: View {
 
     private func tableLine(_ row: AttendanceCourseRow?) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: columnSpacing) {
-            Text(row?.name ?? "课程").font(.callout.weight(.semibold))
+            Text(row?.name ?? String(localized: "课程")).font(.callout.weight(.semibold))
                 .frame(maxWidth: .infinity, alignment: .leading)
             ForEach(AttendanceStatus.allCases) { status in
                 Text(row.map { $0.counts?[status].formatted() ?? "—" } ?? status.title)
                     .monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
                     .frame(width: countWidth, alignment: .trailing)
             }
-            Text(row.map { attendancePercent($0.presentRate) } ?? "出勤率")
+            Text(row.map { attendancePercent($0.presentRate) } ?? String(localized: "出勤率"))
                 .font(.callout.weight(.medium)).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.7).frame(width: rateWidth, alignment: .trailing)
             if destination != nil { disclosure.opacity(row == nil ? 0 : 1) }
@@ -201,9 +201,9 @@ struct AttendanceCourseTable<Destination: View>: View {
     }
 
     private func spokenValues(_ row: AttendanceCourseRow) -> String {
-        guard let counts = row.counts else { return "暂无可用的考勤数据" }
-        guard counts.total > 0 else { return "暂无考勤记录" }
-        return "\(namedCounts(counts))，出勤率 \(attendancePercent(row.presentRate))"
+        guard let counts = row.counts else { return String(localized: "暂无可用的考勤数据") }
+        guard counts.total > 0 else { return String(localized: "暂无考勤记录") }
+        return String(localized: "\(namedCounts(counts))，出勤率 \(attendancePercent(row.presentRate))")
     }
 }
 

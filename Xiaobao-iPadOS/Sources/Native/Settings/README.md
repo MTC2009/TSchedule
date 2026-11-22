@@ -6,16 +6,23 @@ The existing Settings sidebar route opens one native grouped form. No extra side
 | --- | --- |
 | `SettingsView`, `SettingsForm` | AppModel state → native navigation links and shared form width; keeps grade tools and version in the overview |
 | `AppearanceSettingsView` | Existing environment sheet plus an explicit whole-App icon selection via UIKit; default uses the primary adaptive icon |
-| `PersonalInfoSettingsView` | Existing campus account and sign-in controls → unchanged account actions; optional nickname is displayed only in this device's Settings |
+| `PersonalInfoSettingsView` | Existing campus account and sign-in controls → unchanged account actions; optional local nickname and a default-off boarding display toggle for Today and Planner on this device |
+| `TimetableDisplaySettingsView` | Device-only category switches → one display projection shared by Today and Planner. Residence remains in Personal Info; the switches neither fetch enrollments nor alter alerts. |
 | `LessonActivitySettingsView` | Local background and optional heading → loaded current lesson in the same native card, or a neutral empty state; new value is copied into the next started activity, not applied to one already running |
 | `ReminderSettingsView` | Confirmed timetable registration → opt-in course alerts and lead; optional subtitle → personal-plan and test content only |
-| `PrivacyPolicyView` | [Bundled bilingual policy copy](../../../Resources/PolicyCopy.json) → existing native Privacy form and nested Terms page; no WebKit or sign-in dependency. Starts in English for an English preferred language, otherwise simplified Chinese. The language switch is local to this visit. |
+| `PrivacyPolicyView` | [Bundled bilingual policy copy](../../../Resources/PolicyCopy.json) → native Privacy form and nested Terms page. A separate, user-initiated link opens the [published privacy policy](https://mantatche.com/tschedule/privacy/) in the browser. No school sign-in is needed. The language switch is local to this visit. |
 
 - Dependencies: the [local personalization values](../../Core/Personalization/README.md), AppModel, existing `CampusConnectionSettings`, `GradeTrialSettings`, environment sheet, notification service and shared [activity card](../../ActivityWidget/README.md). RootView consumes `SettingsView()`.
 - Limits: no school profile edits, remote push, per-notification app icon, background school reads or new account storage. Only the explicit notification test or explicit reminder opt-ins can request notification permission. Actual notification delivery, Lock Screen material and icon presentation are system decisions.
 - Tests: `Tests/SchoolPortalSync/ipad-smoke.py --settings <QA-UUID>` checks the shipping account UI with fresh and legacy preferences, preference edits and relaunch, shared preview, nested navigation, disclosure and narrow/large text. `--delegated` checks the moved enrollment route with the isolated loopback fixture.
 
 ## Change History
+
+### 2026-11-22 — local-boarding-display
+Model: Codex. Added one native Toggle in Personal Info bound to `LocalPersonalization.showsBoardingRoutine`. Reason: distinguish residents’ weekly routines without requesting student housing data. No new route, account action or notification behavior. Covered by the annual timetable iPad fixture.
+
+### 2026-11-22 — published-privacy-link / release-candidate
+Model: Codex. The existing Privacy form now links to the public policy even when an offline copy is unavailable, and uses the selected reading language for the link's destination. The label is in the native bilingual catalog. No login, automatic fetch, policy acceptance, or data retention behavior changed.
 
 ### 2026-11-21 — local-class-alerts / notification-suspension
 Model: Codex. Added the saved timetable’s opt-in switch and lead to the existing Reminders form. A denied permission or unavailable timetable is explained in place. No new page, API or school read.
@@ -45,5 +52,14 @@ Model: Codex (GPT-6.2-sol) · Keywords: settings-routes / adaptive-icon / person
 Changed: Separate Appearance, Personal Info, Live Activity, Reminders and Privacy, retaining existing grade tools and one school action inside account settings. Reason: Make appearance and device controls discoverable without expanding school access. Affected interfaces: local navigation, personalization and native icon assets only.
 Verification: The isolated iPadOS 27 simulator passed the five routes, saving and relaunching with preferences, account disclosure, demo reminders and large type; Settings made no grade reads or password submissions. A separate run verified that UIKit selected the dark alternate and restored the adaptive primary, and that the next started system card used the saved custom heading and background. No physical-device notification delivery was tested. [Overview](../../../../docs/verification/student-interface/settings-overview.jpg) · [Activity preview](../../../../docs/verification/student-interface/settings-activity-preview.jpg).
 
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Built-in labels, accessibility text and notification prompts follow the app language; the offline policy reader starts in it and keeps its document-only language selection. No new settings screen or storage. [Language boundary and regression tests](../../Core/Localization/README.md).
+
 ### 2026-11-22 — Codex · local-assignment-controls
 SettingsView clears only the local task archive and its reminders after confirmation. ReminderSettingsView exposes current-student deadline opt-in and an independent title visibility option. Other alerts and portal records stay intact.
+
+### 2026-11-22 — assignment-clear / exported-files
+Model: OpenAI Codex. The confirmation on the existing clear-assignments control now explicitly includes locally cached details and explains that user-exported Files copies are separate. Same registration revocation and no new setting.
+
+### 2026-11-22 — timetable-display / supplemental-courses
+Model: OpenAI Codex. Added TimetableDisplaySettingsView using SettingsForm and standard toggles. All categories initially shown, boarding still opt-in. Each meal and each evening activity is independent. The TSSA footer explains same-slot study fallback. Test: --timetable-display and LocalPersonalizationTests.

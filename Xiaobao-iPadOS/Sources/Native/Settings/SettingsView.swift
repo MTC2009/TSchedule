@@ -8,6 +8,12 @@ struct SettingsView: View {
         SettingsForm {
             Section("个性化") {
                 NavigationLink {
+                    TimetableDisplaySettingsView()
+                } label: {
+                    Label("课表显示", systemImage: "calendar")
+                }
+                .accessibilityIdentifier("settings-timetable-page")
+                NavigationLink {
                     AppearanceSettingsView()
                 } label: {
                     Label("外观", systemImage: "circle.lefthalf.filled")
@@ -35,7 +41,7 @@ struct SettingsView: View {
                                 Button("清除", role: .destructive) { model.clearSavedAssignments() }
                                 Button("取消", role: .cancel) {}
                             } message: {
-                                Text("同时移除作业提醒，不影响校宝。下次完整同步后会重新保存清单。")
+                                Text("同时清除缓存的任务详情和作业提醒。已导出到「文件」的附件不受影响。下次同步会重新保存。")
                             }
                     }
                     Button {

@@ -2,10 +2,18 @@ import SwiftUI
 
 /// Both documents stay readable without opening the school website or verifying an account.
 struct PrivacyPolicyView: View {
-    @State private var english = Locale.preferredLanguages.first?.hasPrefix("en") == true
+    @State private var english = AppLanguage.isEnglish
 
     var body: some View {
         SettingsForm {
+            if let publishedPolicy = URL(string: "https://mantatche.com/tschedule/privacy/#\(english ? "en" : "zh-hans")") {
+                Section {
+                    Link(destination: publishedPolicy) {
+                        Label("查看在线隐私政策", systemImage: "arrow.up.right.square")
+                    }
+                    .accessibilityIdentifier("settings-published-privacy-policy")
+                }
+            }
             if let copy = PolicyCopy.bundled {
                 Section {
                     NavigationLink {
@@ -20,10 +28,10 @@ struct PrivacyPolicyView: View {
                 }
                 PolicySections(copy: copy, document: copy.privacy, english: $english)
             } else {
-                Text("当前安装包缺少隐私与条款文档。 / The policy documents are missing from this installation.")
+                Text("当前安装包缺少隐私与条款文档。")
             }
         }
-        .navigationTitle(english ? "Privacy" : "隐私说明")
+        .navigationTitle(Text(verbatim: english ? "Privacy" : "隐私说明"))
     }
 }
 
@@ -34,10 +42,10 @@ private struct PolicySections: View {
 
     var body: some View {
         Section {
-            Picker(english ? "Document language" : "文档语言", selection: $english) {
+            Picker(selection: $english) {
                 Text(verbatim: "简体中文").tag(false)
                 Text(verbatim: "English").tag(true)
-            }
+            } label: { Text(verbatim: english ? "Document language" : "文档语言") }
             .pickerStyle(.segmented)
             Text(verbatim: document.intro.text(english))
         } footer: {
@@ -59,9 +67,9 @@ private struct PolicySections: View {
             if let address = URL(string: "mailto:\(copy.contact)") {
                 Link(destination: address) { Text(verbatim: copy.contact) }
             }
-            LabeledContent(english ? "Last revised" : "最近修订", value: copy.revised)
+            LabeledContent { Text(verbatim: copy.revised) } label: { Text(verbatim: english ? "Last revised" : "最近修订") }
         } header: {
-            Text(english ? "Contact" : "联系维护者")
+            Text(verbatim: english ? "Contact" : "联系维护者")
         }
     }
 }

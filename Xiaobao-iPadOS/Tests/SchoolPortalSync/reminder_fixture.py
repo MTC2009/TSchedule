@@ -48,7 +48,7 @@ class ReminderFixture(AnnualFixture):
         if path == "/control/annual/offline": self.before_offline = self.state.get("process")
         if path.startswith("/control/annual/qa-"):
             p, s = self.state.get("personal", -1), self.state.get("school", -1)
-            okay = {"qa-armed": p >= 2 and s > 0 and self.state.get("private") is True,
+            okay = {"qa-armed": p == 2 and s > 0 and self.state.get("private") is True and self.state.get("removedOnlyTarget") is True,
                     "qa-due": self.start is not None and datetime.now(self.clock) >= self.start-timedelta(minutes=5)+timedelta(seconds=3),
                     "qa-delivered": self.state.get("deliveredBoth") is True and p >= 1,
                     "qa-cold-delivered": self.state.get("deliveredBoth") is True and p >= 1 and

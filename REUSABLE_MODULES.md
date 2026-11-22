@@ -29,11 +29,12 @@ Category: Frontend Composite Component · Status: Active. Entry: `SettingsView()
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | SettingsView | injected AppModel and AppScreen navigation; no special parameters | Keep one sidebar entry |
 | `Xiaobao-iPadOS/Sources/Native/Settings/SettingsView.swift` | SettingsForm | content = grouped links, existing grade tools, version | Show all reachable settings without splitting the sidebar |
+| `Xiaobao-iPadOS/Sources/Native/Settings/TimetableDisplaySettingsView.swift` | SettingsForm | content = standard switches, selection from LocalPersonalization | One local display preference for both timetable pages |
 | `Xiaobao-iPadOS/Sources/Native/Settings/AppearanceSettingsView.swift` | SettingsForm; existing EnvironmentView via AppModel flag | content = environment trigger and UIKit-managed icon choices | Reuse the existing weather and app appearance controls |
 | `Xiaobao-iPadOS/Sources/Native/Settings/PersonalInfoSettingsView.swift` | SettingsForm; existing CampusConnectionSettings with no overrides | content = campus account/actions and optional local nickname | Keep school login in one place without editing the school profile |
 | `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | SettingsForm | content = current lesson or empty preview, and display style fields | Preview styles without starting or extending an Activity |
 | `Xiaobao-iPadOS/Sources/Native/Settings/ReminderSettingsView.swift` | SettingsForm | content = school opt-in and lead, personal subtitle and explicit test | Use the shared form and keep unavailable school actions disabled |
-| `Xiaobao-iPadOS/Sources/Native/Settings/PrivacyPolicyView.swift` | SettingsForm | content = both offline documents; selected reading language is shared for this visit | Explain data handling and terms without opening a web view |
+| `Xiaobao-iPadOS/Sources/Native/Settings/PrivacyPolicyView.swift` | SettingsForm | content = both offline documents and the public privacy policy link; selected reading language is shared for this visit | Explain data handling and terms offline or open the published policy on request |
 
 ## Bilingual policy copy
 
@@ -56,7 +57,9 @@ Category: Shared Types / Contracts · Status: Active. Entry: `LocalPersonalizati
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | Persist and read choices | independent UserDefaults key; forward only reminder subtitle to current plan scheduling | Do not migrate or overwrite school/session settings |
-| `Xiaobao-iPadOS/Sources/Native/Settings/SettingsView.swift`, `PersonalInfoSettingsView.swift` in the same directory | Display and edit nickname | input = locally entered text; blank restores no nickname | Personalize Settings only |
+| `Xiaobao-iPadOS/Sources/Native/Settings/SettingsView.swift`, `PersonalInfoSettingsView.swift` in the same directory | Display/edit nickname; personal info also edits the boarding display | text = local input; showsBoardingRoutine = native toggle, default false | Local display, no school profile field |
+| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerSchoolSource.swift` | Read showsBoardingRoutine | preference = device personalization; date and publication = visible school source | Opt in both timetable pages, never create course alerts |
+| `Xiaobao-iPadOS/Sources/Native/Settings/TimetableDisplaySettingsView.swift`, `Sources/Core/Planner/TimetablePresentation.swift` | Write/read shows(category) | category = standard form choice or resolved timetable row; default visible | Filter only presentation |
 | `Xiaobao-iPadOS/Sources/Native/Settings/ReminderSettingsView.swift` | Edit reminder subtitle | input = explicit save; refresh pending personal requests, no permission on save | Apply choice without reaching school notifications |
 | `Xiaobao-iPadOS/Sources/Native/Settings/LessonActivitySettingsView.swift` | Edit activity appearance | background = native picker; heading = draft for preview, saved only on action | Style the next start; no activity or academic changes from preview |
 | `Xiaobao-iPadOS/Sources/Native/LessonActivity/LessonActivityControl.swift`, `LessonActivityController.swift` | Copy chosen appearance at start | appearance = persisted local choice only; lifecycle = existing foreground action | Send no nickname, credentials or reminder text to ActivityKit |
@@ -72,7 +75,7 @@ Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/GlassComponents.swift`,
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | Focus lesson card | padding = default; content = resolved time and school focus | Read the current or next school block |
+| `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | Focus lesson card | padding = default; content = resolved time and school focus | Render resolved location, title and time; avoid appending another date during this day's agenda |
 | `Xiaobao-iPadOS/Sources/Native/GPA/GPAOverviewView.swift` | GPA overview | padding = default; content = stacked heading, right-aligned readout, existing visibility action, term and provenance | Match the Today card without changing GPA behavior |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradeList.swift` | Course tile and filtered empty state | padding = 22; content = linked course name and total or a no-match explanation | Present grades as distinct rounded tiles with the shared material |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradesView.swift` | Published course total, history preview and task table | shape = 16 pt continuous; padding = 16 for the total and preview, 0 for the table (insets owned by `CourseTaskList`); content = published summary, actual history or task table | Apply the same Today material and transparency fallback once per outer panel |
@@ -139,6 +142,7 @@ Paths / entry: `<repo-root>/xiaobao-backend/src/provider/academic-calendar-hs-20
 | `Xiaobao-iPadOS/Tests/Core/WeekTimetableTests.swift`, `Xiaobao-iPadOS/Tests/Core/CampusConnectionTests.swift`, `xiaobao-backend/tests/device_cache.rs` | Compare source, snapshots and dated HTTP responses | test calendar, real bundled dates and isolated synthetic subjects | Verify authorization, term resets, closures, coverage and compatibility |
 
 - `Xiaobao-iPadOS/Sources/Core/SchoolTimetable/SchoolTimetable.swift`, `Sources/Native/SchoolPortalSync/SchoolTimetableAccess.swift` (iPad module) — date/year/revision from the bundled HS publication; only teaching Days produce rotating lessons.
+- `Xiaobao-iPadOS/Sources/Core/Planner/PlannerCampusRoutine.swift` and `Sources/Native/Planner/PlannerSchoolSource.swift` (iPad module) — apply the matching date, status and rotation from the authorized publication; compare the evening and next morning before offering a boarding routine.
 
 Personal-plan calendar consumers (same published contract, no network):
 - `Xiaobao-iPadOS/Sources/Native/AppModel+Reminders.swift` selects the active verified document’s matching publication, the authorized fixture service’s `CampusConnection.cachedSchoolCalendar`, or the isolated local fixture calendar. `XiaobaoApp.swift` reconciles personal reminders when publication availability/digest changes in the foreground.
@@ -148,7 +152,7 @@ Personal-plan calendar consumers (same published contract, no network):
 ## TodayTimetableView
 
 Category: Frontend Composite Component · Status: Active  
-Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/TodayView.swift`, `TodayTimetableView(timeline:nextSchoolDay:noClassNotice:openLesson:)`. Courses, campus activities, Free Blocks and confirmed Breaks share the four-line focus card above one interactive timeline. Inputs: the resolved school day and its source's next confirmed school day, either nil when unavailable. The optional notice defaults to nil. The end card opens only the date it displays. A confirmed recess swaps the card without inserting a tile. Every block shows only its elapsed portion at the selected instant. The optional course-detail action defaults to nil; only an actual course can invoke it. A drag changes the temporary selection in `AppModel`, not school data. See the [native module](Xiaobao-iPadOS/README.md).
+Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/TodayView.swift`, `TodayTimetableView(timeline:nextSchoolDay:noClassNotice:)`. Courses, campus activities, Free Blocks and confirmed Breaks share a focus card with separate location, name and time above one interactive timeline. The next teaching day appears only after the last visible block. Inputs: the resolved school day and its source's next confirmed school day, either nil when unavailable. The optional notice defaults to nil. The end card opens only the date it displays. A confirmed recess swaps the card without inserting a tile. Every block shows only its elapsed portion at the selected instant. The active lesson, campus activity or reference opens the shared timetabled detail; a Today Free Block remains passive. A drag changes the temporary selection in `AppModel`, not school data. See the [native module](Xiaobao-iPadOS/README.md).
 The strip shows a single centered name per tile; locations remain on the focus card. The marker is narrow by default. Holding anywhere on the track enlarges it; releasing retains the minute without keeping the marker enlarged. Local and connected Today share this behavior without extra parameters.
 
 ### Consumers
@@ -156,7 +160,7 @@ The strip shows a single centered name per tile; locations remain on the focus c
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalPages.swift` | Render the confirmed device day | timeline and nextSchoolDay = visible student's annual timetable; noClassNotice = current calendar notice; openLesson = default nil | Show real dates without demo, live reads or inferred school bells |
-| `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | Local fixture Today | timeline and nextSchoolDay = provider's published dates and lessons; noClassNotice = provider notice; openLesson = select that local lesson by ID | Keep internal fixture details and navigation in their own source |
+| `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | Local fixture Today | timeline and nextSchoolDay = provider's published dates and lessons; noClassNotice = provider notice; details = resolved local duration and labels | Keep internal fixture details and navigation in their own source |
 | `Xiaobao-iPadOS/Sources/Native/CampusView.swift` | Connected fixture Today | timeline, nextSchoolDay and noClassNotice = active account's cached schedules with names resolved from its courses; openLesson = default nil | Use only this account's periods and rooms |
 
 ## Lesson activity plan and native presentation
@@ -192,7 +196,7 @@ Path / entry: `Xiaobao-iPadOS/Sources/Native/AppModel.swift`, `openPlanner(on:)`
 ## LessonTimeline
 
 Category: Frontend Utility · Status: Active  
-Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/SchoolDay.swift`, internal `LessonTimeline(on:periods:teachingSlots:includesCampusActivities:)`. Defaults: nil bell table, no assumed activities or recesses. Produces ordered lessons, confirmed Free Blocks and optionally assembly and lunch where the known day spans them, plus clock bounds and the first unended block. `recess(at:)` exposes a bounded campus recess without adding a block; `nextInstructionStart(from:)` includes lessons and assembly, but not vacant time. Published lessons take precedence over activities. `Block.elapsedFraction(at:)` applies to every kind independently of focus. Invalid lessons are unavailable; invalid bells cannot hide actual lessons or create vacancies. Depends on Foundation and SchoolClock, not network or storage. See the [native module](Xiaobao-iPadOS/README.md).
+Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/SchoolDay.swift`, internal `LessonTimeline(on:periods:teachingSlots:includesCampusActivities:fixedCampusActivities:)`. Defaults: nil bell table, no assumed activities or recesses. Produces ordered lessons, confirmed Free Blocks and optionally bounded assembly and lunch (or the complete published campus intervals when fixedCampusActivities = true), plus clock bounds and the first unended block. `recess(at:)` exposes a bounded campus recess without adding a block; `nextInstructionStart(from:)` includes lessons and assembly, but not vacant time. Published lessons take precedence over activities. `Block.elapsedFraction(at:)` applies to every kind independently of focus. Invalid lessons are unavailable; invalid bells cannot hide actual lessons or create vacancies. Depends on Foundation and SchoolClock, not network or storage. See the [native module](Xiaobao-iPadOS/README.md).
 
 Bundled policy in this file: `CampusBells.teachingSlots` supplies `DemoSchoolProvider`'s standalone lessons and bells, **not** account enrollments; `CampusBells.Activity.minutes` defines campus assembly and lunch for the native timeline and `Agenda` status. The intervals do not create course records. `TeachingSlotTests.swift` and `CampusConnectionTests.swift` cover this policy for both local days and Rust-published schedules.
 
@@ -201,15 +205,40 @@ Bundled policy in this file: `CampusBells.teachingSlots` supplies `DemoSchoolPro
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Core/SchoolDay.swift` | DemoSchoolProvider.timeline(on:lessons:) | date and assignment list = caller; teachingSlots = CampusBells on a teaching day; includesCampusActivities = resolved school day | Provide the same local day to both screens |
+| `Xiaobao-iPadOS/Sources/Core/SchoolTimetable/SchoolRotationEvidence.swift` | `CampusBells.dismissal`, `teachingSlots`, `isTeachingPeriod(start:end:)` | aligned minutes and explicit vacancies from dated observations; campus = verified publication | Compare daytime observations separately from evening rows without converting an unreported slot into an enrollment or vacancy |
 | `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | Shared focus card, elapsed fraction and recess readout | blocks and recesses = resolved local/connected day; instant = model.timetableInstant; earliest resumption = lunch or recess end | Show elapsed time and an accurate countdown without conflating lessons, vacancies and breaks |
 | `Xiaobao-iPadOS/Sources/Core/LessonActivity/LessonActivityPlan.swift` | Project lesson activity | periods = dated lesson blocks only; instant = real clock; exclude ambiguity | Show the real end time and original next named class |
 | `Xiaobao-iPadOS/Sources/Core/TimelineTrackLayout.swift` | Layout input | ordered block IDs, actual start/end minutes and clock bounds = resolved timeline | Map display and interaction to the same times |
 | `Xiaobao-iPadOS/Sources/Native/CampusView.swift` | Connected Today | blocks = active account's projection, courseName = name | Expose that day's confirmed slots without manufacturing lesson records |
-| `Xiaobao-iPadOS/Sources/Core/CampusPage.swift` | CampusSchedule.timeline(courseName:) | date, periods, names, rooms and optional bells = source; includesCampusActivities = rotation day exists | Project an account-scoped timetable without substituting sample lessons |
+| `Xiaobao-iPadOS/Sources/Core/CampusPage.swift` | CampusSchedule.timeline(courseName:) | date, periods, names, rooms and optional bells = source; includesCampusActivities = enabled school day; fixedCampusActivities = true only for the scoped published HS archive | Project an account-scoped timetable without substituting sample lessons |
 | `Xiaobao-iPadOS/Sources/Core/Planner/PlannerSchoolDay.swift` | Planner derives school-only rows from the existing timeline in both modes | local timeline = selected date from DemoSchoolProvider; in-class demo exams match only the explicit lesson ID, course and exact interval; connected timeline = same-date CampusSchedule | Share confirmed slots, assembly and lunch without changing the Today strip or hiding independent school records |
 | `Xiaobao-iPadOS/Tests/Core/SchoolDayTests.swift`, `Xiaobao-iPadOS/Tests/Core/TeachingSlotTests.swift`, `Xiaobao-iPadOS/Tests/Core/CampusConnectionTests.swift`, `Xiaobao-iPadOS/Tests/Core/TimelineTrackLayoutTests.swift` | Projection, progress and boundaries | isolated schedules or test-service records; activities = default or opt-in | Check half-open intervals, re-scrubbing, conflicts, missing data, layout and offline parity |
 
-- `Xiaobao-iPadOS/Sources/Core/SchoolTimetable/SchoolTimetable.swift` — projects a dated `CampusSchedule` with `includesCampusBells = false`; the program must not add campus assemblies or lunch to real portal lessons without a bell source. Existing schedule inputs keep their default.
+- `Xiaobao-iPadOS/Sources/Core/SchoolTimetable/SchoolTimetable.swift` — `day(on:calendar:)` supplies the scoped Main Campus HS 2026–27 bells on a confirmed normal day; partial blank-only dates supply only the matching observed intervals. Unconfirmed rosters receive fixed school-wide activities but no free blocks. Holidays and unknown campus profiles get no assumed campus profile. Internal collaborator `SchoolBellAlignment(records:blanks:)` receives enrollment-keyed rows and explicit blanks at import, or unkeyed periods when projecting older dated/rotation archives. Tested by `Xiaobao-iPadOS/Tests/Core/SchoolTimetableBellTests.swift` with a persisted synthetic roster.
+
+## Shared timetable presentation
+Category: Frontend utility · Status: Active. Entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/TimetablePresentation.swift`. Inputs: Shanghai date, resolved school/routine entries, verified day plans, device preferences. Output: visible school/plan rows, unfiltered placement rows and display timeline. Defaults: browsing; all categories visible on a new install. Depends on PlannerSchoolDay, LessonTimeline, PersonalPlan, SchoolStudyWeek and LocalPersonalization. [Contract and tests](Xiaobao-iPadOS/Sources/Core/Planner/README.md).
+
+### Consumers
+
+| File (under `Xiaobao-iPadOS/`) | Usage | Parameters | Purpose |
+| --- | --- | --- | --- |
+| `Sources/Native/Planner/PlannerSchoolSource.swift` | Build day/week columns | source = authenticated or approved local school; plans = current owner's day; editingPersonalCourses = edit mode | Filter after determining occupancy |
+| `Sources/Native/TodayView.swift` | Render day and filter next-day preview | school = same schoolDay resolver; plans = verified local supplements; editing = default; original = source timeline | Show identical periods without changing the ActivityKit input |
+| `Tests/Core/TimetablePresentationTests.swift` | Exercise public projection and plan store | synthetic learners, returns, calendars and settings | Regression for masking, isolation, retention and lunch/free periods |
+
+## Planner campus routine
+
+Category: Frontend timetable projection · Status: Active. Entry: `PlannerSchoolDay.withCampusRoutine(on:calendar:showsBoardingRoutine:)` at `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/PlannerCampusRoutine.swift`. Inputs: read-only school day with validated standard bells, Shanghai date and campus publication, explicit local boarding choice. Missing calendar means unchanged output. Depends on `SchoolClock`, `CampusBells`, `PublishedSchoolCalendar` and the Planner school entry contract; no network, persistence or permission. [Boundaries](Xiaobao-iPadOS/Sources/Core/Planner/README.md).
+
+### Consumers
+
+| File (under `Xiaobao-iPadOS/`) | Usage and explicit parameters |
+| --- | --- |
+| `Sources/Native/Planner/PlannerSchoolSource.swift` | Resolve the shared Today/Planner school day; date = selected column, calendar = matching local publication or the service account’s authorized `cachedSchoolCalendar` (not the month-picker fallback), showsBoardingRoutine = device preference. |
+| `Sources/Core/Planner/PlannerSchoolDay.swift`, `PlannerDay.swift` | Typed routine IDs preserve the night anchor; optional/reference kinds cannot become focus or school conflicts. |
+| `Sources/Native/Planner/PlannerScheduleCanvas.swift`, `PlannerView.swift`, `PlannerTimelineMarks.swift` | Show the full sleep interval when touched; initial day/week scroll ignores only the midnight continuation, not other early events. Every short school entry receives a measured name and shares schoolTime for disclosure (trackWidth/left = current column); nearby entries show grouped titles. Free blocks and lessons share schoolLabel/GlassCard. |
+| `Tests/Core/SchoolTimetableBellTests.swift` | Explicit fixture dates, calendar and preference; check electives, weekends, holidays, midnight geometry and separation from reminders. |
 
 ## StudentServices
 
@@ -235,12 +264,15 @@ Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/PlanStore.swift`,
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
+| `Xiaobao-iPadOS/Sources/Native/TodayView.swift` | read(day:for:calendar:) | verified owner + session; current Shanghai day; publication = matching saved calendar | Include only explicitly typed courses; no private plans from an offline unverified owner |
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift`, `AppModel+Reminders.swift` | Install the sole store and read the active notification schedule | file = app Application Support / `XiaobaoPlanner-v1/plans.plist`; owner = active, unlocked scope | Isolate user-authored plans from the school cache; never notify a different account's plans |
-| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | Project visible days and save, place, complete or step history | owner = captured scope; session = page lifetime UUID; calendar = active owner’s planRotationCalendar; command = validated draft, dated placement with explicit source, completion or history direction | Write one personal change without changing school data |
+| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | Project visible days and save, place, complete, remove or step history | owner = captured scope; session = page lifetime UUID; calendar = active owner’s planRotationCalendar; command = validated draft, dated placement, completion, exact record plus removal scope, or history direction | Write one personal change without changing school data |
+| `Xiaobao-iPadOS/Sources/Native/Planner/PlanEditorView.swift` | Confirm a dated removal | scope = explicit onlyThis / thisAndLater; commit = closure from PlannerView | No template or official record is a deletion target |
+| `Xiaobao-iPadOS/Tests/SchoolPortalSync/ReminderQueueProbe.swift` | Remove one already queued synthetic plan through the store | owner = isolated fixture owner; scope = onlyThis; ID = test-created plan | Compare actual OS requests before/after without deleting them in the probe |
 | `Xiaobao-iPadOS/Tests/Core/PlannerTests.swift` | Reopen and mutate test stores | file = isolated temporary URL; owner/plan = independent fixtures | Verify legacy/new appearance, persisted completion, date and account boundaries, and non-destructive failures |
 | `Xiaobao-iPadOS/Tests/Core/PlannerRoutineTests.swift` | Reopen, copy and revise a weekly rule | file = isolated temporary URL; dates and owners = independent fixtures | Verify rule history, per-day completion, independent copies and account isolation |
-| `Xiaobao-iPadOS/Tests/Core/PlannerEditingTests.swift` | Move plans and repeat series; undo/redo and wait for cutovers | file = isolated temporary URL; dates, clock and session = independent fixtures | Verify atomic history and no old-time reminders |
-| `Xiaobao-iPadOS/Tests/Core/PlannerRotationTests.swift` | Save/reopen and change recurrence using published dates | calendar = synthetic closures and makeup days; archive = legacy weekday or new mixed revisions | Verify compatible reads, completion, owner scope, cutovers and invalid drops |
+| `Xiaobao-iPadOS/Tests/Core/PlannerEditingTests.swift` | Move or remove identified plans; undo/redo and wait for cutovers | file = isolated temporary URL; dates, clock and session = independent fixtures | Verify atomic history and no old-time reminders |
+| `Xiaobao-iPadOS/Tests/Core/PlannerRotationTests.swift` | Save/reopen and change recurrence using published dates | calendar = synthetic closures and makeup days; archive = legacy weekday or new mixed revisions | Verify compatible reads, only-this / inclusive cutovers, completion, owner scope and invalid drops |
 
 ## PlanBubble
 
@@ -251,9 +283,9 @@ Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/PlanBubble.swift`
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Core/Planner/PlanStore.swift` | Own, project, copy or move a series | prototype and repeat settings = validated edit; destination day/time and clock = committed placement; source = explicit type | Distinguish relocating a series from creating an independent copy |
-| `Xiaobao-iPadOS/Sources/Core/Planner/PlanReminderPlanner.swift` | Read all applicable recurrence revisions | bubble = active owner snapshot; next fire = school clock; old reminders stop at next effective date | Register correct reminders without creating dated plans |
-| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | Route selected cards and track templates | ID = snapshot membership; edit start = effective school date | Distinguish an occurrence from an ordinary editable plan |
+| `Xiaobao-iPadOS/Sources/Core/Planner/PlanStore.swift` | Own, project, exclude a date, stop, copy or move a series | prototype and repeat settings = validated edit; destination day/time and clock = committed placement; source = explicit type | Distinguish relocating a series from creating an independent copy |
+| `Xiaobao-iPadOS/Sources/Core/Planner/PlanReminderPlanner.swift` | Read all applicable recurrence revisions | bubble = active owner snapshot; completed and removed dates = silentDays; old reminders stop at next effective date | Register correct reminders without creating dated plans |
+| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | Route selected cards and track templates | ID = snapshot membership; shelf removal anchor = nextOccurrence(from: effective school date, calendar: active publication) | Distinguish an occurrence from an ordinary editable plan |
 | `Xiaobao-iPadOS/Sources/Native/Planner/PlannerTimelineView.swift` | Display the shelf in Edit and resolve placement position | bubbles = visible owner templates; drop = shared board coordinate | Pass the date and range with the source type unchanged |
 | `Xiaobao-iPadOS/Sources/Native/Planner/PlannerInboxView.swift` | Present bubbles in Edit | prototype and role = each visible template | Render ordinary and recurring bubbles without a second add control |
 | `Xiaobao-iPadOS/Sources/Native/Planner/PlanEditorView.swift` | Seed a draft | bubble = explicit template or nil; time follows the selected date | Show the stored recurrence and independent reusable option; default rotation = the editor date’s confirmed teaching Day or no selection |
@@ -297,8 +329,9 @@ Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/PlanReminderPlann
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/AppModel+Reminders.swift` | Plan reminder reconciliation | now = current Date; schedule = active owner's on-device snapshot; calendar = planRotationCalendar | Keep reminder generation outside SwiftUI |
+| `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | `inputsChanged(from:to:)` on removal/undo/redo | before = same owner's displayed schedule; after = committed schedule | Wait on the OS only if reminder-bearing records changed |
 | `Xiaobao-iPadOS/Sources/Native/ReminderService.swift` | Filter the system queue by prefix | candidate namespace = identifierPrefix; actual triggers come from AppModel | Reconcile without touching lesson reminders |
-| `Xiaobao-iPadOS/Tests/Core/PlannerRoutineTests.swift`, `Xiaobao-iPadOS/Tests/Core/PlannerEditingTests.swift` | Exercise one-shot, recurring and delayed cutovers | now and schedule = independent clock fixtures | Verify non-early firing, midnight handling and removal of obsolete times |
+| `Xiaobao-iPadOS/Tests/Core/PlannerRoutineTests.swift`, `Xiaobao-iPadOS/Tests/Core/PlannerEditingTests.swift` | Exercise one-shot, recurring and delayed cutovers; compare reminder inputs | now, earlier and restored schedules = independent fixtures | Verify non-early firing, midnight handling, removal of obsolete times and silent edits |
 | `Xiaobao-iPadOS/Tests/Core/PlannerRotationTests.swift` | Check dated rotation reminders and a mode switch | local publication and per-occurrence completion | No holiday, duplicate or stale repeating trigger |
 
 ## ReminderService
@@ -447,13 +480,13 @@ Path / entry: `Xiaobao-iPadOS/Sources/Native/StudentComponents.swift`, `StudentD
 ## GPAOverviewView
 
 Category: Frontend Composite Component · Status: Active  
-Path / entry: `Xiaobao-iPadOS/Sources/Native/GPA/GPAOverviewView.swift`, `GPAOverviewView(isCurrentTerm:summary:unavailableMessage:courses:courseDestination:termLabel:gradeStatus:)`. Inputs: term heading, nullable GPA with provenance, missing-data explanation, course rows and builders for term content and grade availability/refresh only. Starts with visible GPA and no course filter; does not fetch or host trial forms. Depends on SwiftUI and the [GPA projection](Xiaobao-iPadOS/Sources/Core/GPA/README.md). See the [GPA page](Xiaobao-iPadOS/Sources/Native/GPA/README.md).
+Path / entry: `Xiaobao-iPadOS/Sources/Native/GPA/GPAOverviewView.swift`, `GPAOverviewView(isCurrentTerm:summary:unavailableMessage:courses:forecasts:courseDestination:termLabel:gradeStatus:)`. Inputs: term heading, nullable GPA with provenance, missing-data explanation, course rows and an optional forecast display map (empty by default), and builders for term content and grade actions. Starts with visible GPA and no course filter; does not fetch or host trial forms. Depends on SwiftUI and the [GPA projection](Xiaobao-iPadOS/Sources/Core/GPA/README.md). See the [GPA page](Xiaobao-iPadOS/Sources/Native/GPA/README.md).
 
 ### Consumers
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | Real term overview | summary = portal GPA; courses = projected current roster; courseDestination = on-demand SchoolPortalCoursePage; term/status slots = real source and freshness | Reuse the GPA screen without eager detail reads |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | Real term overview | summary = published or explicitly forecast GPA; courses = verified roster; forecasts = saved draft presence/current predictions; courseDestination = SchoolPortalCoursePage; gradeStatus = refresh and term-only restore | Keep predicted and published values distinguishable |
 | `Xiaobao-iPadOS/Sources/Native/GradebookView.swift` | Local GPA page | isCurrentTerm = selected term equals current local term; summary/courses = active local gradebook term; unavailableMessage = no valid term estimate; termLabel = term picker; gradeStatus = empty | Expose local histories without estimating from individual assessments |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CampusGradebookView.swift` | Connected GPA page | isCurrentTerm = true; summary = published or automatic GPA from the authorized cache; courses = saved gradebook; unavailableMessage = missing inputs or cache/access state; termLabel = current connected term; gradeStatus = empty gradebook explanation, permitted sync action and check status | Show known grades or explicit missing inputs without bypassing permissions |
 
@@ -466,12 +499,13 @@ Path / entry: `Xiaobao-iPadOS/Sources/Core/GPA/GradePresentation.swift` and `Cam
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift` | CourseGradeDetail, GradeMark and AssessmentWeight | grade = current published total; publishedRows = source categories; scope = course/group | Real records retain missing values and source weight scopes |
+| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift` | CourseGradeDetail, GradeMark and AssessmentWeight | grade = current published total; publishedRows and forecastGroups = separate projections of the same source; scope = course/group | Real records retain missing values and source weight scopes |
 | `Xiaobao-iPadOS/Sources/Native/GradebookView.swift` | Local summary and course projection | termID = selected local term; weighted = saved AP preference; report = each selected term course | Supply local source and assessment categories |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CampusGradebookView.swift` | Connected summary and course projection | source = current account's saved grades, GPA credits and scale, and roster | Present school-supplied values, a labeled estimate, or missing inputs |
 | `Xiaobao-iPadOS/Sources/Native/GPA/GPAOverviewView.swift` | Readout, matching and course routing | query/status = view state; course ID = selected row | Keep filters independent from GPA |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradeList.swift` | Read course totals | courses = list filtered by overview; course identity = term and course | Display all matching courses as navigable tiles |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradesView.swift` | Published course summary and history | course = selected route; history points, course total and permitted categories = selected course | Keep published metadata and chart independent of forecasts |
+| `Xiaobao-iPadOS/Sources/Native/GPA/CourseForecastSheet.swift` | Read-only group share | weight = selected group; effective course share = published ancestor chain | Distinguish a nested share from a course share |
 | `Xiaobao-iPadOS/Sources/Native/GPA/CourseTaskList.swift` | Task rows, weights and feedback | rows = selected course's projected groups or flat assessments; school metadata comes from the selected item | Preserve source weight and assessment scope |
 | `Xiaobao-iPadOS/Sources/Core/Tasks/TaskPresentation.swift` | Normalize separate published scores and released previews using `GradeMark(score:)` | score = conditional source mark, or explicitly released valid numeric estimate for pending publication; letter = default | Share formatting without calculating unpublished marks |
 | `Xiaobao-iPadOS/Sources/Native/Tasks/TaskCard.swift` | `GradeMark.displayText` | mark = published task result only | Never show the released preview on a card |
@@ -557,21 +591,137 @@ Path / entry: `Xiaobao-iPadOS/Sources/Core/StudentCharts.swift`. `AttendanceCour
 ## CourseForecast
 
 Category: Frontend Utility / Presentation Contract · Status: Active  
-Path / entry: `Xiaobao-iPadOS/Sources/Core/GPA/CourseForecast.swift`, `AssessmentForecast` and `CourseForecast.calculate(current:estimates:)`. The assessment needs a percent mark; name, category and course weight default to nil. The initializer validates values and creates an ID if omitted. The calculator takes an optional normalized published total and draft assessments, and returns a hypothetical percentage or a reason it is unavailable. Depends only on Foundation and the existing grade validation errors. See the [GPA core](Xiaobao-iPadOS/Sources/Core/GPA/README.md).
+Path / entry: `Xiaobao-iPadOS/Sources/Core/GPA/CourseForecast.swift` (`AssessmentForecast`, `CourseForecast.project(current:groups:estimates:)` and result-only `calculate`) and sibling `ForecastGroups.swift` (`ForecastGroups`, `ForecastSamples`). A draft takes a percentage and optional name/groupID; no weight input. The directory defaults to empty; published IDs, parent-scoped weights, released count and normalized marks or group averages are supplied by the projection. Returns a local course estimate or a specific reason and any computable edited-group subtotals. Feeds the separate course and term forecasts, never published grades. Depends on Foundation and existing grade presentation/validation. See the [GPA core](Xiaobao-iPadOS/Sources/Core/GPA/README.md).
 
 ### Consumers
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradesView.swift` | Calculate for the current detail | current = projected published percentage; estimates = page-local drafts | Keep school and semester data unchanged |
-| `Xiaobao-iPadOS/Sources/Native/GPA/CourseForecastSheet.swift` | Create or edit a hypothetical assessment | id = existing draft or generated ID; name/category/mark/courseWeight = form state | Validate the student's explicit assumptions |
-| `Xiaobao-iPadOS/Sources/Native/GPA/CourseTaskList.swift` | Render drafts and their separate result | estimates/forecast = current course detail state | Explain why a forecast is or is not available |
-| `Xiaobao-iPadOS/Tests/Core/CourseForecastTests.swift` | Validate inputs and arithmetic | current and estimates = independent synthetic fixtures | Check zero vs. missing, valid shares and excess allocations |
+| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift` | Build school forecast options | ID/parent/share = school node; samples = strictly released rows; numeric scale = course type; empty groups included | Keep menu separate from expandable task rows |
+| `Xiaobao-iPadOS/Sources/Core/GPA/GradePresentation.swift` | Retain the directory; project optional local categories | source = injected forecastGroups, or local categories with released samples; default empty for flat service | Do not infer group weights |
+| `Xiaobao-iPadOS/Tests/Core/GradePresentationTests.swift`, `Xiaobao-iPadOS/Tests/Core/SchoolPortalTests.swift` | Verify available options | inputs = independent local/flat/portal fixtures | Preserve identity, missing groups and weight scope |
+| `Xiaobao-iPadOS/Sources/Native/GPA/CourseGradesView.swift` | Project the total and subtotals for the current detail | current = optional published percentage; groups = course.forecastGroups; estimates = verified persisted drafts or temporary demo drafts | Keep published data and history unchanged |
+| `Xiaobao-iPadOS/Sources/Native/GPA/CourseForecastSheet.swift` | Create or edit a hypothetical assessment | id = existing draft or generated ID; name/groupID/mark = form state; anchor = selected group path digest; share = selected group | Show published weight, not an editable assumption |
+| `Xiaobao-iPadOS/Sources/Native/GPA/CourseTaskList.swift` | Render drafts and their separate result | estimates, projection.result and partialSubtotals = course detail state; displayed share = selected group | Distinguish a group share from an individual weight |
+| `Xiaobao-iPadOS/Tests/Core/CourseForecastTests.swift` | Validate inputs and arithmetic | current, groups and estimates = independent synthetic fixtures | Check mixed denominators, privacy, multiple drafts, partial results and nested/missing/duplicate weights |
+
+## Saved Schoolis grades and timetable detail
+
+Category: Frontend Utility / Composite View · Status: Active.
+Paths: `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolGradeCache.swift` and `Xiaobao-iPadOS/Sources/Native/GlassComponents.swift`.
+Interfaces: `SchoolGradeCache.accept/snapshot/revoke` take verified live responses and return a local term document, with no network authority. `LessonDetailView(detail:)` takes one displayed period with optional source labels; missing teacher = dash. Notes are never inferred for a future rotation.
+
+### Consumers
+
+#### Xiaobao-iPadOS/Sources/Native/AppModel.swift
+
+Usage: Grade-cache creation, owner/term gating, receipt commit and revocation.
+
+Parameters:
+- file = protected app support file
+- owner/scope = school store's verification and request
+
+Purpose: Keep all local grade access separate from portal identity and credentials.
+
+#### Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift
+
+Usage: Scoped grade document and same-course detail.
+
+Parameters:
+- snapshot = selected owner/term
+- detail = successful school record or same-term saved group
+
+Purpose: Draw the last successful GPA and update without an empty intermediary.
+
+#### Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolTermMenu.swift
+
+Usage: Cached term names when the live directory is unavailable.
+
+Parameters:
+- supportsSavedGrades = GPA only
+- owner = the same registered account
+
+Purpose: Keep available offline semesters clearly scoped.
+
+#### Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift
+
+Usage: Present the shared native sheet, restore the cache after genuine foreground arrival.
+
+Parameters:
+- sheet = selected timetable detail
+- remaining parameters = existing detents and dismiss behavior
+
+Purpose: Share navigation without turning an inactive system panel into a new read.
+
+#### Xiaobao-iPadOS/Sources/Native/TodayView.swift
+
+Usage: Build the detail from the active draw block.
+
+Parameters:
+- time/location/title = the already shown timetable, metadata = optional school display labels
+
+Purpose: Show the same aligned interval with no school request.
+
+#### Xiaobao-iPadOS/Sources/Native/Planner/PlannerScheduleCanvas.swift
+
+Usage: Build the detail for timed read-only rows.
+
+Parameters:
+- range = school entry, preserving the overnight interval where applicable
+
+Purpose: Use the native timetable sheet; keep edit gestures and layouts separate.
+
+#### Xiaobao-iPadOS/Tests/Core/SchoolGradeCacheTests.swift
+
+Usage: Confirm successful receipts, relaunch and scoped revocation.
+
+Parameters:
+- file and defaults = isolated tests
+
+Purpose: Exercise cold local display, authorization and transient failure independently.
+
+## Saved grade forecasts and term estimate
+
+Category: Frontend Utility · Status: Active
+Path / Entry: `Xiaobao-iPadOS/Sources/Core/GPA/CourseForecastStore.swift` and `TermForecastGPA.swift`. `open` and `read(in:)` require a verified owner, term and current epoch; edits are atomic, and restore affects only the selected scope. Default location is a protected application-support directory. The term calculator is pure and only returns a distinct forecast when an eligible course has a complete forecast. [Contract and tests](Xiaobao-iPadOS/Sources/Core/GPA/README.md).
+
+### Consumers
+
+#### Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift
+
+Usage: `CourseForecastStore.open/read/save/remove/restore`, `TermForecastGPA.calculate`.
+
+Parameters:
+- scope = model:verified owner + selected served term + portal epoch
+- course and draft = selected authorized row and local editor input
+- calculator courses = published percentages plus ready what-ifs and source English labels
+
+Purpose: Apply saved forecast results to the verified GPA view; preserve published grades.
+
+#### Xiaobao-iPadOS/Sources/Native/AppModel.swift
+
+Usage: `CourseForecastStore()`, `endSession(unless:session:)`.
+
+Parameters:
+- directory = default
+- owner and session = school store's live identity and epoch
+
+Purpose: Keep one owner-fenced native store and release the old in-memory scope.
+
+#### Xiaobao-iPadOS/Tests/Core/CourseForecastTests.swift
+
+Usage: Scoped archive and term calculation.
+
+Parameters:
+- directory = independent scratch directory
+- scope / courses = non-personal inputs
+
+Purpose: Check persistence, independent account/term restore and numeric source labels.
 
 ## Task projection and catalog
 
 Category: Frontend Utilities / Presentation Contract · Status: Active  
-Path / entry: `Xiaobao-iPadOS/Sources/Core/Tasks/`, `TaskRecord` (including `cardStage(at:)`), `TaskFilters`, `TaskTermDirectory`, `TaskReadRequest` and `TaskCatalog.load(term:read:)`. No filters by default; nil term means current. The reader is supplied explicitly and pages are validated before a result is returned. Depends on Foundation and the existing task/roster contract. See the [module](Xiaobao-iPadOS/Sources/Core/Tasks/README.md).
+Path / entry: `Xiaobao-iPadOS/Sources/Core/Tasks/`, `TaskRecord` (including `cardStage(at:)` and the source-aware `workTypeLabel`), `TaskFilters`, `TaskTermDirectory`, `TaskReadRequest` and `TaskCatalog.load(term:read:)`. No filters by default; nil term means current. The reader is supplied explicitly and pages are validated before a result is returned. Depends on Foundation and the existing task/roster contract. See the [module](Xiaobao-iPadOS/Sources/Core/Tasks/README.md).
 
 ### Consumers
 
@@ -627,6 +777,8 @@ Path / entry: `<repo-root>/xiaobao-backend/src/domain.rs` and `<repo-root>/Xiaob
 | `xiaobao-backend/src/offline.rs` | Timetable.teaching_slots | table = authorized source snapshot | Publish optional day-indexed bells in the existing timetable module |
 | `Xiaobao-iPadOS/Sources/Core/CampusOffline.swift`, `Xiaobao-iPadOS/Sources/Core/CampusPage.swift` | Decode direct or persisted timings | date/day = requested account's school calendar; missing table = nil | Read older payloads and forward only applicable slots |
 | `Xiaobao-iPadOS/Sources/Core/SchoolDay.swift` | Local source and LessonTimeline | intervals = provider's published bells | Distinguish a wholly empty teaching slot from unscheduled time |
+| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift`, `Sources/Core/SchoolTimetable/SchoolTimetable.swift` within the iPad app | Project explicit vacant rows; intersect dated inputs with campus bells | intervals = validated school-local minutes; published campus and teaching date = archive scope | Preserve sparse dated evidence offline, never an invented enrollment |
+| `Xiaobao-iPadOS/Sources/Core/Planner/PlannerSchoolDay.swift` | Compare the source's bell list with the standard daytime slots | schedule = validated same-date projection | Keep after-school reference periods off exceptional schedules |
 | `Xiaobao-iPadOS/Tests/Core/TeachingSlotTests.swift`, `Xiaobao-iPadOS/Tests/Core/CampusConnectionTests.swift`, `xiaobao-backend/tests/device_cache.rs` | Contract tests | independent test schedules and campus fixtures | Verify standalone/daily/offline parity and fallback |
 
 ## City weather
@@ -648,7 +800,7 @@ Path, purpose and interface: [CityWeather](Xiaobao-iPadOS/Sources/Core/CityWeath
 
 Category: Frontend Utilities · Status: Active  
 Purpose / entry: selected weather, normalized illustration values and seasonal light, in [Atmosphere Core](Xiaobao-iPadOS/Sources/Core/Atmosphere/README.md).  
-Interface / default: `Weather`, `WeatherCategory.conditions`, `SkyTime(minute:on:)`, `SkyPalette.at(time:style:)` and `Festival.automatic(on:)`. Omitting date gives the canonical light cycle; omitting elapsed time returns the still weather frame.  
+Interface / default: `Weather`, `WeatherCategory.conditions`, `SkyTime(minute:on:)`, `SkyPalette.at(time:style:)` and `Festival.automatic(on:)` (calendar) and `Festival.displayed(on:automatic:manual:)` (shipping appearance). Omitting date gives the canonical light cycle; omitting elapsed time returns the still weather frame. `SeasonalMotion(seed:)` is a per-visit event source and transient input state (fixed zero seed in reproducible tests).
 Dependencies: `SchoolClock`, Foundation.
 
 ### Consumers
@@ -656,20 +808,32 @@ Dependencies: `SchoolClock`, Foundation.
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
 | `Xiaobao-iPadOS/Sources/Native/AppModel.swift` | `Weather`, `SkyTime`, `Festival` | weather = city display or saved manual preference; minute = live Shanghai time or preview; date = model's current date | Persist manual selection and supply display state |
-| `Xiaobao-iPadOS/Sources/Native/EnvironmentView.swift` | `WeatherCategory.conditions`, `SkyTime.previewMinute`, `Festival.allCases` | manual weather = optional selection + model.previewWeather; festival = preference binding; phase = selected shortcut | Populate pickers and preview times |
+| `Xiaobao-iPadOS/Sources/Native/EnvironmentView.swift` | `WeatherCategory.conditions`, `SkyTime.previewMinute`, `Festival.holidays`, `Festival.solarTerms` | manual weather = optional selection + model.previewWeather; festival = preference binding; phase = selected shortcut | Populate pickers and preview times |
 | `Xiaobao-iPadOS/Sources/Core/CityWeather/CityWeather.swift`, `CityWeatherStore.swift` (same directory) | `Weather` | condition = documented code or caller's preview; unavailable art = cloudy | Return an existing illustration without adding an invented city condition |
 | `Xiaobao-iPadOS/Tests/Core/CityWeatherTests.swift` | `Weather` | synthetic samples, expectations and manual conditions | Check the reader-to-sky boundary |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/AtmosphereView.swift` | `Weather.style`, `SkyPalette.at` | time and weather = AppModel; still frame = default | Render the backdrop and shared contrast |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkyBackdrop.swift` | `SkyPalette` | palette = caller's sky lighting | Procedural gradient fallback before GPU output |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkySurface.swift` | `SkyPlaybackClock` | running = visibility and motion policy; instant = monotonic uptime | Advance or freeze the cloud clock |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/VolumetricSkyState.swift` | `SkyTime`, `WeatherStyle`, `SkyPalette`, `Festival` | civil sky time, elapsed motion time, selected weather and festival | Supply lighting and cloud controls separately |
-| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkyDetails.swift` | `Festival` | festival = date or manual | Draw optional seasonal decorations only |
+| `Xiaobao-iPadOS/Sources/Native/EnvironmentView.swift`, `AppModel.swift`, `Atmosphere/VolumetricSky.swift` (under Native) | Effective festival and renderer availability | now and saved automatic/manual preference = model; disabled in the shipping build | Preserve stored choices without allocating scenery or showing unusable controls |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkyDetails.swift` | `Festival` | festival = effective choice, none while paused | Dispatch one three-dimensional seasonal recipe; no Canvas or ordinary-day geometry |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/WeatherOverlay.swift` | `WeatherStyle.frame(at:)` | elapsed = view's timeline or nil for still | Draw moving and static visibility and precipitation |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/AtmosphereColors.swift` | `SkyColor`, `WeatherMood` | semantic backgrounds and daylight only | Blend weather art tokens |
 | `Xiaobao-iPadOS/Sources/Native/GlassComponents.swift` | `SkyColor.color` | source = core RGB value | Bridge core colors to SwiftUI |
 | `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkyParticles.swift` | `WeatherFrame` | frame = current strength; motion = stable midpoint | Draw bounded, smoothly moving precipitation or dust |
 | `Xiaobao-iPadOS/Tests/Core/EnvironmentTests.swift`, `Xiaobao-iPadOS/Tests/Core/WeatherTests.swift`, `Xiaobao-iPadOS/Tests/Core/SkyPlaybackClockTests.swift` | core APIs | synthetic dates, clocks and effect parameters | Check data, season and motion boundaries |
 | `Xiaobao-iPadOS/Tests/AtmospherePreview/RenderSky.swift` | `SkyTime`, `Weather.style` | preset visual clock and explicit elapsed time | Compare generated images independent of the UI |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalFlights.swift`, `SeasonalScene.swift`, `SkySurface.swift` (parent directory) | `SeasonalMotion`, flight pose / brush / tap | scene, elapsed = surface clock; seed = random per Spring/Lantern visit, zero otherwise; point = visible world hit, or rendered gift bag for sleigh; gift probability sample = local; stillFrame = paused input | Keep independent contact and flight state |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalHolidays.swift` | `SeasonalMotion.sample` | lane, cycle and channel = local shell/lantern event indices | Vary successive launches reproducibly without frame-order dependence |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalFestivalCourtyards.swift` | `SeasonalMotion.haunt` | time = surface clock | Apply three arcs, rotation and flame to just the hanging lamp |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalImpressionProbe.swift` | `SeasonalMotion.touch`, `Festival`, `SeasonalTarget` | fixed seed and elapsed time; point = matched geometry or actual recorder pick; chance = 1 for subject contact | Compare the response to displaced contacts and film the two interactive plates |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalSummer.swift`, `SeasonalAutumn.swift` (same directory) | `SeasonalMotion.age`, gesture point and held state | time = scene clock; point = current subject gesture in local coordinates | Stagger a corolla and transmit a disturbance along silk |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalFestivalProbe.swift` | `Festival`, `Weather`, `SeasonalMotion` | preset light per plate, stamped local subject/water/actor hit, fixed gift chance | Repeat a matching sequence with no App state changes |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalHabitat.swift` | Read `Festival.solarTerms` and season membership | theme = scene input | Place the corresponding support geometry |
+| `Xiaobao-iPadOS/Tests/Core/SeasonalSceneTests.swift`, `Tests/AtmospherePreview/SeasonalProbe.swift` (iPad project) | `Festival`, `SeasonalMotion` | Shanghai fixture dates; fixed times, touch positions and chance | Check catalog, interactions, release and return-to-flight boundaries |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalSparrowProbe.swift` | `SeasonalMotion`, `SeasonalTarget` | motion = caller's fixed-time hit; resting motion = defaults | Check that only the plumage and body react, not the gripping feet or their support |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalLightProbe.swift` | `SkyTime`, `Festival`, `Weather.style` | manual minute and selected sky = fixed optical comparison or timing fixture | Isolate the lighting path without a student session |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalTouchFixture.swift` | `Festival`, `SeasonalTarget`, `SeasonalMotion` | fixture launch argument selects a scene; inspect local reaction after an XCTest gesture | Aim and verify touch without production instrumentation |
 
 ## AtmosphereView
 
@@ -685,11 +849,12 @@ Dependencies: Atmosphere core, SwiftUI, MetalKit and the local Metal shader.
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | `RootView` detail-column backdrop | isCovered = state:coveredScope matches current navigation scope; ignore safe area; inEnvironmentPanel = default | Keep the main sky during sidebar switches and pause its clock under a pushed detail |
 | `Xiaobao-iPadOS/Sources/Native/StudentComponents.swift` | `StudentDetailSurface` background | all defaults; ignore safe area | Continue backdrop behind details |
 | `Xiaobao-iPadOS/Sources/Native/EnvironmentView.swift` | environment sheet backdrop | inEnvironmentPanel = true; ignore safe area | Preview the current scene while the underlying page is covered |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalTouchFixture.swift` | FixturePage background | all defaults; dedicated synthetic foreground button and scroll view | Validate actual simulator input against the shipping sky |
 
 ## VolumetricSky
 
 Category: Frontend Composite Component (internal rendering pipeline) · Status: Active  
-Purpose / entry: [Atmosphere renderer](Xiaobao-iPadOS/Sources/Native/Atmosphere/README.md); `VolumetricSky.init(device:library:)` builds GPU field caches, and `encode(_:in:to:)` submits only sky rendering.  
+Purpose / entry: [Atmosphere renderer](Xiaobao-iPadOS/Sources/Native/Atmosphere/README.md); `VolumetricSky.init(device:library:)` builds GPU resources; `encode(_:in:to:scene:targets:)` integrates the sky and optional scene. Both extra arguments default to nil (ordinary sky).
 Interface / default: shader receives caller-supplied `SkyUniforms`, command buffer and color pass; the MTKView supplies resolution and budget. No assets, time defaults, or networking inside the encoder.  
 Dependencies: Metal, `Shaders/VolumetricSky.metal`, two generated 3D scalar/noise volumes.
 
@@ -697,8 +862,40 @@ Dependencies: Metal, `Shaders/VolumetricSky.metal`, two generated 3D scalar/nois
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkySurface.swift` | Create, then encode | device = system GPU; library = Xcode default; pass = current drawable; uniforms = selected condition and playback clock | Present the iPad background |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkySurface.swift` | Create, prewarm the sparrow on first use, then encode | device = system GPU; library = Xcode default; pass = current drawable; uniforms = selected condition and playback clock; scene/targets = per-surface, absent on ordinary days | Present the iPad background; only Lesser Cold requests the shared, off-main `prepareSparrow()` bank and redraws when ready |
 | `Xiaobao-iPadOS/Tests/AtmospherePreview/RenderSky.swift` | Create, then encode | device = host GPU; library = probe build; pass = readable texture; uniforms = fixed visual tests | Validate the same rendering pipeline offscreen |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalLightProbe.swift` | Encode isolated optical controls and timed frames | scene = synthetic bench or shipping recipe; uniforms = test clock, viewport and 88 integration steps; targets = probe-owned | Separate reflection, transmission and light-space depth from sky movement |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalProbe.swift` | Encode seasonal and control frames | scene = authored instances or nil; targets = probe-owned; camera = fixed/translated test origin | Compare the actual GPU frames, composited IDs and distances |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalFestivalProbe.swift` | Copy the optical control to CPU | GPU = supplied renderer, texture = test surface, overcast at a fixed instant | Compare final wall pixels with their own incoming radiance |
+
+## SeasonalScene
+
+Category: Frontend Composite Components (internal Metal scenery) · Status: Active
+Path: `<repo-root>/Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/`. Entry: `SkyDetails.scene(_:aspect:time:motion:moon:)` (moon = current GPU direction and radius, with canonical night geometry when omitted); surface-local `SeasonalTargets` and `SeasonalPicking.read(uv:radius:texture:queue:completion:)`. A normal day returns nil. No stored touch data, service, school UI or asset input. Main dependencies: Atmosphere core, Metal, simd; UIKit for the passive contact bridge. [Contract, file map and interaction atlas](Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/README.md).
+
+### Consumers
+
+| File | Usage | Parameters | Purpose |
+| --- | --- | --- | --- |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkyDetails.swift` | Construct the appropriate recipe | scene = manual/automatic Festival, aspect = viewport, time/motion = surface clock and reactions, moon = host lighting | One authored composition, no feature-page dependency |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/SkySurface.swift` | Build frame, keep targets; resolve a hit | scene = selected festival; time = local elapsed; moon = uniforms.moon; world hit = GPU ID/range, brush input = signed horizontal travel | Render and react only in the active viewport |
+| `Xiaobao-iPadOS/Sources/Native/Atmosphere/VolumetricSky.swift` | `SeasonalRenderer.draw` and composite | scene/targets = optional caller data; edge bank = render budget and refractor requirement; foreground range = authored ground, airborne or mixed-depth plate; light/shadow direction = existing sky; cloud field and noise = existing GPU volumes; optional water plane, local smoke/light, focus and ripples = scene state | Shade and occlude geometry with this frame's clouds |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalLightProbe.swift` | Build caster / optical bench and sampled recipes | scene = local fixture; backing pigment = test parameter; solar time = controlled | Check the production light map, reflected and transmitted colors |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalProbe.swift` | Construct all recipes and compare renders | camera and time = matched regression frames, moving recorder or fixed print lighting; moon = same frame uniforms; seed/chance = explicit; sparrow mode reads a 1:1 crop | Check distinct output, touch response and depth |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalImpressionProbe.swift` | Build shipping recipes and read the actual frame transforms | aspect = probe viewport; clock = sampled cycle/contact age; motion = fixed seed with or without a local contact; moon = default | Validate paired paddle strokes, free flights, corolla timing and the anchored dew web |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalFestivalProbe.swift` | Read opaque scene color/range, build the sleigh at the tap frame | targets = the same overcast frame; aspect/time = plate and local tap; moon = default on gift-origin-only build | Verify solid walls under cloud and release filmed gifts at the real bag |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalSparrowProbe.swift` | Build the shipping resting/responding scene and inspect the follicle, wing and foot meshes | aspect = probe viewport; motion = fixed-time subject hit | Verify bilateral feather tracts, eight claw contacts, stationary feet and finite mesh data |
+| `Xiaobao-iPadOS/Tests/AtmospherePreview/SeasonalTouchFixture.swift` | Read the fixture's visible ID attachment | scene = isolated launch argument; target = a real matching fragment | Aim device-level gestures without fixtures in production |
+
+#### Local waterline (inside SeasonalScene)
+
+Entry: `SeasonalScene.waterline` / `SeasonalWaterline.height(_:_:clearance:)` in `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/SeasonalBotany.swift`. A local view of this frame’s existing mirror plane, not a second plane or a service. Normal clearance = 0 by default; unavailable if the scene has no water or its local height axis is tangent to it.
+
+| Consumer (in `Xiaobao-iPadOS/Sources/Native/Atmosphere/Seasonal/`) | Usage / parameters | Purpose |
+| --- | --- | --- |
+| `SeasonalRegatta.swift` · `riverRace()` | frame and height before/after floating the hull; clearance = small stroke-dependent bob, then default for the water surface | Keep the hull, working paddles and foam in contact throughout the stroke |
+| `SeasonalSummer.swift` · `summerStudy(_:)` | frame and height; clearance = planted depth for the stem or a shallow offset for the leaf | Keep pads afloat in the same pond as the reflection |
+
 
 ## AppState and app
 
@@ -851,9 +1048,11 @@ Relative path: `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/` · Repository pat
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolTimetableAccess.swift` | readTimetableWeek(_:for:) | expected = current verified owner; date = one bounded import week | Stage a timetable without amending per-page caches |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalWarmup.swift` | loadTasks, loadAttendance, refreshGradesFromToday, loadCollection | verified owner, active tab, current epoch; independent current GPA and attendance on cached Today | Cached Today may refresh the current published GPA; no course details, attachments or speculative history |
 
+**Scoped detail consumers.** `Sources/Native/SchoolPortalSync/SchoolAssignmentAccess.swift` calls `readTaskMaterial(term:task:)` using a current list member, term and revocable registration. `Sources/Native/Tasks/TaskDetailView.swift` uses the same method for a verified live-only read if the device archive is unavailable, and calls `taskFileLink(term:task:section:file:)` only for an explicit file tap. `Sources/Native/SchoolPortalSync/SchoolPortalReader.swift` maps the two fixed read operations to the private-world bridge; grade operations are independent.
+
 ## Saved school timetable
 
-Frontend data and device storage · Active · Entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/SchoolTimetable/` ([contract and limits](Xiaobao-iPadOS/Sources/Core/SchoolTimetable/README.md)). The verified portal reader supplies dated weeks; the scoped school calendar supplies teaching Days. Automatic import is first-use only. No network on local date lookup.
+Frontend data and device storage · Active · Entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/SchoolTimetable/` ([contract and limits](Xiaobao-iPadOS/Sources/Core/SchoolTimetable/README.md)). The verified portal reader supplies dated weeks; the scoped school calendar supplies teaching Days. On restore, the matching bundled publication (optional `publication` constructor argument for tests) rebuilds derived Day templates in memory. `SchoolRotationEvidence.lineup(in:usesCampusBells:)` is private to the timetable module: its caller `SchoolTimetable.rebuildRotations(calendar:)` supplies dated bell-aligned observations grouped by Day, both after a weekly import and after protected-file restore. Evening exceptions do not veto a corroborated daytime lineup. Automatic import is first-use only. The same bell projection corrects mixed source clocks on import and on older saved rosters without network access or a new archive registration.
 
 ### Consumers
 
@@ -862,14 +1061,16 @@ Frontend data and device storage · Active · Entry: `<repo-root>/Xiaobao-iPadOS
 | `Sources/Native/AppModel.swift` | Initialize a single document under Application Support; onAccountConfirmation = verified student or affirmatively changed identity; review before handoff; forget on in-app sign-out. Match the visible document’s owner, year and digest before using its calendar for a personal rotation rule. |
 | `Sources/Native/XiaobaoApp.swift` | First import when foreground, verified owner and epoch are current; manual = false, independent of tab and selected date. Cancel incomplete work on suspension. |
 | `Sources/Native/SchoolPortalSync/SchoolTimetableAccess.swift` | update(manual:) reads via same-owner readTimetableWeek; day = selected Shanghai date, publication = bundled main-campus HS calendar. No live grades or off-device storage here. |
-| `Sources/Native/SchoolPortalSync/SchoolPortalPages.swift`, `Sources/Native/Planner/PlannerSchoolSource.swift`, `Sources/Native/Planner/PlannerView.swift` | Render today/chosen date, confirmed closures, dated events and unavailable days. Both use the same projection without a fetch. |
+| `Sources/Native/SchoolPortalSync/SchoolPortalPages.swift`, `Sources/Native/Planner/PlannerSchoolSource.swift`, `Sources/Native/Planner/PlannerView.swift`, `Sources/Native/Planner/PlannerWeekView.swift` | Render today/chosen date, confirmed closures, dated events and unavailable days. The saved `Day.usesDaytimeRotation` flag is passed through the Planner day input/column to the day status and week header; Today consumes the same flag. It identifies display-only daytime rows at the end of a partial source window, never an extra fetch or alert. |
 | `Sources/Native/SchoolPortalSync/SchoolPortalPages.swift` | `nextSchoolDay(after:calendar:)`: after = current school date; calendar = bundled HS calendar; only the visible student's matching document supplies lessons. |
 | `Sources/Native/TodayView.swift`, `Sources/Native/CampusView.swift` | `NextSchoolDay(after:read:)`: separate internal sources return only their own calendar row and local/cached lesson timeline. The shared focus card reads date, rotation and earliest lessons, never the store. |
 | `Sources/Native/Settings/SettingsView.swift`, `Sources/Native/Settings/LessonActivitySettingsView.swift` | Settings button passes manual = true; activity preview uses today's existing local timeline in the verified account. |
 | `Sources/Native/SchoolPortalSync/SchoolPortalWarmup.swift` | Verified current owner and cached Today = conditional current-term online refresh, never login from the timetable. |
 | `Sources/Native/AppModel+Reminders.swift`, `Sources/Native/Settings/ReminderSettingsView.swift` | Registration = locally saved book, permission = explicit opt-in, lead = local choice; project only future class start times via `lessonReminders(now:lead:calendar:)`. |
 | `Tests/SchoolPortalSync/ReminderQueueProbe.swift` | Isolated test target only: synthetic local starts → independent checks of pending and delivered timing-only requests. |
-| `Tests/Core/SchoolTimetableTests.swift`, `Tests/SchoolPortalSync/AnnualTimetableUITests.swift` | A temporary local document and synthetic calendar, or the bounded real calendar with loopback-only fabricated lessons. |
+| `Tests/Core/SchoolTimetableTests.swift`, `Tests/Core/SchoolTimetableBellTests.swift`, `Tests/Core/SchoolTimetableRotationCoverageTests.swift`, `Tests/SchoolPortalSync/AnnualTimetableUITests.swift` | A temporary local document and synthetic calendar, or the bounded real calendar with loopback-only fabricated lessons, typed vacancies and boarding display choices. |
+
+**Evening inference consumers (2026-11-22).** `SchoolTimetable.swift` derives `SchoolStudyWeek` from this owner’s dated periods and matching publication on import/restore. `SchoolStudyWeek.swift` and `Core/Planner/PlannerCampusRoutine.swift` consult `SchoolResidenceNight.kind(on:calendar:)` with each Shanghai date. `Native/Planner/PlannerSchoolSource.swift` passes the resulting pending flag to the existing day/week notice; `Native/SchoolPortalSync/SchoolPortalPages.swift` reads that flag for Today. No displayed forecast supplies course reminder times.
 
 ## Shared school semester menu
 
@@ -879,7 +1080,7 @@ Frontend composite · Active · Entry: `<repo-root>/Xiaobao-iPadOS/Sources/Nativ
 
 | File | Usage | Explicit parameters / defaults |
 | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/Tasks/TasksView.swift` | `SchoolTermMenu` inside `TaskFilterBar` | didSelect clears page filters/errors |
+| `Xiaobao-iPadOS/Sources/Native/Tasks/TasksView.swift` | `SchoolTermMenu` inside `TaskFilterBar` | didSelect clears page filters/errors; title = original school name or localized year/semester |
 | `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolPortalGradebook.swift` | Same menu in the GPA header | no local filter reset; selected GPA loaded by AppModel |
 
 ## School portal WebKit reader and native adapters
@@ -933,16 +1134,23 @@ Entry: `SchoolPortalLoginSettings.swift`. Collapsed native enrollment/removal di
 - `Xiaobao-iPadOS/Sources/Native/CampusView.swift`: all defaults; single disclosure below school account status. No credential entry on the grade or attendance pages.
 - `Xiaobao-iPadOS/Tests/SchoolPortalSync/SettingsUITests.swift` and `GradeEntryUITests.swift`: verify disclosure and access via the native form; generated local test credential only for the explicit enrollment scenario.
 
-## Native display language
+## App language and school date presentation
 
-Category: shared presentation utility · Status: Active. Entry: `Xiaobao-iPadOS/Sources/Core/Localization/AppLanguage.swift`. `locale` uses the bundle language and the device region; it does not change the time zone, identifiers or portal data. See the [module contract](Xiaobao-iPadOS/Sources/Core/Localization/README.md).
+Category: Shared native utility. Entry: `Xiaobao-iPadOS/Sources/Core/Localization/AppLanguage.swift`.
+Inputs: the current process bundle's negotiated localization and the device region. Outputs: `locale`, `isEnglish`; no mutable settings or network dependencies. [Contract and tests](Xiaobao-iPadOS/Sources/Core/Localization/README.md). Status: Active.
 
 ### Consumers
 
-| File | Usage | Parameters / source | Purpose |
-| --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Supply the SwiftUI environment locale | bundle selection; no explicit arguments | Match the native interface language |
-| `Xiaobao-iPadOS/Sources/Native/GlassComponents.swift` | Format a date for display | locale supplied by the bundle; date, format supplied by caller | Format the last successful task check without reinterpreting school time |
+All paths below are relative to `Xiaobao-iPadOS/`. No parameters or user values are persisted.
+
+| Consumer | Usage | Non-default configuration |
+| --- | --- | --- |
+| `Sources/Native/XiaobaoApp.swift` | SwiftUI locale for native screens | locale = bundle language + current region |
+| `Sources/Native/GlassComponents.swift` | Format student-facing school dates | date and format = caller; zone/calendar = school clock |
+| `Sources/Native/EnvironmentView.swift` | Format the city weather sample’s timestamp | locale = interface locale; existing sample date and zone |
+| `Sources/Native/Settings/PrivacyPolicyView.swift` | Initial document language | language = interface; subsequent document-only selection = view state |
+| `Sources/ActivityWidget/LessonActivityCard.swift` | Format the minute countdown | locale = interface; date and remaining duration = activity state |
+| `Tests/SchoolPortalSync/LocalizationBundleProbe.swift` (fixture only) | Validate app and extension resources on simulator | expected language = selected test launch language |
 
 ## Protected assignment list and deadline candidates
 
@@ -958,3 +1166,10 @@ Category: Frontend device storage / projection · Status: Active. Path: `<repo-r
 | `Sources/Native/Settings/SettingsView.swift`, `ReminderSettingsView.swift` | explicit clear, opt-in, title preference; remaining defaults | Scope all settings to the existing registration |
 | `Sources/Native/AppModel+Reminders.swift`, `ReminderService.swift` | deadlines from the last complete current-semester snapshot; device clock, permission, queue budget; nil means unknown | Diff OS triggers and remove stale pending or delivered alerts without touching other namespaces |
 | `Tests/Core/SchoolAssignmentTests.swift`, `Tests/SchoolPortalSync/AssignmentQueueProbe.swift` | temporary directory / simulated owners / read-only observation of the OS queue | Regression and privacy checks without school data |
+
+| Additional consumer | Usage · explicit inputs | Purpose |
+| --- | --- | --- |
+| `Sources/Native/SchoolPortalSync/SchoolAssignmentAccess.swift` | material keys from the verified selected list, live registration/epoch and a six-hour fresh window | Serial foreground fill, shared reads, revocation and bounded local write |
+| `Sources/Native/Tasks/TasksView.swift`, `TaskDetailView.swift` | stable source term and item ID, current list membership (`containsTask(term:task:)` for an offline copy), scoped live or explicitly dated material; selected visible file only | Prioritize an opened detail and make an intentional export |
+| `Sources/Core/SchoolPortalData/SchoolPortalStore.swift`, `Sources/Native/SchoolPortalSync/SchoolTaskDownload.swift` | validated material schema, currently authorized section/key/name and typed file link; 100 MiB limit | Do not mix scores, private URLs or transfer bytes into detail storage |
+| `Tests/Core/SchoolTaskMaterialTests.swift` | independent terms, owners and registration revisions; synthetic per-file grants | Cold restore, refusal, withholding, withdrawal and safe file selection |

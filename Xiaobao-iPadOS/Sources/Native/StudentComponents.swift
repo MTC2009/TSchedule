@@ -7,7 +7,7 @@ struct TodayRotationHeader: View {
     var unpublished = false
     var unknownDayTitle: String? = nil
 
-    private var dayTitle: String { day.map { "Day \($0)" } ?? unknownDayTitle ?? (unpublished ? "Day 未公布" : "休息日") }
+    private var dayTitle: String { day.map { "Day \($0)" } ?? unknownDayTitle ?? (unpublished ? String(localized: "Day 未公布") : String(localized: "休息日")) }
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -23,7 +23,7 @@ struct TodayRotationHeader: View {
         let calendarDate = Text(verbatim: dateTitle).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
         // One text element keeps the visual hierarchy without a second, separately spoken day.
         return Text("\(rotation)\(separator)\(calendarDate)")
-            .accessibilityLabel(day == nil ? "\(dayTitle)，\(dateTitle)" : "轮转日 \(dayTitle)，\(dateTitle)")
+            .accessibilityLabel(day == nil ? String(localized: "\(dayTitle)，\(dateTitle)") : String(localized: "轮转日 \(dayTitle)，\(dateTitle)"))
             .accessibilityAddTraits(.isHeader)
             .accessibilityIdentifier("today-rotation-heading")
     }

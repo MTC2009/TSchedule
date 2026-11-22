@@ -85,12 +85,14 @@ portal_builds = [add(ref + ":resource", isa="PBXBuildFile", fileRef=ref) for ref
 info = add("Info", isa="PBXFileReference", lastKnownFileType="text.plist.xml", path="Config/Info.plist", sourceTree="<group>")
 widget_info = add("LessonActivityInfo", isa="PBXFileReference", lastKnownFileType="text.plist.xml",
                   path="Config/LessonActivity-Info.plist", sourceTree="<group>")
+signing = add("SigningConfiguration", isa="PBXFileReference", lastKnownFileType="text.xcconfig",
+               path="Config/Signing.xcconfig", sourceTree="<group>")
 readme = add("README", isa="PBXFileReference", lastKnownFileType="net.daringfireball.markdown", path="README.md", sourceTree="<group>")
 product = add("Product", isa="PBXFileReference", explicitFileType="wrapper.application", includeInIndex=0, path="Xiaobao.app", sourceTree="BUILT_PRODUCTS_DIR")
 widget_product = add("LessonActivityProduct", isa="PBXFileReference", explicitFileType="wrapper.app-extension",
                      includeInIndex=0, path="LessonActivityWidget.appex", sourceTree="BUILT_PRODUCTS_DIR")
 products = add("Products", isa="PBXGroup", children=[product, widget_product], name="Products", sourceTree="<group>")
-main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, policy, strings, usage_strings, privacy, *portal_refs, info, widget_info, readme, products], sourceTree="<group>")
+main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, policy, strings, usage_strings, privacy, *portal_refs, info, widget_info, signing, readme, products], sourceTree="<group>")
 source_phase = add("Compile", isa="PBXSourcesBuildPhase", buildActionMask=2147483647, files=source_builds, runOnlyForDeploymentPostprocessing=0)
 resource_phase = add("Resources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647, files=[asset_build, calendar_build, policy_build, strings_build, usage_build, privacy_build, *portal_builds], runOnlyForDeploymentPostprocessing=0)
 framework_phase = add("Frameworks", isa="PBXFrameworksBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0)
@@ -110,10 +112,10 @@ target_configs = []
 widget_configs = []
 for configuration in ["Debug", "Release"]:
     debug = configuration == "Debug"
-    project_configs.append(add("Project:" + configuration, isa="XCBuildConfiguration", name=configuration, buildSettings={
+    project_configs.append(add("Project:" + configuration, isa="XCBuildConfiguration", name=configuration, baseConfigurationReference=signing, buildSettings={
         "CLANG_ENABLE_MODULES": "YES", "CLANG_ENABLE_OBJC_ARC": "YES", "SDKROOT": "iphoneos",
         "IPHONEOS_DEPLOYMENT_TARGET": "26.0", "SWIFT_VERSION": "5.0",
-        "TSCHEDULE_APP_BUNDLE_IDENTIFIER": "cn.xiaobao.ipados.prototype",
+        "TSCHEDULE_APP_BUNDLE_IDENTIFIER": "st.mtc.tschedule",
         "MARKETING_VERSION": "0.3", "CURRENT_PROJECT_VERSION": "3",
         "SWIFT_OPTIMIZATION_LEVEL": "-Onone" if debug else "-O",
         "DEBUG_INFORMATION_FORMAT": "dwarf" if debug else "dwarf-with-dsym",

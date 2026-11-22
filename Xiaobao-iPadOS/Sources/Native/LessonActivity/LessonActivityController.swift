@@ -31,7 +31,7 @@ import Observation
     func start(_ plan: LessonActivityPlan, source: Source, appearance: LessonActivityAppearance) {
         guard !ending, session == nil, plan.startsAt <= Date(), Date() < plan.endsAt else { return }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            issue = "请在系统设置中允许 TSchedule 的实时活动。"
+            issue = String(localized: "请在系统设置中允许 TSchedule 的实时活动。")
             return
         }
         // Don't transfer an activity from a previous app process to an unverified user.
@@ -50,7 +50,7 @@ import Observation
             issue = nil
             observe(activity, endingAt: plan.endsAt)
         } catch {
-            issue = "暂时无法开始实时活动，请重试。"
+            issue = String(localized: "暂时无法开始实时活动，请重试。")
         }
     }
 

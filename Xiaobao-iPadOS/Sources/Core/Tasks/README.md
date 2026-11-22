@@ -35,3 +35,6 @@ Model: Codex · Keywords: task-corner-ribbon / deadline / source-status
 Changed: Project the card stage from published grading, the source submission state and the supplied clock. Only confirmed submission with pending or in-progress grading gets the waiting stage. Unknown grading does not imply waiting, and the device-only completion flag is not an input.  
 Reason: The card needs one reliable badge without merging the detail or filter states.  
 Affected interfaces: Added `TaskRecord.cardStage(at:)` and `TaskCardStage` to the existing native projection; no change to the work payload or storage.
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Task filter fallbacks and app-defined enum labels are localized; portal-supplied work types use the verbatim display path even when they match a fixture type code. IDs, filter values, task titles and grades are unchanged. [Language boundary and regression tests](../Localization/README.md).

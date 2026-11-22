@@ -66,11 +66,23 @@ async (op, args, expected, salt, p, generation) => {
         if (op==="enrollmentName") {
             if (!first.handle || first.handle.length>512) fail("unavailable");
             value=first.handle;
+        } else if (op==="taskMaterial" || op==="taskFile") {
+            const scope=globalThis.tScheduleTaskScope;
+            if (!scope || scope.owner!==owner || scope.generation!==generation || scope.term!==args.term ||
+                !scope.rows.has(args.task)) fail("unavailable");
+            const item=await read("/api/LearningTask/GetDetail",{learningTaskId:args.task});
+            // If the school echoes scope, a mismatched reply is not this item's data.
+            // A generic "id" can identify a submission, so it is not compared as a task ID.
+            if ((item?.learningTaskId!=null && p.id(item.learningTaskId)!==args.task) ||
+                (item?.semesterId!=null && p.id(item.semesterId)!==args.term) ||
+                (first.studentInfo!=null && item?.studentInfoId!=null && p.id(item.studentInfoId)!==p.id(first.studentInfo))) fail("denied");
+            value=p.taskMaterial(item,{task:args.task,origin,release:scope.rows.get(args.task)},op==="taskFile"?args:null);
+            if(globalThis.tScheduleTaskScope!==scope) fail("notReady");
         } else if (op==="evaluations") {
             const list=p.array(await read("/v2/basic/CareerAssessment/MyAssessments",null,null,"POST"));
             if(list.length>3200) fail("format");
-            value=list.map(x=>({id:p.id(x.id),title:p.str(x.name),detail:
-                x.hasSubmitted===true?"已完成":x.hasSubmitted===false?"未完成":null}));
+            value=list.map(x=>({id:p.id(x.id),title:p.str(x.name),submitted:
+                typeof x.hasSubmitted==="boolean"?x.hasSubmitted:null}));
         } else if (op==="resources" || op==="exams") {
             // List metadata only. The resource scope comes from this document's verified student,
             // never from a client-supplied account, a guessed ID, or a different profile.
@@ -184,6 +196,8 @@ async (op, args, expected, salt, p, generation) => {
         ready();
         const last=await account();
         if (owner!==last.owner || (op==="resources" && first.studentInfo!==last.studentInfo)) fail("changed");
+        if(op==="tasks") globalThis.tScheduleTaskScope={owner,generation,term:value.termLabel.id,
+            rows:new Map(value.rows.filter(x=>x.detailReadable).map(x=>[x.id,x.feedbackReleased]))};
         return {owner,value};
     } catch(e) {
         const code=["notReady","expired","changed","denied","term","format","unavailable"].includes(e?.message)?e.message:"network";

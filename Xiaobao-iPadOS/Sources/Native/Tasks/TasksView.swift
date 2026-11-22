@@ -148,7 +148,7 @@ struct TasksView: View {
                             let status = [sourceSubmission.title, item.grading.title]
                                 + (locallyCompleted ? [TaskSubmissionState.localCompletion.title] : [])
                             NavigationLink {
-                                TaskDetailView(task: item)
+                                TaskDetailView(task: item, schoolTerm: model.school.selected ? (model.school.tasks ?? saved)?.termLabel?.id : nil)
                             } label: {
                                 TaskCard(task: item, stage: item.cardStage(at: model.now),
                                          showsLocalCompletion: locallyCompleted)

@@ -38,6 +38,21 @@ enum PlanReminder: Int, Codable, CaseIterable, Sendable {
     case oneHour = 60
 }
 
+/// Nil on existing records and ordinary notes. A personal timetable entry must
+/// have an explicit interval; it is never promoted into the school's roster.
+enum SupplementalCourseKind: String, Codable, CaseIterable, Sendable {
+    case schoolCourse, examCourse, study, tssa
+
+    var category: TimetableCategory {
+        switch self {
+        case .schoolCourse: .schoolCourse
+        case .examCourse: .examCourse
+        case .study: .study
+        case .tssa: .tssa
+        }
+    }
+}
+
 struct PersonalPlan: Codable, Equatable, Identifiable, Sendable {
     static let titleLimit = 160
 
@@ -49,9 +64,11 @@ struct PersonalPlan: Codable, Equatable, Identifiable, Sendable {
     let color: PlanColor?
     let icon: PlanIcon?
     let reminder: PlanReminder?
+    let courseKind: SupplementalCourseKind?
 
     init?(id: UUID = UUID(), day: String, title: String, time: PlanTime?, isCompleted: Bool = false,
-          color: PlanColor? = nil, icon: PlanIcon? = nil, reminder: PlanReminder? = nil) {
+          color: PlanColor? = nil, icon: PlanIcon? = nil, reminder: PlanReminder? = nil,
+          courseKind: SupplementalCourseKind? = nil) {
         self.id = id
         self.day = day
         self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -60,12 +77,13 @@ struct PersonalPlan: Codable, Equatable, Identifiable, Sendable {
         self.color = color
         self.icon = icon
         self.reminder = reminder
+        self.courseKind = courseKind
         guard isValid else { return nil }
     }
 
     func placing(at time: PlanTime?, on day: String? = nil) -> PersonalPlan? {
         PersonalPlan(id: id, day: day ?? self.day, title: title, time: time, isCompleted: isCompleted,
-                     color: color, icon: icon, reminder: reminder)
+                     color: color, icon: icon, reminder: reminder, courseKind: courseKind)
     }
 
     // Codable can bypass the failable initializers. Validate loaded records before
@@ -73,5 +91,6 @@ struct PersonalPlan: Codable, Equatable, Identifiable, Sendable {
     var isValid: Bool {
         SchoolClock.dayDate(day) != nil && !title.isEmpty && title.count <= Self.titleLimit &&
             title == title.trimmingCharacters(in: .whitespacesAndNewlines) && (time?.isValid ?? true)
+            && (courseKind == nil || time?.endMinute != nil)
     }
 }

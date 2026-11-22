@@ -22,7 +22,7 @@ struct CourseHistorySheet: View {
                                 .font(.callout)
                         }
                     } else {
-                        StudentEmptyState(title: "暂无得分走势", detail: "需要同时有日期和数值分数的已评分考核。", symbol: "chart.xyaxis.line")
+                        StudentEmptyState(title: String(localized: "暂无得分走势"), detail: String(localized: "需要同时有日期和数值分数的已评分考核。"), symbol: "chart.xyaxis.line")
                     }
                 }
                 .padding(24).frame(maxWidth: 840).frame(maxWidth: .infinity)

@@ -58,12 +58,30 @@ import XCTest
         else if app.alerts.buttons.matching(allowLabel).firstMatch.exists { app.alerts.buttons.matching(allowLabel).firstMatch.tap() }
         try await check("armed")
         try await check("archive-unread")
-        tab("我的任务"); pickArchive(); see(83,"Etching plate")
+        // Both details were fetched while Settings was open. A file request must still be zero.
+        try await check("lazily-read")
+        tab("我的任务"); tap(find("task-card-82"))
+        for text in ["Arrange the four samples","Mounted on linen","The edge is even"] {
+            XCTAssertTrue(app.staticTexts[text].firstMatch.waitForExistence(timeout:15),text)
+        }
+        tap(app.buttons["mounting.txt"].firstMatch)
+        try await check("downloaded")
+        let cancel = app.buttons.matching(NSPredicate(format:"label IN %@", ["Cancel","取消"])).firstMatch
+        tap(cancel)
+        tap(app.navigationBars.buttons[label("我的任务")].firstMatch)
+
+        pickArchive(); see(83,"Etching plate")
         tap(app.buttons["task-filter-reset"].firstMatch); see(81,"Copperplate study")
 
         try await check("offline"); app.terminate(); app.launch(); tab("我的任务")
         see(81, "Copperplate study"); see(82, "Ink inventory")
         XCTAssertTrue(find("assignment-last-check").exists)
+        tap(find("task-card-82"))
+        for text in ["Arrange the four samples","Mounted on linen","The edge is even"] {
+            XCTAssertTrue(app.staticTexts[text].firstMatch.waitForExistence(timeout:15),text)
+        }
+        XCTAssertFalse(app.buttons["mounting.txt"].firstMatch.isEnabled)
+        tap(app.navigationBars.buttons[label("我的任务")].firstMatch)
         try await check("offline-verified"); note("Cold relaunch without school network")
         pickArchive(); see(83,"Etching plate"); try await check("archive-local")
         tap(app.buttons["task-filter-reset"].firstMatch); see(81,"Copperplate study")
@@ -88,6 +106,10 @@ import XCTest
         try await check("online"); app.terminate(); app.launch(); tab("我的任务")
         see(81, "Bookbinding draft"); XCTAssertFalse(find("task-card-82").exists)
         XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format:"label CONTAINS %@", "Copperplate study")).firstMatch.exists)
+        tap(find("task-card-81"))
+        XCTAssertTrue(app.staticTexts["Cut a square window"].firstMatch.waitForExistence(timeout:15))
+        XCTAssertFalse(app.staticTexts["Arrange the four samples"].firstMatch.exists)
+        tap(app.navigationBars.buttons[label("我的任务")].firstMatch)
         try await check("isolated"); note("Second student with overlapping task ID")
         try await check("offline"); app.terminate(); app.launch(); tab("我的任务")
         see(81, "Bookbinding draft"); XCTAssertFalse(find("task-card-82").exists)

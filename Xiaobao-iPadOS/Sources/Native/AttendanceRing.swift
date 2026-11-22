@@ -44,7 +44,7 @@ struct AttendanceRing: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("考勤占比")
                     .accessibilityValue(selection.map { Self.label(for: $0.segment) }
-                                        ?? "出勤率 \(attendancePercent(rate))")
+                                        ?? String(localized: "出勤率 \(attendancePercent(rate))"))
                     .accessibilityAdjustableAction { direction in
                         step(direction == .increment ? 1 : -1, in: chart)
                     }
@@ -127,7 +127,7 @@ struct AttendanceRing: View {
     }
 
     private static func label(for segment: AttendanceRingLayout.Segment) -> String {
-        "\(segment.status.title) · \(attendancePercent(segment.share))"
+        String(localized: "\(segment.status.title) · \(attendancePercent(segment.share))")
     }
 }
 

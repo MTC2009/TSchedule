@@ -36,3 +36,6 @@ Reason: 与「我的任务」的查找方式一致，不把三种记录的状态
 Affected interfaces: 新增原生网格、纯筛选投影与完整授权缓存的只读读取；Swift 解码既有可选考试时间／科目关联和资料分享时间。无新增 HTTP API、依赖、数据库、环境变量或部署。
 
 Verification: 164 项 Swift 核心测试通过（含本机 Rust HTTP 联调和跨页缓存测试），iPad 模拟器构建通过。两项 iPadOS 27 界面测试覆盖本机和连接演示服务的三种详情、课程／状态筛选、返回保留筛选、本机收藏，以及横竖屏搜索与「全部」同排、横屏方块比例与无统计行。实拍：[竖屏方块](../../../../docs/verification/student-interface/other-items-compact-exams-portrait.png) · [横屏方块](../../../../docs/verification/student-interface/other-items-compact-exams-landscape.png) · [考试详情](../../../../docs/verification/student-interface/other-items-tile-exam-detail.png) · [测评详情](../../../../docs/verification/student-interface/other-items-tile-evaluation-detail.png) · [资料预览](../../../../docs/verification/student-interface/other-items-tile-resource-detail.png)。未在真实学校账号或真机上测试。
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Localize category filters, status UI and empty/detail states; official resource metadata and school titles remain untouched. Exam-time layout tests the presence of a start date rather than comparing translated wording. [Language boundary and regression tests](../../Core/Localization/README.md).

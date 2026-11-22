@@ -121,7 +121,7 @@ final class TeachingSlotTests: XCTestCase {
         for minute in [548, 553, 554, 575, 595] {
             let slot = try XCTUnwrap(plan.focus(at: moment(minute)))
             XCTAssertEqual(slot.id, .freeblock(moment(554)))
-            XCTAssertEqual(slot.title, "Free Block")
+            XCTAssertEqual(slot.title, String(localized: "空节"))
             XCTAssertNil(slot.lesson)
         }
         XCTAssertEqual(plan.focus(at: moment(596))?.id, .lesson("seminar"))

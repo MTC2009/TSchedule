@@ -40,6 +40,8 @@ final class SchoolPortalReader {
         case .archivedGrades(let term): (op, params) = ("grades", ["term":term])
         case let .archivedTasks(term, scores): (op, params) = ("tasks", ["term":term, "includeScores":scores])
         case .tasks(let includeScores): (op, params) = ("tasks", ["includeScores": includeScores])
+        case let .taskMaterial(term,task): (op, params) = ("taskMaterial", ["term":term,"task":task])
+        case let .taskFile(term,task,section,key,name): (op, params) = ("taskFile", ["term":term,"task":task,"section":section,"key":key,"name":name])
         case .attendance(let query):
             var dates: [String: Any] = ["category":query.category.rawValue, "page":query.page]
             if let from = query.from { dates["from"] = from }
@@ -57,7 +59,7 @@ final class SchoolPortalReader {
         let timeout: Duration? = switch request {
         case .identity: .seconds(8)
         case .week: .seconds(16)
-        case .tasks, .archivedTasks: .seconds(48)
+        case .tasks, .archivedTasks, .taskMaterial, .taskFile, .grades, .archivedGrades, .detail: .seconds(48)
         default: nil
         }
         do {

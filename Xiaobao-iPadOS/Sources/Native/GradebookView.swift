@@ -12,7 +12,7 @@ struct GradesView: View {
         GPAOverviewView(
             isCurrentTerm: isCurrentTerm,
             summary: term.flatMap { book.gpaSummary(termID: $0.id, weighted: model.preferences.weightedGPA) },
-            unavailableMessage: "暂无完整的课程总评可用于试算。",
+            unavailableMessage: String(localized: "暂无完整的课程总评可用于试算。"),
             courses: reports.map(CourseGradeDetail.init(report:))
         ) {
             if let term {

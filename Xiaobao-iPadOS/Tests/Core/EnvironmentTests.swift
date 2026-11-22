@@ -9,6 +9,17 @@ final class EnvironmentTests: XCTestCase {
         XCTAssertEqual(Festival.automatic(on: SchoolClock.date(2027, 1, 1)), .newyear)
         XCTAssertEqual(Festival.automatic(on: SchoolClock.date(2026, 11, 17)), .none)
     }
+    func testPausedSeasonalScenesIgnoreSavedAndAutomaticChoices() {
+        XCTAssertFalse(Festival.decorationsEnabled)
+        for date in [SchoolClock.date(2026, 12, 25), SchoolClock.date(2026, 11, 22)] {
+            XCTAssertNotEqual(Festival.automatic(on: date), .none, "Exercise a real holiday and a solar term")
+            for choice in Festival.allCases {
+                XCTAssertEqual(Festival.displayed(on: date, automatic: true, manual: choice), .none)
+                XCTAssertEqual(Festival.displayed(on: date, automatic: false, manual: choice), .none)
+            }
+        }
+    }
+
     func testFestivalUsesShanghaiMidnight() {
         let date = ISO8601DateFormatter().date(from: "2026-12-31T16:01:00Z")!
         XCTAssertEqual(Festival.automatic(on: date), .newyear)

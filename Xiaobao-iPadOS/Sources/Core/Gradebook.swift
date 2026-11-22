@@ -8,7 +8,7 @@ public struct AcademicTerm: Identifiable, Sendable {
 public enum AssessmentStatus: String, CaseIterable, Identifiable, Sendable {
     case graded, pending, missing, excused
     public var id: String { rawValue }
-    public var title: String { switch self { case .graded: "已评分"; case .pending: "待评分"; case .missing: "未交"; case .excused: "免交" } }
+    public var title: String { switch self { case .graded: String(localized: "已评分"); case .pending: String(localized: "待评分"); case .missing: String(localized: "未交"); case .excused: String(localized: "免交") } }
 }
 
 public struct Assessment: Identifiable, Sendable {

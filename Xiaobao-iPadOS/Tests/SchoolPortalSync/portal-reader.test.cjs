@@ -5,7 +5,7 @@ const source=name=>fs.readFileSync(path.join(__dirname,'../../Sources/Native/Sch
 const here='https://tsinglanstudent.schoolis.cn';
 const paths={exams:'/api/Exam/GetList',evaluations:'/v2/basic/CareerAssessment/MyAssessments',resources:'/v2/clouddisk/StudentShare/SharedToMePagedList',owner:'/api/MemberShip/GetCurrentStudentInfo',terms:'/api/School/GetSchoolSemesters',
     week:'/api/Schedule/ListScheduleByParent', grades:'/api/DynamicScore/GetStuSemesterDynamicScore',
-    gpa:'/api/DynamicScore/GetGpa',detail:'/api/DynamicScore/GetDynamicScoreDetail',tasks:'/api/LearningTask/GetList',
+    material:'/api/LearningTask/GetDetail',gpa:'/api/DynamicScore/GetGpa',detail:'/api/DynamicScore/GetDynamicScoreDetail',tasks:'/api/LearningTask/GetList',
     summary:'/api/Attendance/GetAttendanceStatistic',subjects:'/api/Attendance/GetSubjectAttendanceStatistic',
     records:'/api/Attendance/GetAttendanceStatisticDetail',subjectRecords:'/api/Attendance/GetSubjectAttendanceDetail'};
 const term={id:42,isNow:true,year:2024,semester:2,startDate:'2025-02-01',endDate:'2025-06-30'};
@@ -84,11 +84,15 @@ test('week uses the real date range, converts Shanghai time, and exports neither
     const h=harness({week:(u,o)=>{
         assert.equal(o.method,'POST');assert.deepEqual(JSON.parse(o.body),{beginTime:range.from,endTime:range.to});
         return [{id:7,scheduleType:4,name:'Field drawing',beginTime:'2025-02-18T08:30:00',endTime:'2025-02-18T09:15:00',
-            playgroundName:'Studio',classInfo:{id:9},unusedPrivateField:'must-not-leave'}];
+            playgroundName:'Studio',classInfo:{id:9,name:'Studio division',gradeName:'Advanced',students:['hidden-roster']},
+            teacherNames:['Instructor A',null,'Instructor B'],remark:'Equipment check',unusedPrivateField:'must-not-leave'}];
     }});
     const out=await h.run('week',range,await h.owner());
     assert.equal(out.value[0].start,'2025-02-18T00:30:00.000Z');assert.equal(out.value[0].kind,'lesson');
     assert.equal(out.value[0].room,'Studio');assert.ok(!JSON.stringify(out).includes('fixture-learner'));
+    assert.deepEqual(JSON.parse(JSON.stringify(out.value[0].metadata)),
+        {grade:'Advanced',className:'Studio division',teacher:'Instructor A / Instructor B',note:'Equipment check'});
+    assert.ok(!JSON.stringify(out).includes('hidden-roster'));
     assert.ok(!JSON.stringify(out).includes('must-not-leave'));assert.deepEqual(h.calls,['owner','owner','week','owner']);
 });
 test('a valid empty week and an unrecognized response have different results',async()=>{
@@ -96,6 +100,23 @@ test('a valid empty week and an unrecognized response have different results',as
         const h=harness({week:()=>payload});const r=await h.run('week',range,await h.owner());
         assert.equal(ok?r.value.length:r.error,ok?0:'format');
     }
+});
+test('an explicit unnamed school period is not an enrollment or a malformed week',async()=>{
+    const times={scheduleType:3,beginTime:'2025-02-18T11:00:00',endTime:'2025-02-18T11:40:00'};
+    const h=harness({week:()=>[{...times,name:' '},{...times,name:'Workshop',classId:17}]});
+    const r=await h.run('week',range,await h.owner());
+    assert.deepEqual(Array.from(r.value ?? [],x=>x.kind),['vacant','lesson']);
+    assert.equal(r.value[0].course,'');
+    for(const broken of [times,{...times,name:'',subjectId:12},{...times,name:'',isAllDay:true}]) {
+        const invalid=harness({week:()=>[broken]});
+        assert.equal((await invalid.run('week',range,await invalid.owner())).error,'format');
+    }
+});
+test('two rows without a class identity do not share an enrollment key just because their titles match',async()=>{
+    const row={scheduleType:4,name:'Lab',subjectId:11,beginTime:'2025-02-18T08:00:00',endTime:'2025-02-18T08:40:00'};
+    const h=harness({week:()=>[row,{...row,beginTime:'2025-02-18T08:40:00',endTime:'2025-02-18T09:20:00'}]});
+    const r=await h.run('week',range,await h.owner());
+    assert.notEqual(r.value[0].course,r.value[1].course);
 });
 test('a non-Home frame cannot read or diagnose session expiry', async()=>{
     for(const h of [harness({},'https://different.invalid'),harness()]){
@@ -300,4 +321,60 @@ test('deadline alerts require a precise time and positive outstanding state, nev
         {learningTaskState:4},{learningTaskState:3},{learningTaskState:11},{stuCommitTime:'2030-03-07 18:00:00'}]) {
         assert.equal(p.task({...item,...fields}).deadlineEligible,false,JSON.stringify(fields));
     }
+});
+
+test('task details require membership in the verified term, never a caller-supplied standalone identifier',async()=>{
+    const rows=[{id:71,name:'Bound journal',learningTaskState:3},{id:72,name:'External studio',sourceType:2},
+        {id:73,name:'Closed sheet',isFirstSubmissionClosed:true},{id:74,name:'Draft',learningTaskState:1}];
+    const h=harness({tasks:()=>({list:rows,totalCount:4}),material:(u,o)=>{
+        assert.equal(o.method,'GET');assert.deepEqual(Object.fromEntries(u.searchParams),{learningTaskId:'71'});
+        return {content:'Weave the sample',remark:'linen',mode:0,learningTaskState:3,isSynchroToMobiled:0,comment:'not released',
+            teacherCommentDocuments:[{id:6,name:'private draft'}],score:96,studentName:'not needed'};
+    }}), owner=await h.owner(), args={term:'42',task:'71'};
+    assert.equal((await h.run('taskMaterial',args,owner)).error,'unavailable');
+    await h.run('tasks',{},owner);
+    for (const other of [{...args,term:'43'},...['72','73','74','99'].map(task=>({...args,task}))]) {
+        assert.equal((await h.run('taskMaterial',other,owner)).error,'unavailable');
+    }
+    assert.equal(h.calls.includes('material'),false);
+    const v=(await h.run('taskMaterial',args,owner)).value;
+    assert.equal(v.instructions.text,'Weave the sample');assert.equal(v.answer.text,'linen');assert.equal(v.feedback.state,'hidden');
+    for (const blocked of ['private draft','not released','not needed','score','96']) assert.ok(!JSON.stringify(v).includes(blocked));
+    assert.ok(!h.calls.some(x=>['gpa','grades','detail'].includes(x)));
+});
+test('material separates checked emptiness, missing fields, own submitted files and only released feedback',async()=>{
+    const base={origin:here,task:'37',release:true};
+    const h=harness(), project=(data,select)=>h.p.taskMaterial(data,base,select);
+    assert.throws(()=>project({name:'summary'}),/format/);
+    const detail={mode:0,learningTaskState:4,isSynchroToMobiled:true,content:'',remark:'Checked texture',
+        stuCommitTime:'2025-04-08 18:15:00',comment:'Dry before binding',
+        teacherCommentDocuments:[{id:4,name:'notes.txt',url:'https://school-fixture.schoolis.cn/files/notes?signature=ephemeral'}],
+        learningTaskStudentDocuments:[{id:23,name:'answer.txt'}]};
+    const v=project(detail);assert.equal(v.instructions.state,'available');assert.equal(v.instructions.text,null);
+    assert.equal(v.feedback.text,'Dry before binding');assert.equal(v.submitted,'2025-04-08T10:15:00.000Z');
+    assert.ok(!JSON.stringify(v).includes('ephemeral'));assert.ok(!JSON.stringify(v).includes('https:'));
+    assert.equal(project(detail,{section:'feedback',key:'id:4',name:'notes.txt'}).url,'https://school-fixture.schoolis.cn/files/notes?signature=ephemeral');
+    assert.ok(project(detail,{section:'answer',key:'id:23',name:'answer.txt'}).url.endsWith('documentType=2'));
+    assert.throws(()=>project(detail,{section:'answer',key:'id:4',name:'notes.txt'}),/unavailable/);
+    assert.equal(project({mode:0,learningTaskState:2,content:'Binder',remark:'draft',comment:'hidden'}).answer.state,'hidden');
+    assert.equal(project({mode:0,learningTaskState:4,isSynchroToMobiled:1,content:'Binder'}).feedback.state,'unknown');
+    assert.equal(h.p.taskMaterial(detail,{...base,release:false}).feedback.state,'hidden');
+    assert.throws(()=>project({...detail,learningTaskDocuments:'invalid'}),/format/);
+    assert.throws(()=>project({...detail,learningTaskState:1}),/denied/);
+});
+test('a refusal or changed identity during an item read cannot return partial or cross-account material',async()=>{
+    let member=7;
+    const h=harness({owner:()=>({userId:member}),tasks:()=>({list:[{id:2,name:'Texture'}],totalCount:1}),
+        material:()=>{ member=8;return {mode:1,content:'withheld on account switch'}; }});
+    const owner=await h.owner();await h.run('tasks',{},owner);
+    const out=await h.run('taskMaterial',{term:'42',task:'2'},owner);
+    assert.equal(out.error,'changed');assert.equal(out.value,undefined);
+    for(const extra of [{learningTaskId:3},{semesterId:5},{studentInfoId:87}]) {
+        const bad=harness({owner:()=>({userId:8,studentInfoId:72}),tasks:()=>({list:[{id:2,name:'Texture'}],totalCount:1}),
+            material:()=>({mode:0,content:'not this task',...extra})});
+        const valid=await bad.owner();await bad.run('tasks',{},valid);
+        assert.equal((await bad.run('taskMaterial',{term:'42',task:'2'},valid)).error,'denied');
+    }
+    const g=harness({tasks:()=>({list:[{id:2,name:'Texture'}],totalCount:1}),material:()=>Response.json({}, {status:403})});
+    const other=await g.owner();await g.run('tasks',{},other);assert.equal((await g.run('taskMaterial',{term:'42',task:'2'},other)).error,'denied');
 });

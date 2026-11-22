@@ -78,7 +78,7 @@ struct OtherItemsFilterBar: View {
             Picker("课程", selection: $filters.course) {
                 Text("全部课程").tag(OtherItemsFilters.Course.all)
                 ForEach(courses) { course in
-                    Text(course.name ?? "课程名称待载入").tag(OtherItemsFilters.Course.course(course.id))
+                    Text(course.name ?? String(localized: "课程名称待载入")).tag(OtherItemsFilters.Course.course(course.id))
                 }
                 if includesUnassigned || filters.course == .unassigned {
                     Text("未分科").tag(OtherItemsFilters.Course.unassigned)
@@ -90,7 +90,7 @@ struct OtherItemsFilterBar: View {
             }
             .pickerStyle(.inline)
         } label: {
-            TaskFilterLabel(title: "课程", value: courseLabel)
+            TaskFilterLabel(title: String(localized: "课程"), value: courseLabel)
         }
         .buttonStyle(.plain)
         .hoverEffect(.highlight)
@@ -99,9 +99,9 @@ struct OtherItemsFilterBar: View {
 
     private var courseLabel: String {
         switch filters.course {
-        case .all: "全部课程"
-        case .unassigned: "未分科"
-        case .course(let id): courses.first { $0.id == id }?.name ?? "所选课程"
+        case .all: String(localized: "全部课程")
+        case .unassigned: String(localized: "未分科")
+        case .course(let id): courses.first { $0.id == id }?.name ?? String(localized: "所选课程")
         }
     }
 
@@ -114,7 +114,7 @@ struct OtherItemsFilterBar: View {
             }
             .pickerStyle(.inline)
         } label: {
-            TaskFilterLabel(title: "状态", value: filters.status.title(in: section))
+            TaskFilterLabel(title: String(localized: "状态"), value: filters.status.title(in: section))
         }
         .buttonStyle(.plain)
         .hoverEffect(.highlight)
@@ -122,7 +122,7 @@ struct OtherItemsFilterBar: View {
     }
 
     private var searchField: some View {
-        let label = section == .resources ? "搜索资料或科目" : "搜索标题或科目"
+        let label = section == .resources ? String(localized: "搜索资料或科目") : String(localized: "搜索标题或科目")
         return HStack(spacing: 9) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
             TextField(label, text: $filters.query, prompt: Text(""))
@@ -143,9 +143,9 @@ struct OtherItemsFilterBar: View {
 extension OtherItemsFilters.Status {
     func title(in section: OtherItemsSection) -> String {
         switch self {
-        case .all: "全部"
-        case .open: section == .exams ? "未结束" : "待处理"
-        case .finished: section == .exams ? "已结束" : "已完成"
+        case .all: String(localized: "全部")
+        case .open: section == .exams ? String(localized: "未结束") : String(localized: "待处理")
+        case .finished: section == .exams ? String(localized: "已结束") : String(localized: "已完成")
         }
     }
 }

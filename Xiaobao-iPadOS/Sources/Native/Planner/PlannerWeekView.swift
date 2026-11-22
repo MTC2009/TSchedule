@@ -3,8 +3,11 @@ import SwiftUI
 struct PlannerTimelineColumn: Identifiable {
     var id: Date { day.date }
     let day: PlannerDay
+    let placementDay: PlannerDay
     let school: PlannerSchoolDay
     let calendarDay: SchoolCalendarDay?
+    let usesDaytimeRotation: Bool
+    var studyTimePending = false
     let recurringIDs: Set<UUID>
     let focus: PlannerDay.Focus?
 
@@ -12,13 +15,14 @@ struct PlannerTimelineColumn: Identifiable {
         var seen = Set<String>()
         let status = calendarDay?.status
         let fallback: [String] = switch status {
-        case .noClass: ["不上课"]
-        case .weekend: ["周末"]
-        case .unpublished: ["尚未公布"]
-        default: school.hasTimetable ? [] : ["未载入"]
+        case .noClass: [String(localized: "不上课")]
+        case .weekend: [String(localized: "周末")]
+        case .unpublished: [String(localized: "尚未公布")]
+        case .teaching where usesDaytimeRotation: [String(localized: "白天按轮转课表显示")]
+        default: school.hasTimetable ? [] : [String(localized: "未载入")]
         }
         let published = calendarDay?.notices ?? []
-        return ((published.isEmpty ? fallback : published) + day.allDay.map(\.title)).filter { seen.insert($0).inserted }
+        return ((published.isEmpty ? fallback : published) + (studyTimePending ? [String(localized: "TSSA 节次待确认")] : []) + day.allDay.map(\.title)).filter { seen.insert($0).inserted }
     }
 }
 
@@ -111,7 +115,7 @@ struct PlannerTimeRuler: View {
                         Color.clear.frame(width: width, height: 44).contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(mode == .range ? "选时刻 \(label)" : "安排到 \(label)")
+                    .accessibilityLabel(mode == .range ? String(localized: "选时刻 \(label)") : String(localized: "安排到 \(label)"))
                     .accessibilityIdentifier(mode == .range ? "planner-boundary-\(minute)" : "planner-target-\(minute)")
                     .position(x: width / 2, y: y)
                 }

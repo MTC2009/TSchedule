@@ -1,6 +1,1026 @@
 {
   "sourceLanguage": "zh-Hans",
   "strings": {
+    "场地": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "场地"
+          }
+        }
+      }
+    },
+    "年级": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grade level"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年级"
+          }
+        }
+      }
+    },
+    "班级": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Class"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "班级"
+          }
+        }
+      }
+    },
+    "备注": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备注"
+          }
+        }
+      }
+    },
+    "教师：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teacher: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "教师：%@"
+          }
+        }
+      }
+    },
+    "查看详情": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看详情"
+          }
+        }
+      }
+    },
+    "上次同步：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last synced: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次同步：%@"
+          }
+        }
+      }
+    },
+    "当前未联网": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No network connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前未联网"
+          }
+        }
+      }
+    },
+    "当前未联网，无法更新课表。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connection. The timetable could not be updated."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前未联网，无法更新课表。"
+          }
+        }
+      }
+    },
+    "当前未联网，已保留上次的课表。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connection. The previous timetable was kept."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前未联网，已保留上次的课表。"
+          }
+        }
+      }
+    },
+    "当前未联网，显示上次保存的成绩。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connection. Showing the last saved grades."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前未联网，显示上次保存的成绩。"
+          }
+        }
+      }
+    },
+    "尚未保存过成绩，联网后再读取。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No grades have been saved yet. Connect to load them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未保存过成绩，联网后再读取。"
+          }
+        }
+      }
+    },
+    "本次成绩未能保存到本机。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The latest grades could not be saved on this device."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本次成绩未能保存到本机。"
+          }
+        }
+      }
+    },
+    "没有已保存的课程明细，联网后可读取。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No course details are saved. Connect to load them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有已保存的课程明细，联网后可读取。"
+          }
+        }
+      }
+    },
+    "晚自习教室": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Study hall classroom"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晚自习教室"
+          }
+        }
+      }
+    },
+    "室内／室外运动场": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indoor / outdoor sports facilities"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "室内／室外运动场"
+          }
+        }
+      }
+    },
+    "宿舍": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Residence hall"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宿舍"
+          }
+        }
+      }
+    },
+    "预测": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forecast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预测"
+          }
+        }
+      }
+    },
+    "预测 GPA": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forecast GPA"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预测 GPA"
+          }
+        }
+      }
+    },
+    "本机试算 · OpenGCalc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-device estimate · OpenGCalc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机试算 · OpenGCalc"
+          }
+        }
+      }
+    },
+    "预测成绩": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forecast grade"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预测成绩"
+          }
+        }
+      }
+    },
+    "预测成绩 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forecast grade %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预测成绩 %@"
+          }
+        }
+      }
+    },
+    "总评 %@，有已保存的预估任务": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overall grade %@; forecasts saved"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总评 %@，有已保存的预估任务"
+          }
+        }
+      }
+    },
+    "恢复真实成绩": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore published grades"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复真实成绩"
+          }
+        }
+      }
+    },
+    "只清除此学期的本机预测": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clears only this term’s local forecasts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只清除此学期的本机预测"
+          }
+        }
+      }
+    },
+    "正在更新预测成绩": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating forecast grades"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在更新预测成绩"
+          }
+        }
+      }
+    },
+    "暂时无法读取或保存本机预测。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local forecasts could not be opened or saved."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法读取或保存本机预测。"
+          }
+        }
+      }
+    },
+    "无法保存预测，请稍后重试。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save the forecast. Try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法保存预测，请稍后重试。"
+          }
+        }
+      }
+    },
+    "按百分制试算，不修改正式成绩。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Percentage forecast only. Published grades stay unchanged."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按百分制试算，不修改正式成绩。"
+          }
+        }
+      }
+    },
+    "请选择有分组资料的考核。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a group with assessment information."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择有分组资料的考核。"
+          }
+        }
+      }
+    },
+    "请选择任务所属的子分组；上级分组只用来汇总。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the subgroup that contains the task. Parent groups are used for totals."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择任务所属的子分组；上级分组只用来汇总。"
+          }
+        }
+      }
+    },
+    "分组结构或各项占比无法核对，暂不能合成课程总评。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group structure or the shares could not be verified, so no course total is shown."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分组结构或各项占比无法核对，暂不能合成课程总评。"
+          }
+        }
+      }
+    },
+    "已有成绩缺少可换算的满分或采用等级制，不能按百分制合成总评。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A grade has no usable maximum or is a letter grade, so it cannot be combined into a percentage."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已有成绩缺少可换算的满分或采用等级制，不能按百分制合成总评。"
+          }
+        }
+      }
+    },
+    "预估组分：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimated group score: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预估组分：%@"
+          }
+        }
+      }
+    },
+    "课表": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timetable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "课表"
+          }
+        }
+      }
+    },
+    "个人计划": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal plan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个人计划"
+          }
+        }
+      }
+    },
+    "校内课程": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "School courses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "校内课程"
+          }
+        }
+      }
+    },
+    "外考课程": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External exam courses"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外考课程"
+          }
+        }
+      }
+    },
+    "未选的 Block 9 / 10": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unassigned Block 9 / 10"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未选的 Block 9 / 10"
+          }
+        }
+      }
+    },
+    "晚自习": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening study"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晚自习"
+          }
+        }
+      }
+    },
+    "安排类型": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entry type"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安排类型"
+          }
+        }
+      }
+    },
+    "没有可显示的安排": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No visible entries"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有可显示的安排"
+          }
+        }
+      }
+    },
+    "补充课程会按所选时段显示在「今日」和「计划」，不会写入校宝。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added courses appear in Today and Planner at the time you choose. They are not sent to Schoolis."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补充课程会按所选时段显示在「今日」和「计划」，不会写入校宝。"
+          }
+        }
+      }
+    },
+    "在「今日」和「计划」中补齐住校夜的作息。走读生自己参加的课程和晚自习也会显示。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include boarding routines in Today and Planner on nights spent at school. Day students still see their own classes and evening study."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「今日」和「计划」中补齐住校夜的作息。走读生自己参加的课程和晚自习也会显示。"
+          }
+        }
+      }
+    },
+    "课表显示": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timetable display"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "课表显示"
+          }
+        }
+      }
+    },
+    "课程与节次": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courses and periods"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "课程与节次"
+          }
+        }
+      }
+    },
+    "只改变本机「今日」和「计划」的显示，不改选课、提醒或实时活动。外考课程不包括考试日程。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These choices only affect Today and Planner on this device. Enrollments, reminders and Live Activities stay the same. External exam courses do not include exam events."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只改变本机「今日」和「计划」的显示，不改选课、提醒或实时活动。外考课程不包括考试日程。"
+          }
+        }
+      }
+    },
+    "晚间安排": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening schedule"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晚间安排"
+          }
+        }
+      }
+    },
+    "关闭 TSSA 后，已排定的那一节按晚自习显示。若也关闭晚自习，则两者都不显示。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When TSSA is hidden, its scheduled period appears as evening study. Turn off evening study as well to hide both."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭 TSSA 后，已排定的那一节按晚自习显示。若也关闭晚自习，则两者都不显示。"
+          }
+        }
+      }
+    },
+    "生活作息": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily routines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生活作息"
+          }
+        }
+      }
+    },
+    "TSSA 节次待确认": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TSSA time not yet confirmed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TSSA 节次待确认"
+          }
+        }
+      }
+    },
+    "本机详情更新于 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details saved on this iPad: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机详情更新于 %@"
+          }
+        }
+      }
+    },
+    "正在读取任务详情": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading assignment details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取任务详情"
+          }
+        }
+      }
+    },
+    "正在下载附件": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading attachment"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在下载附件"
+          }
+        }
+      }
+    },
+    "尚未读到这项内容。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This part has not been loaded."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未读到这项内容。"
+          }
+        }
+      }
+    },
+    "暂无已发布的点评。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No feedback has been released."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无已发布的点评。"
+          }
+        }
+      }
+    },
+    "暂无可见的提交。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No submission is available to view."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无可见的提交。"
+          }
+        }
+      }
+    },
+    "将附件保存到文件": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save this attachment to Files"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将附件保存到文件"
+          }
+        }
+      }
+    },
+    "此附件暂不能在 App 内下载，可在校宝查看。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This attachment cannot be downloaded here. View it in the school portal."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此附件暂不能在 App 内下载，可在校宝查看。"
+          }
+        }
+      }
+    },
+    "同时清除缓存的任务详情和作业提醒。已导出到「文件」的附件不受影响。下次同步会重新保存。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This also clears saved assignment details and reminders. Copies exported to Files are not affected. Assignments can be saved again on the next sync."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同时清除缓存的任务详情和作业提醒。已导出到「文件」的附件不受影响。下次同步会重新保存。"
+          }
+        }
+      }
+    },
     " · 重复安排": {
       "extractionState": "manual",
       "localizations": {
@@ -150,6 +1170,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ · 长按后拖动选时段"
+          }
+        }
+      }
+    },
+    "%@ – 次日 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ – %@ the next day"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ – 次日 %@"
           }
         }
       }
@@ -1956,6 +2993,40 @@
         }
       }
     },
+    "住宿生": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boarding student"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "住宿生"
+          }
+        }
+      }
+    },
+    "体育活动": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sports"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "体育活动"
+          }
+        }
+      }
+    },
     "作业即将截止": {
       "extractionState": "manual",
       "localizations": {
@@ -2921,6 +3992,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "只为本机课表已确认的课程安排未来 7 天的提醒，打开 App 时补排。通知不显示课程名或教室。"
+          }
+        }
+      }
+    },
+    "只在本机计划中显示住宿作息，不更改校宝资料或提醒。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows boarding routines in Planner on this device only. Your school profile and reminders stay unchanged."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只在本机计划中显示住宿作息，不更改校宝资料或提醒。"
           }
         }
       }
@@ -4230,6 +5318,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "尚未获取本学期成绩。"
+          }
+        }
+      }
+    },
+    "就寝": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就寝"
           }
         }
       }
@@ -6478,6 +7583,23 @@
         }
       }
     },
+    "早餐": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breakfast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早餐"
+          }
+        }
+      }
+    },
     "时间": {
       "extractionState": "manual",
       "localizations": {
@@ -6712,6 +7834,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "显示昵称"
+          }
+        }
+      }
+    },
+    "晚餐": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinner"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晚餐"
           }
         }
       }
@@ -8467,6 +9606,23 @@
         }
       }
     },
+    "查看在线隐私政策": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open online privacy policy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看在线隐私政策"
+          }
+        }
+      }
+    },
     "查看本学期上课考勤": {
       "extractionState": "manual",
       "localizations": {
@@ -9844,6 +11000,23 @@
         }
       }
     },
+    "洗漱": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wash up"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "洗漱"
+          }
+        }
+      }
+    },
     "活动": {
       "extractionState": "manual",
       "localizations": {
@@ -10456,6 +11629,23 @@
         }
       }
     },
+    "白天按轮转课表显示": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daytime classes follow the rotation timetable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "白天按轮转课表显示"
+          }
+        }
+      }
+    },
     "班会／集会": {
       "extractionState": "manual",
       "localizations": {
@@ -10983,6 +12173,23 @@
         }
       }
     },
+    "第一节晚自习": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening study 1"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一节晚自习"
+          }
+        }
+      }
+    },
     "第一节课尚未确认": {
       "extractionState": "manual",
       "localizations": {
@@ -11013,6 +12220,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "第一节：%@ · %@"
+          }
+        }
+      }
+    },
+    "第二节晚自习": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening study 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第二节晚自习"
           }
         }
       }

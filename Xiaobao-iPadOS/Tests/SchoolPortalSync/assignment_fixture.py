@@ -12,6 +12,7 @@ class AssignmentFixture:
         self.offline = False
         self.disconnects = 0
         self.archive_reads = 0
+        self.material_reads, self.file_reads = set(), 0
         self.origin_time = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
         self.state = {}
         self.first_id = self.first_process = None
@@ -35,6 +36,8 @@ class AssignmentFixture:
                 generic = item.get("title") == ("Assignment due soon" if self.english else "作业即将截止") and item.get("emptyInfo") is True
                 at = item.get("fire")
                 checks = {
+                    "lazily-read": {81,82} <= self.material_reads and self.file_reads == 0,
+                    "downloaded": self.file_reads == 1,
                     "armed": generic and at == wanted,
                     "archive-unread": self.archive_reads == 0 and generic and at == wanted,
                     "archive-local": self.offline and self.archive_reads > 0 and item.get("id") == self.first_id and generic and at == wanted,
@@ -71,6 +74,27 @@ class AssignmentFixture:
             h.respond([{"id":5,"year":2024,"semester":2,"isNow":True,"startDate":"2025-02-01","endDate":"2025-06-30"},
                        {"id":7,"year":2023,"semester":1,"isNow":False,"name":"Print archive",
                         "startDate":"2023-09-01","endDate":"2024-01-20"}]); return True
+        if path == "/api/LearningTask/GetDetail" and h.current_session():
+            key = int(parse_qs(urlsplit(h.path).query)["learningTaskId"][0])
+            if key not in {81,82,83,84}:
+                h.respond(None, 403); return True
+            self.material_reads.add(key)
+            private = self.phase == "other"
+            h.respond({"mode":0, "learningTaskState":4 if key==82 else 2,
+                "isSynchroToMobiled":1 if key==82 else 0,
+                "content":"Cut a square window" if private else "Arrange the four samples",
+                "remark":"Mounted on linen" if key==82 else None, "comment":"The edge is even",
+                "stuCommitTime":"2025-05-08 13:12:00" if key==82 else None,
+                "learningTaskStudentDocuments":[{"id":62,"name":"mounting.txt"}] if key==82 else [],
+                "learningTaskDocuments":[],"teacherCommentDocuments":[]})
+            return True
+        if path == "/api/LearningTask/DownloadDocument" and h.current_session():
+            if parse_qs(urlsplit(h.path).query) != {"learningTaskId":["82"],"documentId":["62"],"documentType":["2"]}:
+                h.respond(None, 403); return True
+            self.file_reads += 1
+            data=b"Independent loopback attachment.\n"
+            h.send_response(200);h.send_header("Content-Type","text/plain");h.send_header("Content-Length",str(len(data)));h.end_headers();h.wfile.write(data)
+            return True
         if path == "/api/LearningTask/GetList" and h.current_session():
             if parse_qs(urlsplit(h.path).query).get("SemesterId") == ["7"]:
                 self.archive_reads += 1

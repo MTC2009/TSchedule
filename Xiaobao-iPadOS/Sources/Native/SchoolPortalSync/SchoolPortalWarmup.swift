@@ -7,7 +7,7 @@ extension AppModel {
         let epoch = school.epoch
         guard let owner = school.owner else { return }
         @MainActor func current() -> Bool {
-            !Task.isCancelled && portal.foreground && !portalPresented && !portal.manualSheet &&
+            !Task.isCancelled && canUseLiveSchool &&
             school.selected && school.owner == owner && school.epoch == epoch
         }
         let visible = tab
@@ -30,7 +30,7 @@ extension AppModel {
                 }
             case .attendance:
                 if refreshFromToday, current(), tab == .today {
-                    async let grades: Void = school.refreshGradesFromToday()
+                    async let grades: Void = warmCurrentGrades()
                     if school.attendanceQuery == nil || school.attendanceQuery == .init() {
                         await school.loadAttendance(.init(), force: true)
                     }
@@ -47,5 +47,11 @@ extension AppModel {
             case .grades, .settings: break
             }
         }
+    }
+
+    private func warmCurrentGrades() async {
+        let saved = gradeCache.snapshot(term: nil, verifiedOwner: school.owner)
+        guard saved.map({ $0.checked.timeIntervalSinceNow > -300 }) != true else { return }
+        await school.refreshGradesFromToday()
     }
 }

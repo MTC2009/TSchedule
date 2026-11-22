@@ -14,7 +14,7 @@ struct LessonActivityControl: View {
         Group {
             if activity.isRunning || (source != nil && plan != nil) {
                 VStack(alignment: .trailing, spacing: 6) {
-                    Button(activity.isRunning ? "结束锁屏课表" : "在锁屏显示课表",
+                    Button(activity.isRunning ? String(localized: "结束锁屏课表") : String(localized: "在锁屏显示课表"),
                            systemImage: activity.isRunning ? "stop.circle" : "lock.rectangle") {
                         if activity.isRunning { activity.stop() }
                         else if phase == .active, !model.portalPresented, let source, model.lessonActivitySource == source,
@@ -25,7 +25,7 @@ struct LessonActivityControl: View {
                     .buttonStyle(.glass)
                     .disabled(activity.ending || phase != .active)
                     .accessibilityIdentifier("lesson-activity-toggle")
-                    .accessibilityHint(activity.isRunning ? "" : "在锁屏显示距离下课的分钟数和下一节课程名")
+                    .accessibilityHint(activity.isRunning ? "" : String(localized: "在锁屏显示距离下课的分钟数和下一节课程名"))
                     if let issue = activity.issue {
                         Text(issue).font(.footnote).foregroundStyle(.secondary)
                     }

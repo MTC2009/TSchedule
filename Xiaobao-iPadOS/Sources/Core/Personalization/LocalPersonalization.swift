@@ -1,12 +1,45 @@
 import Foundation
 
+/// Display choices, not enrollment, residence or notification permissions.
+enum TimetableCategory: String, CaseIterable, Sendable {
+    case schoolCourse, examCourse, optionalBlock, freeblock, assembly, tssa, study, sport
+    case breakfast, lunch, dinner, wash, sleep
+
+    var title: String {
+        switch self {
+        case .schoolCourse: String(localized: "校内课程")
+        case .examCourse: String(localized: "外考课程")
+        case .optionalBlock: String(localized: "未选的 Block 9 / 10")
+        case .freeblock: String(localized: "空节")
+        case .assembly: String(localized: "班会／集会")
+        case .tssa: "TSSA"
+        case .study: String(localized: "晚自习")
+        case .sport: String(localized: "体育活动")
+        case .breakfast: String(localized: "早餐")
+        case .lunch: String(localized: "午餐")
+        case .dinner: String(localized: "晚餐")
+        case .wash: String(localized: "洗漱")
+        case .sleep: String(localized: "就寝")
+        }
+    }
+}
+
 /// Device preferences only. This is deliberately not a profile or a credential.
 struct LocalPersonalization: Codable, Equatable {
     private(set) var nickname: String?
     private(set) var reminderSubtitle: String?
     private(set) var lessonActivity = LessonActivityAppearance()
+    var showsBoardingRoutine = false
+    private var hiddenTimetableCategories: Set<String> = []
 
     init() {}
+
+    func shows(_ category: TimetableCategory) -> Bool { !hiddenTimetableCategories.contains(category.rawValue) }
+
+    mutating func setShown(_ visible: Bool, for category: TimetableCategory) {
+        if visible { hiddenTimetableCategories.remove(category.rawValue) }
+        else { hiddenTimetableCategories.insert(category.rawValue) }
+    }
 
     mutating func setNickname(_ text: String) {
         nickname = PersonalizationText.singleLine(text, limit: 24)
@@ -20,13 +53,15 @@ struct LocalPersonalization: Codable, Equatable {
         lessonActivity = appearance
     }
 
-    private enum CodingKeys: String, CodingKey { case nickname, reminderSubtitle, lessonActivity }
+    private enum CodingKeys: String, CodingKey { case nickname, reminderSubtitle, lessonActivity, showsBoardingRoutine, hiddenTimetableCategories }
 
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         setNickname((try? values.decode(String.self, forKey: .nickname)) ?? "")
         setReminderSubtitle((try? values.decode(String.self, forKey: .reminderSubtitle)) ?? "")
         lessonActivity = (try? values.decode(LessonActivityAppearance.self, forKey: .lessonActivity)) ?? .init()
+        showsBoardingRoutine = (try? values.decode(Bool.self, forKey: .showsBoardingRoutine)) ?? false
+        hiddenTimetableCategories = (try? values.decode(Set<String>.self, forKey: .hiddenTimetableCategories)) ?? []
     }
 }
 

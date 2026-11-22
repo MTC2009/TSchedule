@@ -10,11 +10,11 @@ enum CampusError: LocalizedError {
     case origin, invalidResponse, signedOut, changed, http(Int)
     var errorDescription: String? {
         switch self {
-        case .origin: "请输入 HTTPS 服务地址；本机服务也可使用 http://127.0.0.1。"
-        case .invalidResponse: "服务返回的数据无法读取。"
-        case .signedOut: "此设备的登录已过期，请重新连接。"
-        case .changed: "账号已切换。"
-        case .http(let code): "服务返回 HTTP \(code)。"
+        case .origin: String(localized: "请输入 HTTPS 服务地址；本机服务也可使用 http://127.0.0.1。")
+        case .invalidResponse: String(localized: "服务返回的数据无法读取。")
+        case .signedOut: String(localized: "此设备的登录已过期，请重新连接。")
+        case .changed: String(localized: "账号已切换。")
+        case .http(let code): String(localized: "服务返回 HTTP \(code)。")
         }
     }
 }
@@ -359,13 +359,13 @@ func campusTransport() -> CampusSend {
         savedGrades?.checked = time
         readSavedGrades = true
         if checked {
-            if previous == nil { gradeCheckMessage = "已获取 \(value.courses.count) 门课的成绩" }
+            if previous == nil { gradeCheckMessage = String(localized: "已获取 \(value.courses.count) 门课的成绩") }
             else if changed {
                 let edited = value.courses.filter { stamp in
                     !previousRoster.contains { $0.course_id == stamp.course_id && $0.revision == stamp.revision }
                 }
-                gradeCheckMessage = edited.count == 1 ? "\(edited[0].name) 的成绩已更新" : "成绩已更新"
-            } else { gradeCheckMessage = "上次检查没有新成绩" }
+                gradeCheckMessage = edited.count == 1 ? String(localized: "\(edited[0].name) 的成绩已更新") : String(localized: "成绩已更新")
+            } else { gradeCheckMessage = String(localized: "上次检查没有新成绩") }
             errors[.grades] = nil
         }
     }
@@ -410,7 +410,7 @@ func campusTransport() -> CampusSend {
             }
             guard epoch == current.scope else { return false }
             let success = wanted.allSatisfy { errors[$0] == nil }
-            syncIssue = success ? nil : "部分资料暂时无法检查。"
+            syncIssue = success ? nil : String(localized: "部分资料暂时无法检查。")
             return success
         }
         return result == .ready
@@ -438,7 +438,7 @@ func campusTransport() -> CampusSend {
         catch { if epoch == current.scope { errors[page] = error.localizedDescription }; return }
         guard epoch == current.scope else { return }
         if !force, let manifest = offline.manifest, page.modules.contains(where: { manifest.parts[$0.rawValue] == nil }) {
-            errors[page] = "此账号暂无这项资料。"
+            errors[page] = String(localized: "此账号暂无这项资料。")
             return
         }
         if page == .grades {
@@ -458,7 +458,7 @@ func campusTransport() -> CampusSend {
         switch result {
         case .legacy: await legacyLoad(page, current, force: force)
         case .ready:
-            if page == .grades ? savedGrades == nil : !present(page) { errors[page] = "所选资料暂不可用。" }
+            if page == .grades ? savedGrades == nil : !present(page) { errors[page] = String(localized: "所选资料暂不可用。") }
             else { errors[page] = nil }
         case .failed: errors[page] = syncIssue
         }
@@ -504,7 +504,7 @@ func campusTransport() -> CampusSend {
             retained.check.gradesChecked = nil; retained.check.gradesUpdated = nil
         }
         for page in Array(pages.keys) where !denied.isDisjoint(with: page.modules) {
-            pages[page] = nil; errors[page] = "此账号暂无这项资料。"
+            pages[page] = nil; errors[page] = String(localized: "此账号暂无这项资料。")
         }
         offline = retained
         let store = disk
@@ -722,19 +722,19 @@ func campusTransport() -> CampusSend {
                 let delta = try JSONDecoder().decode(CampusEnvelope<CampusGradeChanges>.self, from: bytes).data
                 result = try delta.applying(to: savedGrades, at: now())
                 if savedGrades == nil {
-                    gradeCheckMessage = "已获取 \(result.roster.count) 门课的成绩"
+                    gradeCheckMessage = String(localized: "已获取 \(result.roster.count) 门课的成绩")
                 } else if savedGrades?.version == delta.version {
-                    gradeCheckMessage = "上次检查没有新成绩"
+                    gradeCheckMessage = String(localized: "上次检查没有新成绩")
                 } else if let row = delta.changed.first, delta.changed.count == 1,
                           let course = result.roster.first(where: { $0.course_id == row.course_id }) {
-                    gradeCheckMessage = "\(course.name) 的成绩已更新"
+                    gradeCheckMessage = String(localized: "\(course.name) 的成绩已更新")
                 } else {
-                    gradeCheckMessage = delta.changed.isEmpty ? "学期或课程信息已更新" : "已更新 \(delta.changed.count) 门课的成绩"
+                    gradeCheckMessage = delta.changed.isEmpty ? String(localized: "学期或课程信息已更新") : String(localized: "已更新 \(delta.changed.count) 门课的成绩")
                 }
             case 204:
                 guard var verified = savedGrades, verified.version != nil,
                       verified.metadataVersion == SavedCampusGrades.currentMetadataVersion else { throw CampusError.invalidResponse }
-                gradeCheckMessage = "上次检查没有新成绩"
+                gradeCheckMessage = String(localized: "上次检查没有新成绩")
                 verified.checked = now()
                 result = verified
             case 403, 404:
@@ -797,6 +797,6 @@ func campusTransport() -> CampusSend {
         let loggedOut = epoch
         await previous?.clear()
         do { try await revoke(current); if epoch == loggedOut { notice = nil } }
-        catch { if epoch == loggedOut { notice = "本机已退出。当前无法联系服务器撤销设备会话。" } }
+        catch { if epoch == loggedOut { notice = String(localized: "本机已退出。当前无法联系服务器撤销设备会话。") } }
     }
 }

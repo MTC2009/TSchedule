@@ -13,9 +13,6 @@ enum AtmosphereColors {
     static let dust = SkyColor(hex: 0xf7c482).color
     static let dustShadow = SkyColor(hex: 0x574132).color
     static let lightning = SkyColor(hex: 0xd4dfff).color
-    static let lanternLight = SkyColor(hex: 0xffb45c).color
-    static let lanternShadow = SkyColor(hex: 0xbc412c).color
-    static let festiveLight = SkyColor(hex: 0xffde9e).color
 
     static func veil(_ mood: WeatherMood, daylight: Double) -> Color {
         let tones: (day: UInt32, night: UInt32)

@@ -7,6 +7,8 @@
 | `PersonalPlan.swift` | `PersonalPlan` 是某个学校日期的个人记录。输入为名称与可选 `PlanTime`（上海当地分钟，时间段含开始、不含结束）、`PlanColor`、`PlanIcon`、`PlanReminder`。`placing(at:)` 只改时间。 |
 | `PlanBubble.swift` | 常用气泡和重复规则。`PlanRecurrence` 只取一种：星期或轮转 Day。`PlanPlacementItem` 区分副本、单日记录与重复系列，避免仅凭共享 ID 把重复项误认成复制来源。 |
 | `PlannerSchoolDay.swift` | `local(on:provider:work:)` 或 `connected(on:schedule:calendar:courseName:)` 输出只读学校条目、轮转日与资料可用性。空节只由已有课表投影确认。仅将显式关联、且时段与科目一致的本机随堂测验按一条记录呈现；其他重叠学校记录仍各自保留。 |
+| `PlannerCampusRoutine.swift` | `withCampusRoutine(on:calendar:showsBoardingRoutine:)` 把同一份已确认日程补成「今日」和「计划」的同一份日程。正式教学日可显示未选的 Block 9/10 和晚餐；该节已有课程则只保留实际课程。住宿选择只产生参考条目，不参与个人计划冲突、空节吸附、课程提醒或实时活动。 |
+| `TimetablePresentation.swift` | 将学校已排时段、已验证所有者的补充课程和本机显示选择投影到两页。先确定占用再筛选，正式考试事项不属于外考课程；读取与过滤不改原数据。 |
 | `PlannerDay.swift` | `init(on:school:plans:)` 生成全天、按时间排序和待安排三组，不投影仅有截止时间的学校事项；`focus(at:)` 找下一项或正在进行的最后一项；`conflicts(with:)` 提示已知时段重叠。 |
 | `PlannerTimelineLayout.swift` | `PlannerTimeScale(hourHeight:)` 做分钟与纵向坐标的双向换算；`PlannerTimelineLayout(day:scale:minimumHeight:)` 对学校、个人两层独立分列。`PlannerAnnotationLayout` 输入个人几何、板面和学校文本矩形，只输出标签位置、是否显示名称和组成员，不修改原时间或列宽。 |
 | `PlannerPlacement.swift` | `PlannerPlacement(at:moving:in:)` 用落点分钟、原时间（可无）和当天课表返回建议时间及冲突；`init(from:to:in:)` 给划选和两次点选复用，两端单独吸附。 |
@@ -23,11 +25,28 @@ iPad 使用应用容器中独立、原子写入且受系统文件保护的本机
 
 计时：直接拖卡时，新安排拖进已确认空节会预填整节；否则开始时间吸附到五分钟，已有持续时长不变。划选是另一条路径，两端分别吸附到五分钟，支持反向，不能跨日，结束可为 24:00；不会取整节。`nil` 仍是未定时。旧档案没有颜色和图标时直接读作默认，无需迁移；个人计划文件的存储路径和所有者隔离不变。
 
-提醒：按上海时区。普通计划未定时、已完成或已错过提醒时不会排新通知。完成一次只跳过该次提醒。按星期的计划保持原行为（包括假期）；按轮转 Day 的计划按校历教学日逐次登记，不使用每周系统触发器。停课日印有 Day 也不算，已公布的周末补课算，未公布／超出校历范围则不排。未来才改规则时，旧规则在生效日之前的有效提醒用有限的单次请求，生效后不再按旧时间重复；撤销／重做会用恢复后的资料重新对照系统队列。暂不能用系统重复的规则最多桥接四次，接近生效日或已完成的那次经过后打开 App，会重新检查是否可恢复系统重复。长期不再打开或系统队列已满时，不保证桥接用完后的提醒。
+提醒：按上海时区。普通计划未定时、已完成或已错过提醒时不会排新通知。完成一次只跳过该次提醒。按星期的计划保持原行为（包括假期）；按轮转 Day 的计划按校历教学日逐次登记，不使用每周系统触发器。停课日印有 Day 也不算，已公布的周末补课算，未公布／超出校历范围则不排。未来才改规则时，旧规则在生效日之前的有效提醒用有限的单次请求，生效后不再按旧时间重复；撤销／重做会用恢复后的资料重新对照系统队列。仅未来才生效的无限周规则短接四次；遇到未来已完成或移除的日期，则在既有通知预算内逐次登记其余各周，接近生效日或已完成的那次经过后打开 App，会重新检查是否可恢复系统重复。长期不再打开或系统队列已满时，不保证桥接用完后的提醒。
 
 测试：在原生工程目录运行 `swift test --filter Planner`。覆盖旧档兼容、账号隔离、两层互不干扰、气泡拷贝、星期与轮转规则互换、生效边界和按日完成、提醒跨午夜且不提前。
 
 ## Change History
+
+### 2026-11-22 — timetable-detail-projection
+Model: OpenAI Codex. Propagate the optional source detail through `PlannerSchoolEntry` and `LessonTimeline`. Date and time come from the aligned displayed interval; no course or reminder data is rewritten. The participant labels are not instructions for an action. Tests: `TimetablePresentationTests`.
+
+### 2026-11-22 — location / compact-meal
+Model: OpenAI Codex. Separate routine title and location through `PlannerSchoolEntry` and the display-only reference block. `PlannerTimelineLayout` gives short meal ranges the same school-card renderer without increasing duration or affecting adjacent lanes. Formal school and notification data are unchanged. Tests: TimetablePresentationTests, SchoolTimetableBellTests.
+
+### 2026-11-22 — canonical-bells / named-school-cards / seasonal-pause
+Model: OpenAI Codex. 已确认课表与仅已知校园作息分开；原时间完全相同的真实晚间课程优先于住宿占位。短事项使用学校条目的真实名称投影。接口：`connected`、`withCampusRoutine`、`MarkGroup.singleSchoolEntry`；不改变个人计划和存储。
+
+
+### 2026-11-22 — planner-campus-routine / school-night
+Model: Codex. 住宿夜以周日到周四的晚上为起点，要求次日已公布上课；周五只保留前一晚延续的晨间作息。就寝横跨两栏，保留同一身份和完整时段。不从假期或未发布的校历推算。接口：只读 `PlannerSchoolDay` 投影；个人存储与网络不变。测试：`swift test --filter SchoolTimetableBellTests`。
+
+### 2026-11-21 — dated-removal / reminder-exclusions
+Reminder contract: `PlanReminderPlanner.inputsChanged(from:to:)` compares timed plans with alerts and their series revisions on both sides of an edit, including undo. An unrelated silent note does not need to wait on the notification center.
+Model: Codex · Changed: `PlanStore.apply(.remove(plan,scope),…)` removes an ordinary record, excludes one repeated date, or stops a rule at that date. Checks the owner-scoped saved record, retains earlier revisions and reusable templates, and participates in existing undo/redo. A missing optional exclusion set means no dates were removed in older files. Reason: unscheduling a plan is not removal. Interfaces: local mutation, day projection and reminder candidates; no database migration.
 
 ### 2026-11-21 — planner-rotation / dated-reminders
 Model: Codex. 在原有计划修订中保存按星期或轮转 Day 的单一规则；读旧的 `week` 记录不改写文件。显示、拖动、完成和提醒均使用同一份已确认校历；编辑、停用和撤销按原生效日隔离历史。对外服务、数据表、依赖和权限不变。
@@ -91,3 +110,12 @@ Conversation Keywords: planner / school-day-merge / local-plan-storage
 Reason: 让个人安排能与学校时段同屏而不共享写权限。  
 Changed: 增加只读学校安排投影、日计划编排和本机记录存储。  
 Affected interfaces: 新增以上内部 Swift 接口；无 HTTP、数据库、环境变量或依赖变更。
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. The app-generated fallback for a closed day is localized; notices actually supplied by the school calendar are not. No change to plan persistence, recurrence or timetable dates. [Language boundary and regression tests](../Localization/README.md).
+
+### 2026-11-22 — residence-night / overlapping-study
+Model: OpenAI Codex. The existing boarding preference uses the same published return-night classifier as the timetable. On a holiday return it includes evening routine and the next morning; a recorded or corroborated lesson occupies the overlapping study/activity slot rather than appearing twice. Weekends and conferences are not inferred to be holidays. No preference, backend or reminder changes. Test: SchoolStudyWeekTests and planner routine tests.
+
+### 2026-11-22 — timetable-display / supplemental-courses
+Model: OpenAI Codex. Cause: only Planner used the campus routine. TimetablePresentation(on:school:plans:settings:editingPersonalCourses:) now produces visible school rows, editable supplements, pre-filter placement input and a Today timeline without deriving vacancies again. TSSA can be displayed as ordinary study at exactly its assigned time; hiding a course cannot create a Free Block. PersonalPlan.courseKind is optional in saved files and survives copies, recurrence and history. TimetablePresentationTests cover independent students, returns and categories.

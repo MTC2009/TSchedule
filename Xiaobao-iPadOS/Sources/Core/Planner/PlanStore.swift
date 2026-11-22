@@ -9,11 +9,13 @@ enum PlanOwner: Codable, Hashable, Sendable {
 /// Private, on-device user records. Never put them in the refreshable school cache.
 actor PlanStore {
     enum StoreError: Error { case invalidArchive, invalidPlan, alreadyExists, missingPlan, historyUnavailable }
+    enum RemovalScope: Sendable { case onlyThis, thisAndLater }
 
     enum Mutation: Sendable {
         case save(PlanEdit)
         case place(PlanPlacementItem, on: String, at: PlanTime?, now: Date)
         case complete(Bool, plan: PersonalPlan)
+        case remove(PersonalPlan, RemovalScope)
     }
 
     struct EditorState: Sendable {
@@ -80,6 +82,7 @@ actor PlanStore {
             case .save(let edit): try Self.save(edit, in: &schedule)
             case let .place(item, day, time, now): try Self.place(item, on: day, at: time, now: now, calendar: calendar, in: &schedule)
             case let .complete(value, plan): try Self.complete(value, plan: plan, calendar: calendar, in: &schedule)
+            case let .remove(plan, scope): try Self.remove(plan, scope: scope, calendar: calendar, in: &schedule)
             }
         }
         return try readEditor(for: owner, session: session)
@@ -207,6 +210,24 @@ actor PlanStore {
             schedule.bubbles[index].setCompleted(completed, on: plan.day)
         } else {
             throw StoreError.missingPlan
+        }
+    }
+
+    private static func remove(_ plan: PersonalPlan, scope: RemovalScope, calendar: PublishedSchoolCalendar?,
+                               in schedule: inout Schedule) throws {
+        // Require the exact saved occurrence. A stale editor or another plan with the same
+        // title is never a fallback; the owner and edit session are fenced by apply/change.
+        if let index = schedule.plans.firstIndex(of: plan) {
+            guard scope == .onlyThis else { throw StoreError.invalidPlan }
+            schedule.plans.remove(at: index)
+            return
+        }
+        guard let index = schedule.bubbles.firstIndex(where: {
+            $0.id == plan.id && $0.occurrence(on: plan.day, calendar: calendar) == plan
+        }) else { throw StoreError.missingPlan }
+        switch scope {
+        case .onlyThis: schedule.bubbles[index].excludeOccurrence(on: plan.day)
+        case .thisAndLater: schedule.bubbles[index].revise(recurrence: nil, effectiveDay: plan.day)
         }
     }
 

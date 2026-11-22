@@ -37,3 +37,6 @@ Changed: Settings separates school account status from the persistent device sig
 ### 2026-11-21 — Explicit per-device enrollment
 Model: Codex · Keywords: foreground-password-login / single-student-keychain / full-expiry  
 Changed: Added enrollment, device-only storage, durable attempt pause, one foreground official sign-in and removal. Reason: re-entering Home cannot authenticate a student after *all* school session state has been rejected. Affected interfaces: only the native grade visit, enrollment-name read, existing Settings and one bundled resource. No public API, database or deployment change.
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Localize enrollment controls, status and Keychain errors. The official sign-in form, identity checks, credential storage and submit behavior are unchanged. [Language boundary and regression tests](../../Core/Localization/README.md).

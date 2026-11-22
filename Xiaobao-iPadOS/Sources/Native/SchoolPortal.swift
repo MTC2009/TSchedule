@@ -39,7 +39,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
             guard let self, let navigation, self.ordinaryNavigation === navigation else { return }
             self.ordinaryNavigation = nil
             self.loading = false
-            self.errorMessage = "校宝网页未及时响应，可以重试。"
+            self.errorMessage = String(localized: "校宝网页未及时响应，可以重试。")
             self.webView.stopLoading()
             if self.school?.selected == true { self.school?.invalidate(.network) }
         }
@@ -169,7 +169,7 @@ final class PortalSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         navigationDeadline?.cancel(); ordinaryNavigation = nil
         gradeEntry.cancel(SchoolPortalIssue.network)
         if school?.selected == true { school?.invalidate(.network) }
-        loading = false; errorMessage = "网页已暂停，点刷新重新载入。"
+        loading = false; errorMessage = String(localized: "网页已暂停，点刷新重新载入。")
     }
 
     private func report(_ error: Error, _ web: WKWebView, _ navigation: WKNavigation?) {

@@ -6,6 +6,8 @@ enum SchoolPortalRead: Hashable {
     case collection(SchoolPortalCollection)
     case terms, archivedGrades(String), archivedTasks(String, includeScores: Bool)
     case tasks(includeScores: Bool)
+    case taskMaterial(term: String, task: String)
+    case taskFile(term: String, task: String, section: String, key: String, name: String)
     case attendance(SchoolPortalAttendanceQuery), attendanceSubject(String, from: String, to: String, page: Int)
 }
 
@@ -19,6 +21,9 @@ enum SchoolPortalRead: Hashable {
     @ObservationIgnored var onAccountConfirmation: (@MainActor (String?) -> Void)?
     @ObservationIgnored var onCompleteTasks: (@MainActor (SchoolPortalTasks, String, Bool) -> Void)?
     @ObservationIgnored var onRevokeTasks: (@MainActor () -> Void)?
+    @ObservationIgnored var onGradeOverview: (@MainActor (SchoolPortalGrades, String, Bool, Date) -> Void)?
+    @ObservationIgnored var onGradeDetail: (@MainActor ([SchoolPortalGrades.Group], String, String, String) -> Void)?
+    @ObservationIgnored var onGradeDenial: (@MainActor (SchoolPortalRead) -> Void)?
     private(set) var selected: Bool
     private(set) var owner: String?
     private(set) var epoch = UUID()
@@ -274,6 +279,14 @@ enum SchoolPortalRead: Hashable {
                     switch key {
                     case .tasks, .archivedTasks, .terms:
                         discardTaskLists(); onRevokeTasks?()
+                    case .grades, .archivedGrades:
+                        grades = nil; gradesChecked = nil; invalidateDetails()
+                        onGradeDenial?(key)
+                    case .detail(_, let subject, let cls, let type):
+                        if let course = grades?.courses.first(where: { $0.subject == subject && $0.cls == cls && $0.type == type }) {
+                            groups[course.id] = nil
+                        }
+                        onGradeDenial?(key)
                     default: break
                     }
                 }
@@ -435,8 +448,15 @@ enum SchoolPortalRead: Hashable {
         await load(SchoolPortalGrades.self, gradeRead, sharedAcrossViews: sharedAcrossViews) { values in
             guard self.selectedTermID == nil || values.termID == self.selectedTermID,
                   !values.term.isEmpty, Set(values.courses.map(\.id)).count == values.courses.count else { throw SchoolPortalIssue.format }
-            self.grades = values; self.gradesChecked = Date(); self.invalidateDetails()
-        } clear: { self.grades = nil; self.gradesChecked = nil; self.invalidateDetails() }
+            let checked = Date()
+            self.grades = values.retainingGPA(from: self.grades)
+            self.gradesChecked = checked
+            self.invalidateDetails()
+            if let owner = self.owner { self.onGradeOverview?(values, owner, self.selectedTermID == nil, checked) }
+        } clear: {
+            // A denial is interpreted separately; a failed network/format refresh is
+            // never an empty or newly delivered gradebook.
+        }
     }
 
     private func invalidateDetails() {
@@ -465,9 +485,44 @@ enum SchoolPortalRead: Hashable {
         guard let key = detailKey(course), groups[course.id] == nil else { return }
         let generation = gradeRevision
         await load([SchoolPortalGrades.Group].self, key) { value in
-            if self.gradeRevision == generation { self.groups[course.id] = value }
-        } clear: { if self.gradeRevision == generation { self.groups[course.id] = nil } }
+            if self.gradeRevision == generation, let owner = self.owner, let term = self.grades?.termID {
+                self.groups[course.id] = value
+                self.onGradeDetail?(value, course.id, term, owner)
+            }
+        } clear: {}
     }
+    /// A task ID alone is not authority: both before and after the read it must
+    /// belong to the selected student's verified semester, in this session epoch.
+    private func taskReply<T: Decodable>(_ type: T.Type, key: SchoolPortalRead, term: String, task: String) async throws -> T {
+        let ticket = epoch, selection = selectedTermID
+        func allowed() -> Bool {
+            selected && tasks?.termLabel?.id == term && tasks?.rows.contains(where:{ $0.id == task && $0.detailReadable == true }) == true
+        }
+        guard allowed(), let owner else { throw SchoolPortalIssue.unavailable }
+        do {
+            let result = try await reply(type, key, owner)
+            try Task.checkCancellation()
+            guard self.owner == owner, epoch == ticket, selectedTermID == selection, allowed() else { throw CancellationError() }
+            guard let value = result.value else { throw SchoolPortalIssue.format }
+            return value
+        } catch let issue as SchoolPortalIssue {
+            if epoch == ticket, [.login,.expired,.changed].contains(issue) { invalidate(issue) }
+            throw issue
+        }
+    }
+    func readTaskMaterial(term: String, task: String) async throws -> SchoolTaskMaterial {
+        let value = try await taskReply(SchoolTaskMaterial.self, key:.taskMaterial(term:term,task:task), term:term,task:task)
+        try value.validate(feedbackReleased:tasks?.rows.first(where:{ $0.id == task })?.feedbackReleased)
+        return value
+    }
+    func taskFileLink(term: String, task: String, section: SchoolTaskMaterial.Section, file: SchoolTaskMaterial.File) async throws -> SchoolTaskFileLink {
+        guard file.downloadable else { throw SchoolPortalIssue.unavailable }
+        let link = try await taskReply(SchoolTaskFileLink.self,
+            key:.taskFile(term:term,task:task,section:section.rawValue,key:file.key,name:file.name), term:term,task:task)
+        guard link.name == file.name, SchoolTaskFilePolicy.permits(link.url,task:task,section:section,key:file.key) else { throw SchoolPortalIssue.unavailable }
+        return link
+    }
+
     func loadTasks(force: Bool = false) async {
         guard force || tasks == nil else { return }
         guard let owner else { return }

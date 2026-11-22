@@ -10,7 +10,7 @@ struct OtherItemDetailView: View {
     var body: some View {
         StudentDetailSurface {
             if !sourceIsAvailable {
-                StudentEmptyState(title: "这项资料已不可用", detail: "返回列表后再试。")
+                StudentEmptyState(title: String(localized: "这项资料已不可用"), detail: String(localized: "返回列表后再试。"))
             } else {
                 switch item.detail {
                 case .exam(let work): exam(work)
@@ -31,9 +31,9 @@ struct OtherItemDetailView: View {
 
     private var navigationTitle: String {
         switch item.detail {
-        case .exam: "考试详情"
-        case .evaluation: "测评详情"
-        case .resource: "资料预览"
+        case .exam: String(localized: "考试详情")
+        case .evaluation: String(localized: "测评详情")
+        case .resource: String(localized: "资料预览")
         }
     }
 
@@ -55,22 +55,22 @@ struct OtherItemDetailView: View {
                     ViewThatFits(in: .horizontal) {
                         HStack(alignment: .top, spacing: 32) {
                             focus(timing.label, timing.value).fixedSize(horizontal: true, vertical: false)
-                            if let room = work.room { focus("考场", room).fixedSize(horizontal: true, vertical: false) }
+                            if let room = work.room { focus(String(localized: "考场"), room).fixedSize(horizontal: true, vertical: false) }
                         }
                         VStack(alignment: .leading, spacing: 12) {
                             focus(timing.label, timing.value)
-                            if let room = work.room { focus("考场", room) }
+                            if let room = work.room { focus(String(localized: "考场"), room) }
                         }
                     }
                 } else if let room = work.room {
-                    focus("考场", room)
+                    focus(String(localized: "考场"), room)
                 }
                 if let due = work.dueAt, (work.startsAt != nil || work.endsAt != nil), due != work.endsAt {
                     LabeledContent("截止时间", value: otherItemsDate(due, includeYear: true))
                 }
             }
         }
-        notes("考试范围与说明", text: work.description)
+        notes(String(localized: "考试范围与说明"), text: work.description)
         if work.isLocal, item.status(at: model.now)?.finished == true {
             Button("查看 GPA", systemImage: "chart.bar.xaxis") { model.tab = .grades }.buttonStyle(.glass)
         }
@@ -80,12 +80,12 @@ struct OtherItemDetailView: View {
         StudentPageHeader(title: item.title, subtitle: item.courseTitle, portalSection: section.portalSection)
         GlassCard(padding: 20, shape: .rect(cornerRadius: 16)) {
             VStack(alignment: .leading, spacing: 14) {
-                if let status = item.status(at: model.now) { focus("测评状态", status.title) }
+                if let status = item.status(at: model.now) { focus(String(localized: "测评状态"), status.title) }
                 if let due = work.dueAt { LabeledContent("截止时间", value: otherItemsDate(due, includeYear: true)) }
                 if let room = work.room { LabeledContent("地点", value: room) }
             }
         }
-        notes("测评要求", text: work.description)
+        notes(String(localized: "测评要求"), text: work.description)
     }
 
     @ViewBuilder private func reading(_ resource: OtherItem.Resource) -> some View {
@@ -122,7 +122,7 @@ struct OtherItemDetailView: View {
     @ViewBuilder private func bookmark(_ resource: OtherItem.Resource) -> some View {
         if resource.permitsLocalBookmark {
             let saved = item.isBookmarked(in: model.savedDemoResourceIDs)
-            Button(saved ? "取消收藏" : "收藏", systemImage: saved ? "bookmark.fill" : "bookmark") {
+            Button(saved ? String(localized: "取消收藏") : String(localized: "收藏"), systemImage: saved ? "bookmark.fill" : "bookmark") {
                 model.toggleSavedResource(item.id)
             }.buttonStyle(.glass)
         }
@@ -160,13 +160,13 @@ extension OtherItem.Work {
     @MainActor func examTime(includeYear: Bool) -> (label: String, value: String)? {
         if let start = startsAt {
             let begins = otherItemsDate(start, includeYear: includeYear)
-            guard let end = endsAt else { return ("考试时间", begins) }
+            guard let end = endsAt else { return (String(localized: "考试时间"), begins) }
             let ends = SchoolClock.calendar.isDate(start, inSameDayAs: end) ?
                 schoolDateLabel(end, format: "HH:mm") : otherItemsDate(end, includeYear: includeYear)
-            return ("考试时间", begins + "–" + ends)
+            return (String(localized: "考试时间"), begins + "–" + ends)
         }
-        if let end = endsAt { return ("结束时间", otherItemsDate(end, includeYear: includeYear)) }
-        if let due = dueAt { return ("截止时间", otherItemsDate(due, includeYear: includeYear)) }
+        if let end = endsAt { return (String(localized: "结束时间"), otherItemsDate(end, includeYear: includeYear)) }
+        if let due = dueAt { return (String(localized: "截止时间"), otherItemsDate(due, includeYear: includeYear)) }
         return nil
     }
 }
@@ -174,18 +174,18 @@ extension OtherItem.Work {
 extension OtherItem.Resource {
     var kindTitle: String? {
         switch kind {
-        case "document": "文档"
-        case "image": "图片"
-        case "video": "视频"
-        case "audio": "音频"
+        case "document": String(localized: "文档")
+        case "image": String(localized: "图片")
+        case "video": String(localized: "视频")
+        case "audio": String(localized: "音频")
         default: kind
         }
     }
 
     var scopeTitle: String? {
         switch scope {
-        case "shared": "分享给我的"
-        case "personal": "个人资料"
+        case "shared": String(localized: "分享给我的")
+        case "personal": String(localized: "个人资料")
         default: scope
         }
     }

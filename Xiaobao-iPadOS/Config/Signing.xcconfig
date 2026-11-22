@@ -1,0 +1,2 @@
+// Both targets inherit the machine's chosen team. Keep publisher settings out of the public project.
+#include? "Signing.local.xcconfig"

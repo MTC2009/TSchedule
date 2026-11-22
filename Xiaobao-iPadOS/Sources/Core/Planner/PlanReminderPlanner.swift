@@ -18,6 +18,17 @@ enum PlanReminderPlanner {
     private static let maximumCandidatesPerSeries = 60
     private static let maximumBridgeWeeks = 4
 
+    /// A plan-only edit need not wait for the system notification service. Check both
+    /// snapshots so undo and stopping a rule with a future reminder are not missed.
+    static func inputsChanged(from before: PlanStore.Schedule, to after: PlanStore.Schedule) -> Bool {
+        func timed(_ plan: PersonalPlan) -> Bool { plan.time != nil && plan.reminder != nil }
+        func series(_ bubble: PlanBubble) -> Bool {
+            bubble.revisions.contains { $0.rule.map { timed($0.plan) } == true }
+        }
+        return before.plans.filter(timed) != after.plans.filter(timed)
+            || before.bubbles.filter(series) != after.bubbles.filter(series)
+    }
+
     static func make(now: Date, schedule: PlanStore.Schedule,
                      calendar: PublishedSchoolCalendar? = nil) -> [PlannedPlanReminder] {
         var result = schedule.plans.compactMap { plan -> PlannedPlanReminder? in
@@ -38,6 +49,7 @@ enum PlanReminderPlanner {
         let calendar = SchoolClock.calendar
         let today = calendar.startOfDay(for: now)
         let id = identifierPrefix + "weekly." + bubble.id.uuidString
+        let silentDays = bubble.silentDays
         var results: [PlannedPlanReminder] = []
         for index in bubble.revisions.indices {
             let revision = bubble.revisions[index]
@@ -51,7 +63,7 @@ enum PlanReminderPlanner {
                 let firstKey = SchoolClock.key(search), endKey = end.map(SchoolClock.key)
                 for row in publication?.days ?? [] where row.teachingDay == day && row.date >= firstKey {
                     if results.count >= maximumCandidatesPerSeries || endKey.map({ row.date >= $0 }) == true { break }
-                    guard !bubble.completedDays.contains(row.date), let date = SchoolClock.dayDate(row.date) else { continue }
+                    guard !silentDays.contains(row.date), let date = SchoolClock.dayDate(row.date) else { continue }
                     let fire = time.start(on: date).addingTimeInterval(-Double(lead.rawValue * 60))
                     guard fire > now else { continue }
                     results.append(.init(id: identifierPrefix + "rotation." + bubble.id.uuidString + "." + row.date,
@@ -62,7 +74,7 @@ enum PlanReminderPlanner {
             guard case .weekday(let weekday) = rule.recurrence else { continue }
             let offset = (weekday - calendar.component(.weekday, from: search) + 7) % 7
             guard var date = calendar.date(byAdding: .day, value: offset, to: search) else { continue }
-            let hasPendingCompletion = end == nil && bubble.completedDays.contains { day in
+            let hasPendingException = end == nil && silentDays.contains { day in
                 guard let completed = SchoolClock.dayDate(day), completed >= search,
                       calendar.component(.weekday, from: completed) == weekday else { return false }
                 return time.start(on: completed).addingTimeInterval(-Double(lead.rawValue * 60)) > now
@@ -72,10 +84,10 @@ enum PlanReminderPlanner {
             // Queue valid occurrences before that boundary, then queue the new rule.
             while end.map({ date < $0 }) ?? true, results.count < maximumCandidatesPerSeries {
                 let fire = time.start(on: date).addingTimeInterval(-Double(lead.rawValue * 60))
-                if fire > now, !bubble.completedDays.contains(SchoolClock.key(date)) {
+                if fire > now, !silentDays.contains(SchoolClock.key(date)) {
                     let previous = calendar.date(byAdding: .day, value: -7, to: fire)
-                    // A system repeat cannot skip a single completed occurrence.
-                    if end == nil, !hasPendingCompletion, scheduled == 0, previous.map({ $0 <= now }) == true {
+                    // A system repeat cannot skip a completed or explicitly removed date.
+                    if end == nil, !hasPendingException, scheduled == 0, previous.map({ $0 <= now }) == true {
                         results.append(.init(id: id, planTitle: rule.plan.title, lead: lead, nextFire: fire,
                                              timing: .weekly(weekday: calendar.component(.weekday, from: fire),
                                                              minute: SchoolClock.minute(in: fire))))
@@ -84,9 +96,9 @@ enum PlanReminderPlanner {
                     results.append(.init(id: id + "." + SchoolClock.key(date), planTitle: rule.plan.title,
                                          lead: lead, nextFire: fire, timing: .once))
                     scheduled += 1
-                    // Delay a distant repeat without firing early. Supply a short
-                    // bridge, then promote it to a native repeat on foregrounding.
-                    if end == nil, scheduled == maximumBridgeWeeks { break }
+                    // Bridge a future start briefly. A real exception cannot be encoded by
+                    // a repeating trigger, so keep eligible weeks up to the normal budget.
+                    if end == nil, !hasPendingException, scheduled == maximumBridgeWeeks { break }
                 }
                 guard let later = calendar.date(byAdding: .day, value: 7, to: date) else { break }
                 date = later

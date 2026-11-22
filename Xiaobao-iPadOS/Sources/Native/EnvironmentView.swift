@@ -11,7 +11,7 @@ struct EnvironmentView: View {
                 AtmosphereView(inEnvironmentPanel: true).ignoresSafeArea()
                 Form {
                     Section {
-                        Label("\(model.phase.title) · \(weatherTitle) · \(model.festival.title)", systemImage: model.backgroundSymbol)
+                        Label(([model.phase.title, weatherTitle] + (model.festival == .none ? [] : [model.festival.title])).joined(separator: " · "), systemImage: model.backgroundSymbol)
                         Toggle("跟随当前时间", isOn: $model.preferences.liveBackground)
                         HStack {
                             Text("背景时刻")
@@ -49,11 +49,16 @@ struct EnvironmentView: View {
                             }
                         }
                     }
-                    Section("节日氛围") {
-                        Toggle("按真实日期自动识别", isOn: $model.preferences.automaticFestival)
-                        Picker("节日", selection: $model.preferences.festival) {
-                            ForEach(Festival.allCases) { Text($0.title).tag($0) }
-                        }.disabled(model.preferences.automaticFestival)
+                    if Festival.decorationsEnabled {
+                        Section("节日与节气") {
+                            Toggle("按真实日期自动识别", isOn: $model.preferences.automaticFestival)
+                            Picker("节日与节气", selection: $model.preferences.festival) {
+                                Text(Festival.none.title).tag(Festival.none)
+                                Section("节日") { ForEach(Festival.holidays) { Text($0.title).tag($0) } }
+                                Section("二十四节气") { ForEach(Festival.solarTerms) { Text($0.title).tag($0) } }
+                            }.disabled(model.preferences.automaticFestival)
+                                .accessibilityIdentifier("sky-season-picker")
+                        }
                     }
                     Section("玻璃与外观") {
                         Picker("原生玻璃", selection: $model.preferences.glass) {
@@ -65,9 +70,8 @@ struct EnvironmentView: View {
                         Toggle("环境动效", isOn: $model.preferences.ambientMotion)
                         if reduceMotion { Text("系统已开启“减少动态效果”。").font(.caption).foregroundStyle(.secondary) }
                     }
-                    Section {
-                        Text("春节、中秋按农历识别；节日装饰不改变学校课表。")
-                            .font(.footnote).foregroundStyle(.secondary)
+                    if Festival.decorationsEnabled {
+                        Section { Text("按上海日期显示节日和节气，不改变天气或学校课表。").font(.footnote).foregroundStyle(.secondary) }
                     }
                 }.scrollContentBackground(.hidden)
             }
@@ -79,16 +83,16 @@ struct EnvironmentView: View {
 
     private var weatherTitle: String {
         switch model.weatherDisplay {
-        case .loading: "正在更新天气"
-        case .unavailable: "天气暂无数据"
-        case .cached(let sample): "\(sample.weather.title)（上次）"
+        case .loading: String(localized: "正在更新天气")
+        case .unavailable: String(localized: "天气暂无数据")
+        case .cached(let sample): String(localized: "\(sample.weather.title)（上次）")
         default: model.weatherDisplay.weather.title
         }
     }
 
     private var weatherStatus: Text {
         let city = model.cityWeather.city.name
-        let format = Date.FormatStyle(date: .abbreviated, time: .shortened, locale: Locale(identifier: "zh_CN"),
+        let format = Date.FormatStyle(date: .abbreviated, time: .shortened, locale: AppLanguage.locale,
                                       timeZone: SchoolClock.calendar.timeZone)
         switch model.weatherDisplay {
         case .current(let sample):

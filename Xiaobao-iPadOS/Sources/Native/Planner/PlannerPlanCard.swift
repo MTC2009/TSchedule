@@ -68,7 +68,7 @@ struct PlannerPlanCard: View {
     private var isSelected: Bool { actions.selected == item }
     private var isTemplate: Bool { shelfKind == .reusable || shelfKind == .recurring }
     private var isPending: Bool { actions.pendingID == plan.id }
-    private var completionLabel: String { plan.isCompleted ? "取消完成" : "完成" }
+    private var completionLabel: String { plan.isCompleted ? String(localized: "取消完成") : String(localized: "完成") }
 
     var body: some View {
         Group {
@@ -179,9 +179,9 @@ struct PlannerPlanCard: View {
             }
         }
         .buttonStyle(.plain).foregroundStyle(.tint).hoverEffect(.highlight)
-        .accessibilityLabel(combined ? plan.title : "移动 \(plan.title)")
+        .accessibilityLabel(combined ? plan.title : String(localized: "移动 \(plan.title)"))
         .accessibilityValue(status)
-        .accessibilityHint(item.isRecurring ? "长按拖动调整重复安排" : "长按后拖动，也可点选时间")
+        .accessibilityHint(item.isRecurring ? String(localized: "长按拖动调整重复安排") : String(localized: "长按后拖动，也可点选时间"))
         .accessibilityIdentifier((shelfKind == nil ? "planner-move-" : "planner-shelf-") + plan.id.uuidString)
         .accessibilityAction(named: Text("选择落点")) { actions.select(item) }
         .accessibilityAction(named: Text(completionLabel)) {
@@ -214,10 +214,10 @@ struct PlannerPlanCard: View {
     }
 
     private var status: String {
-        let kind = item.isRecurring ? "重复安排" : (isTemplate ? "常用气泡" : nil)
-        return [timeLabel, kind, isTemplate ? nil : (plan.isCompleted ? "已完成" : "未完成"),
-                conflictsWithSchool ? "与学校安排重叠" : nil,
-                plan.color?.name, plan.icon?.name, plan.reminder == nil ? nil : "已设置提醒"]
-            .compactMap { $0 }.joined(separator: "，")
+        let kind = item.isRecurring ? String(localized: "重复安排") : (isTemplate ? String(localized: "常用气泡") : nil)
+        return [timeLabel, kind, isTemplate ? nil : (plan.isCompleted ? String(localized: "已完成") : String(localized: "未完成")),
+                conflictsWithSchool ? String(localized: "与学校安排重叠") : nil,
+                plan.color?.name, plan.icon?.name, plan.reminder == nil ? nil : String(localized: "已设置提醒")]
+            .compactMap { $0 }.joined(separator: String(localized: "，"))
     }
 }

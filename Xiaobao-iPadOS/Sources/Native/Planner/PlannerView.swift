@@ -16,10 +16,7 @@ struct PlannerView: View {
     @State private var pendingPlanID: UUID?
     @State private var editor: Editor?
 
-    private struct Scope: Hashable {
-        let owner: PlanOwner
-        let session: UUID?
-    }
+    private typealias Scope = TimetablePlanScope
 
     private struct SchoolRead: Hashable {
         let scope: Scope?
@@ -40,6 +37,7 @@ struct PlannerView: View {
         let effectiveDay: String
         let hadRepeatRule: Bool
         let completionPlan: PersonalPlan?
+        let removalPlan: PersonalPlan?
         var draft: PlanEditorDraft
         var selectingRange = false
     }
@@ -49,10 +47,10 @@ struct PlannerView: View {
     // Defer an external date jump until the planner's unsaved draft is closed.
     private var incomingDate: Date? { editor == nil ? model.plannerDateRequest : nil }
     private var scope: Scope? {
-        model.activePlanOwner.map { Scope(owner: $0, session: model.school.selected ? model.school.epoch : model.campus.account?.scope) }
+        TimetablePlanScope(model)
     }
     private var state: PlanStore.EditorState? { read?.scope == scope ? read?.value : nil }
-    private var canWrite: Bool { state != nil && pendingPlanID == nil && scope != nil }
+    private var canWrite: Bool { state != nil && pendingPlanID == nil && scope != nil && model.timetableForeground }
 
     private var rangeRequest: PlannerRangeRequest? {
         guard let editor, editor.scope == scope, editor.selectingRange else { return nil }
@@ -99,7 +97,7 @@ struct PlannerView: View {
         let showsPlans = editing || !plansHidden
         let calendar = model.planRotationCalendar
         let columns = dates.map {
-            source.column(on: $0, records: showsPlans ? state?.schedule.day(SchoolClock.key($0), calendar: calendar) : nil)
+            source.column(on: $0, records: state?.schedule.day(SchoolClock.key($0), calendar: calendar), showsPlans: showsPlans, editing: editing)
         }
         let selected = columns.first { $0.id == date }
         let fetch = SchoolRead(scope: current, dates: dates)
@@ -110,15 +108,18 @@ struct PlannerView: View {
                 .disabled(rangeRequest != nil)
             if model.school.selected {
                 if selected?.school.hasTimetable != true {
-                    Text(model.timetable.busy ? "正在保存本学年课表" : "当天课表尚未确认，可在设置中更新。")
+                    Text(model.timetable.busy ? String(localized: "正在保存本学年课表") : String(localized: "当天课表尚未确认，可在设置中更新。"))
                         .font(.callout).foregroundStyle(.secondary)
+                } else if week == nil, selected?.usesDaytimeRotation == true {
+                    Text("白天按轮转课表显示").font(.callout).foregroundStyle(.secondary)
                 }
+                if week == nil, selected?.studyTimePending == true { Text("TSSA 节次待确认").font(.callout).foregroundStyle(.secondary) }
             } else if current?.session != nil { schoolStatus(source, selected: selected, fetch: fetch) }
             if current == nil {
-                Label(model.localSchoolTimetable == nil ? "暂时无法读取此账号的计划。" : "正在查看本机课表；个人计划需确认账号后查看。", systemImage: "person.crop.circle.badge.exclamationmark")
+                Label(model.localSchoolTimetable == nil ? String(localized: "暂时无法读取此账号的计划。") : String(localized: "正在查看本机课表；个人计划需确认账号后查看。"), systemImage: "person.crop.circle.badge.exclamationmark")
                     .font(.callout).foregroundStyle(.secondary)
             } else if read?.scope == current, state == nil {
-                status("无法读取已保存的计划。") { Task { await readPlans() } }
+                status(String(localized: "无法读取已保存的计划。")) { Task { await readPlans() } }
             }
             if let writeFailure {
                 GlassCard(padding: 8, shape: PlannerCorners.card) {
@@ -137,7 +138,7 @@ struct PlannerView: View {
                                 edit: editPlan, place: place, toggleCompletion: complete)
                 .id(current)
         }
-        .task(id: phase == .active ? fetch : nil) {
+        .task(id: model.schoolContentVisible ? fetch : nil) {
             if phase == .active, !model.school.selected { await loadSchool(source, fetch: fetch) }
         }
     }
@@ -167,18 +168,18 @@ struct PlannerView: View {
         if let week {
             title = schoolDateLabel(week.start, format: "M月d日") + "–" + schoolDateLabel(week.end, format: "M月d日")
         } else if selected?.calendarDay?.status == .unpublished && selected?.day.timed.isEmpty != false {
-            title = "尚未公布"
+            title = String(localized: "尚未公布")
         } else if let rotation = selected?.calendarDay?.day ?? selected?.school.rotationDay {
             title = "Day \(rotation)"
         } else if selected?.calendarDay?.status == .noClass || selected?.calendarDay?.status == .weekend {
-            title = "休息日"
+            title = String(localized: "休息日")
         } else {
             title = schoolDateLabel(date, format: "M月d日")
         }
         return HStack(alignment: .firstTextBaseline, spacing: 7) {
             Text(title).font(.system(week == nil ? .largeTitle : .title2, design: .rounded, weight: .bold))
             if week == nil {
-                Text(isToday ? "今天" : schoolDateLabel(date, format: "EEEE"))
+                Text(isToday ? String(localized: "今天") : schoolDateLabel(date, format: "EEEE"))
                     .font(.subheadline).foregroundStyle(.secondary)
             }
         }
@@ -188,7 +189,7 @@ struct PlannerView: View {
 
     private func navigation(week: TimetableWeek?, source: PlannerSchoolSource) -> some View {
         HStack(spacing: 1) {
-            dateButton(week == nil ? "前一天" : "上一周", icon: "chevron.left", offset: week == nil ? -1 : -7)
+            dateButton(week == nil ? String(localized: "前一天") : String(localized: "上一周"), icon: "chevron.left", offset: week == nil ? -1 : -7)
             Button { monthPresented = true } label: {
                 Text(schoolDateLabel(date, format: week == nil ? "yyyy年M月d日" : "M月d日"))
                     .font(.callout.weight(.medium)).monospacedDigit()
@@ -204,7 +205,7 @@ struct PlannerView: View {
                 }
                 .presentationCompactAdaptation(.popover)
             }
-            dateButton(week == nil ? "后一天" : "下一周", icon: "chevron.right", offset: week == nil ? 1 : 7)
+            dateButton(week == nil ? String(localized: "后一天") : String(localized: "下一周"), icon: "chevron.right", offset: week == nil ? 1 : 7)
             if !isToday {
                 Button("今天") { select(model.now) }
                     .font(.callout).frame(minHeight: 44)
@@ -218,29 +219,29 @@ struct PlannerView: View {
         GlassEffectContainer(spacing: 4) {
             HStack(spacing: 3) {
                 if editing {
-                    historyButton(.undo, title: "撤销", icon: "arrow.uturn.backward", available: state?.canUndo == true)
-                    historyButton(.redo, title: "重做", icon: "arrow.uturn.forward", available: state?.canRedo == true)
+                    historyButton(.undo, title: String(localized: "撤销"), icon: "arrow.uturn.backward", available: state?.canUndo == true)
+                    historyButton(.redo, title: String(localized: "重做"), icon: "arrow.uturn.forward", available: state?.canRedo == true)
                 } else {
                     // Keep the header on the same line at intermediate widths.
                     // The underlying scroll view should not move on mode changes.
-                    historyButton(.undo, title: "撤销", icon: "arrow.uturn.backward", available: false)
+                    historyButton(.undo, title: String(localized: "撤销"), icon: "arrow.uturn.backward", available: false)
                         .hidden().accessibilityHidden(true).allowsHitTesting(false)
                     Button { plansHidden.toggle() } label: {
-                        Label(plansHidden ? "显示个人计划" : "隐藏个人计划", systemImage: plansHidden ? "eye.slash" : "eye")
+                        Label(plansHidden ? String(localized: "显示个人计划") : String(localized: "隐藏个人计划"), systemImage: plansHidden ? "eye.slash" : "eye")
                             .labelStyle(.iconOnly).frame(minWidth: 32, minHeight: 36)
                     }
                     .buttonStyle(.glass)
                     .accessibilityIdentifier("planner-plan-visibility")
-                    .accessibilityValue(plansHidden ? "已隐藏" : "已显示")
+                    .accessibilityValue(plansHidden ? String(localized: "已隐藏") : String(localized: "已显示"))
                 }
                 Button { editing.toggle(); writeFailure = nil } label: {
-                    Label(editing ? "完成" : "编辑", systemImage: editing ? "checkmark" : "pencil")
+                    Label(editing ? String(localized: "完成") : String(localized: "编辑"), systemImage: editing ? "checkmark" : "pencil")
                         .font(.callout.weight(.medium)).frame(minWidth: 52, minHeight: 36)
                 }
                 .buttonStyle(.glass)
                 .disabled(!canWrite)
                 .accessibilityIdentifier("planner-edit-mode")
-                .accessibilityLabel(editing ? "完成编辑" : "编辑计划")
+                .accessibilityLabel(editing ? String(localized: "完成编辑") : String(localized: "编辑计划"))
                 .accessibilityAddTraits(editing ? .isSelected : [])
             }
         }
@@ -280,7 +281,7 @@ struct PlannerView: View {
         if week != nil {
             let first = columns.flatMap { column in
                 column.day.timed.compactMap { row -> Int? in
-                    guard case .school(let entry) = row else { return nil }
+                    guard case .school(let entry) = row, !entry.isOvernightContinuation else { return nil }
                     return SchoolClock.minute(in: entry.start)
                 }
             }.min() ?? 480
@@ -288,7 +289,12 @@ struct PlannerView: View {
         }
         guard let selected else { return nil }
         let school = PlannerDay(on: selected.id, school: selected.school, plans: [])
-        if !isToday { return school.timed.first.map { SchoolClock.minute(in: $0.start) } ?? 480 }
+        if !isToday {
+            return school.timed.first { row in
+                if case .school(let entry) = row { return !entry.isOvernightContinuation }
+                return false
+            }.map { SchoolClock.minute(in: $0.start) } ?? 480
+        }
         let next = selected.focus.flatMap { focus in school.timed.first { $0.id == focus.id } }
         if let current = school.timed.last(where: { row in
             row.canBeFocus && row.start <= model.now && (row.end.map { model.now < $0 } ?? false)
@@ -301,7 +307,7 @@ struct PlannerView: View {
     @ViewBuilder private func schoolStatus(_ source: PlannerSchoolSource, selected: PlannerTimelineColumn?, fetch: SchoolRead) -> some View {
         let failed = source.calendarPage.map { model.campus.errors[$0] != nil } ?? false
         if failed || (checkedSchool == fetch && selected?.school.hasCalendar == false) {
-            status("学校资料暂未更新，已有安排仍可查看。") {
+            status(String(localized: "学校资料暂未更新，已有安排仍可查看。")) {
                 Task { await loadSchool(source, fetch: fetch, force: true) }
             }
         }
@@ -350,9 +356,11 @@ struct PlannerView: View {
                                     teachingDay: model.planRotationCalendar?.day(on: day).teachingDay)
         if let range { draft.use(range, on: day) }
         let completion = item.flatMap { $0.source == .plan || $0.source == .occurrence ? $0.plan : nil }
+        let removal = completion ?? (item?.source == .recurringBubble ?
+            bubble?.nextOccurrence(from: effective, calendar: model.planRotationCalendar) : nil)
         editor = Editor(scope: current, date: day, target: target, planID: item?.plan.id ?? UUID(),
                         effectiveDay: effective, hadRepeatRule: bubble?.latest?.rule != nil,
-                        completionPlan: completion, draft: draft)
+                        completionPlan: completion, removalPlan: removal, draft: draft)
     }
 
     private func editorSheet(_ request: Editor) -> some View {
@@ -372,6 +380,13 @@ struct PlannerView: View {
                               completion: completion.map { plan in
             .init(completed: plan.isCompleted, toggle: {
                 try await persist(.complete(!plan.isCompleted, plan: plan), pending: plan.id, scope: request.scope)
+            })
+        }, removal: (request.completionPlan == nil ? request.removalPlan : completion).map { source in
+            let recurring: Bool = if case .bubble = request.target { true } else { false }
+            return .init(plan: source, recurring: recurring, commit: { removalScope in
+                guard editor?.id == request.id else { throw CancellationError() }
+                try await persist(.remove(source, removalScope), pending: source.id, scope: request.scope)
+                if editor?.id == request.id { editor = nil }
             })
         }) { plan in
             guard let current = editor, current.id == request.id else { throw CancellationError() }
@@ -411,7 +426,7 @@ struct PlannerView: View {
         guard editing, PlannerCalendarMonth.selectableDates.contains(day) else { return }
         if item.isRecurring, case .rotationDay = state?.schedule.bubbles.first(where: { $0.id == item.plan.id })?.latest?.rule?.recurrence,
            model.planRotationCalendar?.day(on: day).teachingDay == nil {
-            writeFailure = "这一天没有已确认的轮转 Day，原计划没有改动。"
+            writeFailure = String(localized: "这一天没有已确认的轮转 Day，原计划没有改动。")
             return
         }
         apply(.place(item, on: SchoolClock.key(day), at: time, now: model.now), pending: item.plan.id,
@@ -428,13 +443,14 @@ struct PlannerView: View {
         Task {
             do { try await persist(command, pending: id, scope: current, requestPermission: requestPermission) }
             catch is CancellationError {}
-            catch { if scope == current { writeFailure = "未能保存，原计划没有改动。" } }
+            catch { if scope == current { writeFailure = String(localized: "未能保存，原计划没有改动。") } }
         }
     }
 
     private func persist(_ command: PlanStore.Mutation, pending id: UUID, scope current: Scope,
                          requestPermission: Bool = false) async throws {
-        try await write(pending: id, scope: current, requestPermission: requestPermission) { session in
+        let removing: Bool = if case .remove = command { true } else { false }
+        try await write(pending: id, scope: current, requestPermission: requestPermission, reconcileFirst: removing) { session in
             try await model.planStore.apply(command, for: current.owner, session: session, calendar: model.planRotationCalendar)
         }
     }
@@ -443,16 +459,16 @@ struct PlannerView: View {
         guard editing, canWrite, let current = scope else { return }
         Task {
             do {
-                try await write(pending: UUID(), scope: current) { session in
+                try await write(pending: UUID(), scope: current, reconcileFirst: true) { session in
                     try await model.planStore.step(direction, for: current.owner, session: session)
                 }
             } catch is CancellationError {} catch {
-                if scope == current { writeFailure = direction == .undo ? "未能撤销，原计划没有改动。" : "未能重做，原计划没有改动。" }
+                if scope == current { writeFailure = direction == .undo ? String(localized: "未能撤销，原计划没有改动。") : String(localized: "未能重做，原计划没有改动。") }
             }
         }
     }
 
-    private func write(pending id: UUID, scope current: Scope, requestPermission: Bool = false,
+    private func write(pending id: UUID, scope current: Scope, requestPermission: Bool = false, reconcileFirst: Bool = false,
                        _ commit: (UUID) async throws -> PlanStore.EditorState) async throws {
         guard canWrite, scope == current else { throw CancellationError() }
         pendingPlanID = id
@@ -460,8 +476,15 @@ struct PlannerView: View {
         defer { pendingPlanID = nil }
         let value = try await commit(editSession)
         if scope == current {
+            let waitForAlerts = reconcileFirst && (state.map {
+                PlanReminderPlanner.inputsChanged(from: $0.schedule, to: value.schedule)
+            } ?? true)
             read = PlanRead(scope: current, value: value)
-            Task { await model.refreshPlanReminders(requestPermission: requestPermission) }
+            model.planDisplayRevision = UUID()
+            // Wait when removal/undo changed reminders, not when deleting a silent note
+            // or when an ordinary save might need the system's permission prompt.
+            if waitForAlerts { await model.refreshPlanReminders() }
+            else { Task { await model.refreshPlanReminders(requestPermission: requestPermission) } }
         }
     }
 }

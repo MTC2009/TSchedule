@@ -11,10 +11,12 @@ struct AtmosphereView: View {
     var inEnvironmentPanel = false
     var isCovered = false
 
-    private var moving: Bool {
+    private var exposed: Bool {
         let unobscured = inEnvironmentPanel || (!model.environmentPresented && !model.portalPresented && model.selectedLesson == nil)
-        return onScreen && !isCovered && model.preferences.ambientMotion && !reduceMotion && !lowPower && scenePhase == .active && unobscured
+        return onScreen && !isCovered && scenePhase == .active && unobscured
     }
+
+    private var moving: Bool { exposed && model.preferences.ambientMotion && !reduceMotion && !lowPower }
 
     var body: some View {
         let time = model.skyTime
@@ -25,12 +27,11 @@ struct AtmosphereView: View {
 
         ZStack {
             SkyBackdrop(state: VolumetricSkyState(time: time, style: style, festival: model.festival),
-                        fallback: palette, moving: moving)
+                        fallback: palette, moving: moving, exposed: exposed)
 
             if frame.hasParticles || frame.veil > 0 || style.lightning {
                 WeatherOverlay(weather: weather, style: style, daylight: time.daylight, moving: moving)
             }
-            SkyDetails(festival: model.festival)
             readability(at: time, frame: frame)
         }
         .allowsHitTesting(false)

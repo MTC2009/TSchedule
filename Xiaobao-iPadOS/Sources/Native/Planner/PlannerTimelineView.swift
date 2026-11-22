@@ -198,7 +198,7 @@ struct PlannerTimelineView: View {
             GlassCard(padding: 12, shape: PlannerCorners.tray) {
                 HStack {
                     let date = schoolDateLabel(request.date, format: "EEE M/d")
-                    Label(isWeek ? "\(date) · 长按后拖动选时段" : "长按后拖动选时段", systemImage: "hand.draw")
+                    Label(isWeek ? String(localized: "\(date) · 长按后拖动选时段") : String(localized: "长按后拖动选时段"), systemImage: "hand.draw")
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Button("取消") { finishRange(request.date, nil) }
@@ -257,15 +257,15 @@ struct PlannerTimelineView: View {
     private func tapTime(_ minute: Double, on date: Date) {
         guard canHold, canTap, let column = column(on: date) else { return }
         if let selected {
-            guard let target = PlannerPlacement(at: minute, moving: selected.plan.time, in: column.day) else {
-                feedback = "该安排会跨到下一天，请选早一点。"
+            guard let target = PlannerPlacement(at: minute, moving: selected.plan.time, in: column.placementDay) else {
+                feedback = String(localized: "该安排会跨到下一天，请选早一点。")
                 return
             }
             commit(selected, on: date, at: target.time)
         } else if rangeRequest?.date == nil || rangeRequest?.date == date {
             if let firstBoundary, firstBoundary.date == date {
-                guard let picked = PlannerPlacement(from: firstBoundary.minute, to: minute, in: column.day) else {
-                    feedback = "请选择不同的起止时刻。"
+                guard let picked = PlannerPlacement(from: firstBoundary.minute, to: minute, in: column.placementDay) else {
+                    feedback = String(localized: "请选择不同的起止时刻。")
                     return
                 }
                 resetInteraction()
@@ -331,7 +331,7 @@ struct PlannerTimelineView: View {
                 switch target(for: item, hold: current) {
                 case .time(let date, let placement): commit(item, on: date, at: placement.time)
                 case .inbox: commit(item, on: SchoolClock.dayDate(item.plan.day) ?? selectedDate, at: nil)
-                case .outsideDay: feedback = "该安排会跨到下一天，请选早一点。"
+                case .outsideDay: feedback = String(localized: "该安排会跨到下一天，请选早一点。")
                 case nil: break
                 }
             }
@@ -353,15 +353,15 @@ struct PlannerTimelineView: View {
         guard let column = column(on: start.date), !canvas.isNull,
               viewport.insetBy(dx: -4, dy: -4).contains(point),
               let end = scale.minute(at: max(0, min(scale.height, point.y - canvas.minY)), includingDayEnd: true) else { return nil }
-        return PlannerPlacement(from: start.minute, to: end, in: column.day)
+        return PlannerPlacement(from: start.minute, to: end, in: column.placementDay)
     }
 
     private func target(for item: PlanPlacementItem, hold: Hold) -> Target? {
-        if showsInbox && inbox.contains(hold.point) { return item.source == .plan && item.plan.time != nil ? .inbox : nil }
+        if showsInbox && inbox.contains(hold.point) { return item.source == .plan && item.plan.time != nil && item.plan.courseKind == nil ? .inbox : nil }
         guard let column = column(at: hold.point),
               let raw = scale.minute(at: hold.point.y - canvas.minY) else { return nil }
         let minute = max(0, raw - hold.initialMinuteOffset)
-        guard let placement = PlannerPlacement(at: minute, moving: item.plan.time, in: column.day) else { return .outsideDay }
+        guard let placement = PlannerPlacement(at: minute, moving: item.plan.time, in: column.placementDay) else { return .outsideDay }
         return .time(column.id, placement)
     }
 

@@ -54,27 +54,68 @@ extension SkyColor {
     var color: Color { Color(red: red, green: green, blue: blue) }
 }
 
+struct TimetableDetail: Identifiable {
+    let id = UUID()
+    let title: String
+    let start, end: Date
+    let location: String?
+    let metadata: TimetableLessonMetadata?
+    let isCourse: Bool
+
+    init(_ lesson: Lesson) {
+        self.init(title: lesson.course.name, start: lesson.start, end: lesson.end,
+                  location: lesson.course.room, metadata: .init(teacher: lesson.course.teacher), isCourse: true)
+    }
+
+    init(_ block: LessonTimeline.Block) {
+        self.init(title: block.title, start: block.start, end: block.end, location: block.location,
+                  metadata: block.metadata, isCourse: block.isCourse)
+    }
+
+    init(title: String, start: Date, end: Date, location: String?, metadata: TimetableLessonMetadata?, isCourse: Bool) {
+        self.title = title; self.start = start; self.end = end; self.location = location
+        self.metadata = metadata; self.isCourse = isCourse
+    }
+}
+
 struct LessonDetailView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
-    let lesson: Lesson
+    let detail: TimetableDetail
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    Text(lesson.course.room).font(.system(size: 68, weight: .semibold, design: .rounded)).foregroundStyle(.blue)
-                    Text(lesson.course.name).font(.title2.bold())
-                    Label("Day \(lesson.day) · \(lesson.timeLabel)", systemImage: "clock")
-                    Label(lesson.course.teacher, systemImage: "person")
-                    Divider()
-                    Text(schoolDateLabel(lesson.date)).foregroundStyle(.secondary)
+            Form {
+                Section {
+                    LabeledContent("日期", value: schoolDateLabel(detail.start))
+                    LabeledContent("时间") {
+                        Text(verbatim: timeRange).monospacedDigit()
+                            .accessibilityIdentifier("planner-school-time-range")
+                    }
+                    if let location = detail.location, !location.isEmpty {
+                        LabeledContent("场地", value: location)
+                    }
+                    if let grade = detail.metadata?.grade { LabeledContent("年级", value: grade) }
+                    if let name = detail.metadata?.className { LabeledContent("班级", value: name) }
+                    Text("教师：\(detail.metadata?.teacher ?? "—")")
+                        .accessibilityIdentifier("timetable-detail-teacher")
+                    if detail.isCourse { LabeledContent("备注", value: detail.metadata?.note ?? "—") }
+                }
+                if detail.isCourse, model.usesLocalTimetable {
                     Text(model.preferences.remindersEnabled ? (model.preferences.reminderLead == 0 ? String(localized: "上课时提醒") : String(localized: "提前 \(model.preferences.reminderLead) 分钟提醒")) : String(localized: "课前提醒未开启"))
                         .font(.callout).foregroundStyle(.secondary)
                     Button("查看提醒设置", systemImage: "bell") { dismiss(); model.tab = .settings }.buttonStyle(.glass)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(30)
+                }
             }
-            .navigationTitle("课程详情").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(detail.title).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
         }
+        .accessibilityIdentifier("timetable-entry-detail")
+    }
+
+    private var timeRange: String {
+        let begin = schoolDateLabel(detail.start, format: "HH:mm")
+        let finish = schoolDateLabel(detail.end, format: "HH:mm")
+        return SchoolClock.calendar.isDate(detail.start, inSameDayAs: detail.end) ?
+            begin + " – " + finish : String(localized: "\(begin) – 次日 \(finish)")
     }
 }

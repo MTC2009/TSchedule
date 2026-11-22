@@ -3,11 +3,11 @@ import SwiftUI
 extension PlanColor {
     var name: String {
         switch self {
-        case .blue: "蓝色"
-        case .teal: "青色"
-        case .green: "绿色"
-        case .orange: "橙色"
-        case .pink: "粉色"
+        case .blue: String(localized: "蓝色")
+        case .teal: String(localized: "青色")
+        case .green: String(localized: "绿色")
+        case .orange: String(localized: "橙色")
+        case .pink: String(localized: "粉色")
         }
     }
 
@@ -25,14 +25,14 @@ extension PlanColor {
 extension PlanIcon {
     var name: String {
         switch self {
-        case .book: "阅读"
-        case .pencil: "写作"
-        case .computer: "电脑"
-        case .people: "小组"
-        case .exercise: "运动"
-        case .music: "音乐"
-        case .flag: "目标"
-        case .errands: "杂事"
+        case .book: String(localized: "阅读")
+        case .pencil: String(localized: "写作")
+        case .computer: String(localized: "电脑")
+        case .people: String(localized: "小组")
+        case .exercise: String(localized: "运动")
+        case .music: String(localized: "音乐")
+        case .flag: String(localized: "目标")
+        case .errands: String(localized: "杂事")
         }
     }
 

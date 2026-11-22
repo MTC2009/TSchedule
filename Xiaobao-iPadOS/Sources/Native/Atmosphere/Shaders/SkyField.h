@@ -20,6 +20,10 @@ struct SkyUniforms {
     float4 sunlight;
     float4 moonlight;
     float4 cloudAmbient; // rgb at noon; colder fill at night is derived from the sky
+    float4 camera;       // test camera origin; the shipping camera stays still
+    float4 pointLight;   // local seasonal source, xyz world location + radiant strength
+    float4 pointColor;
+    float4 waveContact;  // world-space water contact + age; -1 when inactive
 };
 
 inline uint skyHash(uint3 p) {

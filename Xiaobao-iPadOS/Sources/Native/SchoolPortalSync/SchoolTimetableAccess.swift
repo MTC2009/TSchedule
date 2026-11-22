@@ -4,7 +4,7 @@ extension AppModel {
     /// Offline authority applies to this one device document, never to plans, grades, or a
     /// school request. A website that might have switched students must be reverified first.
     var localSchoolTimetable: SchoolTimetable? {
-        guard school.selected, timetableForeground, !portalPresented, !portal.manualSheet,
+        guard school.selected, schoolContentVisible, !portalPresented, !portal.manualSheet,
               school.identityIssue != .changed, let book = timetable.visible,
               school.owner == nil || school.owner == book.owner else { return nil }
         return book
@@ -18,6 +18,10 @@ extension AppModel {
     func updateSchoolTimetable(manual: Bool) async {
         guard school.selected, portal.foreground, !portal.manualSheet, !portalPresented,
               !timetableCheckingSession else { return }
+        guard schoolNetworkAvailable else {
+            if manual { timetable.reportOffline() }
+            return
+        }
         // Pressing Update can recheck existing cookies after an outage. It never claims a
         // password or opens the full website, and a change of student cancels this intent.
         let originalOwner = localSchoolTimetable?.owner

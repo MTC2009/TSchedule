@@ -344,6 +344,22 @@ import XCTest
         XCTAssertNil(untrusted.tasks); XCTAssertEqual(untrusted.issues[untrusted.taskRead],.format)
     }
 
+    func testForecastPickerReceivesPublishedParentsChildrenAndEmptyGroups() throws {
+        let book = try JSONDecoder().decode(SchoolPortalGrades.self, from: bytes([
+            "term":"sample", "termID":"t", "courses":[["id":"c","subject":"s","name":"Studio","type":1]]
+        ]))
+        let groups: [SchoolPortalGrades.Group] = [
+            .init(id:"0",title:"Design",nested:false,weight:0.65,mark:nil,items:[]),
+            .init(id:"0.0",title:"Design / Prototype",nested:true,weight:0.4,mark:nil,items:[]),
+            .init(id:"1",title:"Exhibit",nested:false,weight:0.35,mark:nil,items:[])
+        ]
+        let detail = book.courseDetail(book.courses[0], groups:groups)
+        XCTAssertEqual(detail.forecastGroups.options.map(\.title), groups.map(\.title))
+        let child = try XCTUnwrap(detail.forecastGroups["0.0"])
+        XCTAssertEqual(child.weight?.scope, .group)
+        XCTAssertEqual(try XCTUnwrap(detail.forecastGroups.courseShare(of: child)), 0.26, accuracy: 1e-12)
+    }
+
     func testPublishedWeightScopeAndUnknownSubmissionSurviveNativeProjection() throws {
         let raw = try bytes(["term":"T","termID":"term","gpa":NSNull(),"courses":[
             ["id":"c","name":"Ceramics","type":1,"subject":"7","cls":"2",

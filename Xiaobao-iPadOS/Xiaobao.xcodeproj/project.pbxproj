@@ -16,6 +16,17 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "A87047F451332B9668825828";
 		};
+		"D1826D2A59BAC40D6E3190D6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalMotion.swift";
+			"path" = "Atmosphere/SeasonalMotion.swift";
+			"sourceTree" = "<group>";
+		};
+		"09FAC9C77F89010656E7B889" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D1826D2A59BAC40D6E3190D6";
+		};
 		"D93520D5111992AD523AAD77" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -48,6 +59,17 @@
 		"88070E69CB8DFFA1B79A5738" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "6BEFCD9976DE5DB9D3672131";
+		};
+		"72A391E37D1DFCC291B9EEE3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SolarTermCalendar.swift";
+			"path" = "Atmosphere/SolarTermCalendar.swift";
+			"sourceTree" = "<group>";
+		};
+		"6E6E7028BD9C4C6F487E3C33" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "72A391E37D1DFCC291B9EEE3";
 		};
 		"0E21456B63F1F1438DBBDB71" = {
 			"isa" = "PBXFileReference";
@@ -177,9 +199,53 @@
 			"path" = "GPA/CourseForecast.swift";
 			"sourceTree" = "<group>";
 		};
+		"6921ED2186E2C95495465FED" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "CourseForecastStore.swift";
+			"path" = "GPA/CourseForecastStore.swift";
+			"sourceTree" = "<group>";
+		};
+		"F81199133D909500BDA2D35C" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6921ED2186E2C95495465FED";
+		};
+		"4851ED4E0224DB1C47CBA987" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TermForecastGPA.swift";
+			"path" = "GPA/TermForecastGPA.swift";
+			"sourceTree" = "<group>";
+		};
+		"558E4889A01F9CBC7E647DFC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4851ED4E0224DB1C47CBA987";
+		};
+		"D0796C7FEDB925742BBD07B7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolGradeCache.swift";
+			"path" = "SchoolPortalData/SchoolGradeCache.swift";
+			"sourceTree" = "<group>";
+		};
+		"FA591C2055B33B413C2EECF7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D0796C7FEDB925742BBD07B7";
+		};
+		"E9624D05FD2D8EC37F9F708A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ForecastGroups.swift";
+			"path" = "GPA/ForecastGroups.swift";
+			"sourceTree" = "<group>";
+		};
 		"CF52685E09FC2E57CB068A18" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "E202422C051418E074B03A0F";
+		};
+		"B27200F4288B02A75838C6CD" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E9624D05FD2D8EC37F9F708A";
 		};
 		"1CB694E8D5640DDB31823DE8" = {
 			"isa" = "PBXFileReference";
@@ -332,6 +398,17 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "58B2202939767A1B092EA0A6";
 		};
+		"1391DF89A917195E089BB8A9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "PlannerCampusRoutine.swift";
+			"path" = "Planner/PlannerCampusRoutine.swift";
+			"sourceTree" = "<group>";
+		};
+		"FF0514BB8913674581A1A3A9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1391DF89A917195E089BB8A9";
+		};
 		"7400A21B78491DC9E7D7E1C9" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -361,9 +438,20 @@
 			"path" = "Planner/PlannerSchoolDay.swift";
 			"sourceTree" = "<group>";
 		};
+		"A9426020B16D7936F2A15E0D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TimetablePresentation.swift";
+			"path" = "Planner/TimetablePresentation.swift";
+			"sourceTree" = "<group>";
+		};
 		"78E1BF12123D48198D0B667D" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "033C79EE862041180061F2BB";
+		};
+		"D53B7A776D706F2077D0AF4C" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A9426020B16D7936F2A15E0D";
 		};
 		"A4223078B99E9299B191C767" = {
 			"isa" = "PBXFileReference";
@@ -405,9 +493,20 @@
 			"path" = "SchoolAssignments/SavedAssignment.swift";
 			"sourceTree" = "<group>";
 		};
+		"3B4629112A76A63D533A4FBD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTaskMaterial.swift";
+			"path" = "SchoolAssignments/SchoolTaskMaterial.swift";
+			"sourceTree" = "<group>";
+		};
 		"8F9C2F08D7858892EC70F36B" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "46A02BDE4BE898A957FECB76";
+		};
+		"3A46D72C8595BBBE77E393B1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3B4629112A76A63D533A4FBD";
 		};
 		"77DDF985154C72544906260F" = {
 			"isa" = "PBXFileReference";
@@ -475,12 +574,45 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "CD7E9AB967F79836D93C8E5A";
 		};
+		"5D5D56BCB6E17FAD8671CC35" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolBellAlignment.swift";
+			"path" = "SchoolTimetable/SchoolBellAlignment.swift";
+			"sourceTree" = "<group>";
+		};
+		"C7E3AA9D8499AE3CAA2CB4D7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolRotationEvidence.swift";
+			"path" = "SchoolTimetable/SchoolRotationEvidence.swift";
+			"sourceTree" = "<group>";
+		};
+		"B1509788C39840EAC0E60732" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolStudyWeek.swift";
+			"path" = "SchoolTimetable/SchoolStudyWeek.swift";
+			"sourceTree" = "<group>";
+		};
 		"E8304C2241B367DC8BB2CCD3" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"name" = "SchoolTimetable.swift";
 			"path" = "SchoolTimetable/SchoolTimetable.swift";
 			"sourceTree" = "<group>";
+		};
+		"8AC0BAEC846C8D307B69DC95" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5D5D56BCB6E17FAD8671CC35";
+		};
+		"D5AC1B6C05D6AFF3159EEAB6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C7E3AA9D8499AE3CAA2CB4D7";
+		};
+		"7D8DDD9CC9616FE607830C2D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B1509788C39840EAC0E60732";
 		};
 		"6C3ABE2DBFDEFC41DAED6EA8" = {
 			"isa" = "PBXBuildFile";
@@ -589,9 +721,11 @@
 			"isa" = "PBXGroup";
 			"children" = (
 				"A87047F451332B9668825828",
+				"D1826D2A59BAC40D6E3190D6",
 				"D93520D5111992AD523AAD77",
 				"818BE728D803DE280AA06E26",
 				"6BEFCD9976DE5DB9D3672131",
+				"72A391E37D1DFCC291B9EEE3",
 				"0E21456B63F1F1438DBBDB71",
 				"9C738056BEDF641785E144D0",
 				"2BF519E8C1230ED7A2B8A2C7",
@@ -604,6 +738,10 @@
 				"2A81419A1658F8F03D20A0C8",
 				"243B0C7ED6947B716B4D5A40",
 				"E202422C051418E074B03A0F",
+				"E9624D05FD2D8EC37F9F708A",
+				"D0796C7FEDB925742BBD07B7",
+				"6921ED2186E2C95495465FED",
+				"4851ED4E0224DB1C47CBA987",
 				"1CB694E8D5640DDB31823DE8",
 				"22711C34AEC87ED1F367423F",
 				"03856BD2CD4CAD55DB4F5D7A",
@@ -617,19 +755,25 @@
 				"B4C93F41BD80FE744A0EED60",
 				"4FE18D7A6CC722EA50F810AA",
 				"58B2202939767A1B092EA0A6",
+				"1391DF89A917195E089BB8A9",
 				"7400A21B78491DC9E7D7E1C9",
 				"C2A90344468C87DE38326F54",
 				"033C79EE862041180061F2BB",
+				"A9426020B16D7936F2A15E0D",
 				"A4223078B99E9299B191C767",
 				"78B058D0458DBA24FEED5BC0",
 				"63DF9FEB74F873B821BA1E21",
 				"46A02BDE4BE898A957FECB76",
+				"3B4629112A76A63D533A4FBD",
 				"77DDF985154C72544906260F",
 				"D3D52B989C813102ACD8130E",
 				"11D36C75F7B04FB2A309E41B",
 				"FCFA88B538E9A589D0FB3E56",
 				"63A3E4A226237019DE07C113",
 				"CD7E9AB967F79836D93C8E5A",
+				"5D5D56BCB6E17FAD8671CC35",
+				"C7E3AA9D8499AE3CAA2CB4D7",
+				"B1509788C39840EAC0E60732",
 				"E8304C2241B367DC8BB2CCD3",
 				"77CC2569892DD7FF51D6EFB0",
 				"F5189A5B4FBF0FA9F2A73A47",
@@ -687,6 +831,287 @@
 		"10BFF13D71F40CB314EC4089" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "FA955F78E782D8767C6A3BD1";
+		};
+		"A824B17521CD0CD39693040F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalAutumn.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalAutumn.swift";
+			"sourceTree" = "<group>";
+		};
+		"E30AD26DC9A96CF66DDAC9DE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A824B17521CD0CD39693040F";
+		};
+		"B786AC7D120217BA636AC843" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalBotany.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalBotany.swift";
+			"sourceTree" = "<group>";
+		};
+		"4E2A59B86D471B6205FE83A5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B786AC7D120217BA636AC843";
+		};
+		"0F4ABBE655209BDCA1B9BC9B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalContact.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalContact.swift";
+			"sourceTree" = "<group>";
+		};
+		"443D1C8818B40D8C58DC14AB" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0F4ABBE655209BDCA1B9BC9B";
+		};
+		"86D29BD72B39D85EC8466F68" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalFestivalCourtyards.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalFestivalCourtyards.swift";
+			"sourceTree" = "<group>";
+		};
+		"B07ED91C2E2DABE1F2808E97" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "86D29BD72B39D85EC8466F68";
+		};
+		"EADDE30B97D4A5B77CF739B6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalFestivalLandscapes.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalFestivalLandscapes.swift";
+			"sourceTree" = "<group>";
+		};
+		"6D179B001CCC0F930F1EBB8F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "EADDE30B97D4A5B77CF739B6";
+		};
+		"D45A08410F7CF1097C814FE7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalFlights.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalFlights.swift";
+			"sourceTree" = "<group>";
+		};
+		"3C7B70BDF0664649E8E1870F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D45A08410F7CF1097C814FE7";
+		};
+		"694EA3AF0498D5609F5D8382" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalGeometry.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalGeometry.swift";
+			"sourceTree" = "<group>";
+		};
+		"64225E29D7952626B1580C55" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "694EA3AF0498D5609F5D8382";
+		};
+		"EB5E3D9B18974E15C7051DCE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalHabitat.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalHabitat.swift";
+			"sourceTree" = "<group>";
+		};
+		"45ADD053916E83B911E4D631" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "EB5E3D9B18974E15C7051DCE";
+		};
+		"18607770E0867C0482ADA229" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalHolidays.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalHolidays.swift";
+			"sourceTree" = "<group>";
+		};
+		"BC43AB54CB781820A94C335E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "18607770E0867C0482ADA229";
+		};
+		"C45398CC20C0EE68B709B4AA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalPicking.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalPicking.swift";
+			"sourceTree" = "<group>";
+		};
+		"69581293905E3B5148917BD2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C45398CC20C0EE68B709B4AA";
+		};
+		"A89241930CD7A56D4424799C" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalPlumage.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalPlumage.swift";
+			"sourceTree" = "<group>";
+		};
+		"04B76390EA21615C89807688" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A89241930CD7A56D4424799C";
+		};
+		"F8A7437A770EB7CC400CC1F3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalRegatta.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalRegatta.swift";
+			"sourceTree" = "<group>";
+		};
+		"56A3B4182F73395940CEADEA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F8A7437A770EB7CC400CC1F3";
+		};
+		"90B88994E4F975FE9B66B442" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalRelief.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalRelief.swift";
+			"sourceTree" = "<group>";
+		};
+		"400D4B878CD23BE5C68D4B26" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "90B88994E4F975FE9B66B442";
+		};
+		"2A861D7C34F761C2BEDD82EE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalRenderer.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalRenderer.swift";
+			"sourceTree" = "<group>";
+		};
+		"2C9C5C4EE57953CDE366A031" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2A861D7C34F761C2BEDD82EE";
+		};
+		"BD8DCFC35C104EE45808B830" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalScene.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalScene.swift";
+			"sourceTree" = "<group>";
+		};
+		"40160DB62131538D90375DC5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BD8DCFC35C104EE45808B830";
+		};
+		"2B0FFDE09620D0D7F1539244" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalSculpt.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalSculpt.swift";
+			"sourceTree" = "<group>";
+		};
+		"CE52BA09AAFD8BD8F8C989DA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2B0FFDE09620D0D7F1539244";
+		};
+		"81690931599AB54CE5F38035" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalSetPieces.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalSetPieces.swift";
+			"sourceTree" = "<group>";
+		};
+		"9CA521252143439B13BA0B8B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "81690931599AB54CE5F38035";
+		};
+		"F0AF330534305B468AFDA218" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalShadow.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalShadow.swift";
+			"sourceTree" = "<group>";
+		};
+		"24389BD157117462A84AA414" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F0AF330534305B468AFDA218";
+		};
+		"D38DEEA8F16D4392C19E53D3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalSparrow.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalSparrow.swift";
+			"sourceTree" = "<group>";
+		};
+		"234946905122FCC10EB7F9C3" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D38DEEA8F16D4392C19E53D3";
+		};
+		"9B456BB5E7F85C5CCA6B91D8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalSpring.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalSpring.swift";
+			"sourceTree" = "<group>";
+		};
+		"E63BD325BA79113D57002CFA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "9B456BB5E7F85C5CCA6B91D8";
+		};
+		"2C20AA4F3F0C29E830238C97" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalSummer.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalSummer.swift";
+			"sourceTree" = "<group>";
+		};
+		"27D876DFF78C54213AB10762" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "2C20AA4F3F0C29E830238C97";
+		};
+		"855661929D34000421F8253A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalWildlife.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalWildlife.swift";
+			"sourceTree" = "<group>";
+		};
+		"6B226218F13B7FDE6F9D685E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "855661929D34000421F8253A";
+		};
+		"0C7E034A9EF9127BD25E5343" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SeasonalWinter.swift";
+			"path" = "Atmosphere/Seasonal/SeasonalWinter.swift";
+			"sourceTree" = "<group>";
+		};
+		"20B66145C33B11C140EF113D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0C7E034A9EF9127BD25E5343";
+		};
+		"9BA35000D8B1CD52654803EE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SeasonalLens.h";
+			"path" = "Atmosphere/Shaders/SeasonalLens.h";
+			"sourceTree" = "<group>";
+		};
+		"6E821FA9E32DD0052A6FACA4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SeasonalMaterials.h";
+			"path" = "Atmosphere/Shaders/SeasonalMaterials.h";
+			"sourceTree" = "<group>";
+		};
+		"1B98B5B4AA07A82C9224E8B1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SeasonalPlumage.h";
+			"path" = "Atmosphere/Shaders/SeasonalPlumage.h";
+			"sourceTree" = "<group>";
+		};
+		"84985DD4C9FDF8497ED7D4AB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.c.h";
+			"name" = "SeasonalSurface.h";
+			"path" = "Atmosphere/Shaders/SeasonalSurface.h";
+			"sourceTree" = "<group>";
 		};
 		"557EA23E570B4E9A44E2FDF0" = {
 			"isa" = "PBXFileReference";
@@ -1215,9 +1640,20 @@
 			"path" = "SchoolPortalSync/SchoolAssignmentAccess.swift";
 			"sourceTree" = "<group>";
 		};
+		"7EA80FE035586993C2D396B2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SchoolTaskDownload.swift";
+			"path" = "SchoolPortalSync/SchoolTaskDownload.swift";
+			"sourceTree" = "<group>";
+		};
 		"E0CE06212681E4D2E107191B" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "BD11B2B371D2A1E95D727455";
+		};
+		"E157E18372200A74C869127B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7EA80FE035586993C2D396B2";
 		};
 		"4E497AC0E9206054C3283E49" = {
 			"isa" = "PBXFileReference";
@@ -1358,9 +1794,20 @@
 			"path" = "Settings/ReminderSettingsView.swift";
 			"sourceTree" = "<group>";
 		};
+		"703E6CC1417064A79B72192F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TimetableDisplaySettingsView.swift";
+			"path" = "Settings/TimetableDisplaySettingsView.swift";
+			"sourceTree" = "<group>";
+		};
 		"D30BCE533A782B2FE82DE113" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "F1C17CBD57AABF30623DA2AE";
+		};
+		"2348BA2E085E17857A10DA6B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "703E6CC1417064A79B72192F";
 		};
 		"EF8879F2CFE9B9E08AAD1271" = {
 			"isa" = "PBXFileReference";
@@ -1479,6 +1926,33 @@
 				"03A66FD144583012DFD9AD6A",
 				"B2F06AEE1BDF7003E7D910C6",
 				"FA955F78E782D8767C6A3BD1",
+				"A824B17521CD0CD39693040F",
+				"B786AC7D120217BA636AC843",
+				"0F4ABBE655209BDCA1B9BC9B",
+				"86D29BD72B39D85EC8466F68",
+				"EADDE30B97D4A5B77CF739B6",
+				"D45A08410F7CF1097C814FE7",
+				"694EA3AF0498D5609F5D8382",
+				"EB5E3D9B18974E15C7051DCE",
+				"18607770E0867C0482ADA229",
+				"C45398CC20C0EE68B709B4AA",
+				"A89241930CD7A56D4424799C",
+				"F8A7437A770EB7CC400CC1F3",
+				"90B88994E4F975FE9B66B442",
+				"2A861D7C34F761C2BEDD82EE",
+				"BD8DCFC35C104EE45808B830",
+				"2B0FFDE09620D0D7F1539244",
+				"81690931599AB54CE5F38035",
+				"F0AF330534305B468AFDA218",
+				"D38DEEA8F16D4392C19E53D3",
+				"9B456BB5E7F85C5CCA6B91D8",
+				"2C20AA4F3F0C29E830238C97",
+				"855661929D34000421F8253A",
+				"0C7E034A9EF9127BD25E5343",
+				"9BA35000D8B1CD52654803EE",
+				"6E821FA9E32DD0052A6FACA4",
+				"1B98B5B4AA07A82C9224E8B1",
+				"84985DD4C9FDF8497ED7D4AB",
 				"557EA23E570B4E9A44E2FDF0",
 				"A3DBB6B1CBB4D2AF06F90C5B",
 				"8ED60D5713D58FFE7C65AC41",
@@ -1528,6 +2002,7 @@
 				"D3F7B2D407D40A32ABEF24C9",
 				"DD03091CBD01F5C0C383A35F",
 				"BD11B2B371D2A1E95D727455",
+				"7EA80FE035586993C2D396B2",
 				"4E497AC0E9206054C3283E49",
 				"637664005F8E2855AD625DFA",
 				"413F55C4B95C5428FA06B009",
@@ -1541,6 +2016,7 @@
 				"E3475266F73F847BFF61E2BD",
 				"3997C62C5522A075C6AE3461",
 				"F1C17CBD57AABF30623DA2AE",
+				"703E6CC1417064A79B72192F",
 				"EF8879F2CFE9B9E08AAD1271",
 				"36F48ABAFF3AEB20DB15F656",
 				"CF3CF472DE1F23483B419FE3",
@@ -1722,6 +2198,12 @@
 			"path" = "Config/LessonActivity-Info.plist";
 			"sourceTree" = "<group>";
 		};
+		"F8DC9396225C8C1E11D3D6FF" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/Signing.xcconfig";
+			"sourceTree" = "<group>";
+		};
 		"69E27356EF629022720D868A" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -1766,6 +2248,7 @@
 				"A6E4EF2C154AA04042B65644",
 				"4B631F69842530D659306C8F",
 				"50A1D25268CCE0763D061FFD",
+				"F8DC9396225C8C1E11D3D6FF",
 				"69E27356EF629022720D868A",
 				"FE0A091FDBFB3E9C31B7A1BD",
 			);
@@ -1776,9 +2259,11 @@
 			"buildActionMask" = 2147483647;
 			"files" = (
 				"87E18FF5C98FD7AC0E601FE4",
+				"09FAC9C77F89010656E7B889",
 				"5B4C1EED35C0526244603168",
 				"349FB338B46A222DDD41E6E0",
 				"88070E69CB8DFFA1B79A5738",
+				"6E6E7028BD9C4C6F487E3C33",
 				"B809D879FD9758EAF5FEA47D",
 				"F9FB786B2E07BFE0B5291549",
 				"91EE8CC48DAFFEBEE24F7BA1",
@@ -1791,6 +2276,10 @@
 				"20D9967789E3F97B65C2E7F9",
 				"AAFBB00D5DDE4112250C8F4B",
 				"CF52685E09FC2E57CB068A18",
+				"B27200F4288B02A75838C6CD",
+				"FA591C2055B33B413C2EECF7",
+				"F81199133D909500BDA2D35C",
+				"558E4889A01F9CBC7E647DFC",
 				"B0C8C6C780C10C44AE78F02E",
 				"576ABF2EB2C17B299F14F030",
 				"E04420E90BABF93A92D4B4B4",
@@ -1804,19 +2293,25 @@
 				"0297A80C4B5D80DAED4553CC",
 				"0A94372077BDE8CC68EE0DC9",
 				"D9A75F2F29B0247197C27C40",
+				"FF0514BB8913674581A1A3A9",
 				"EBD476EF83F6B2DEEA284899",
 				"43C86E32022001A8D1B9B672",
 				"78E1BF12123D48198D0B667D",
+				"D53B7A776D706F2077D0AF4C",
 				"770D011C8E027C2702291818",
 				"5959FA6E95E23B69C24C43CA",
 				"B547C807DC71AF021F440F35",
 				"8F9C2F08D7858892EC70F36B",
+				"3A46D72C8595BBBE77E393B1",
 				"455C7EE61F8321B1DF244CB3",
 				"1F7896A44F2F3B9583226798",
 				"E4CFC2C361E9D42809064C2A",
 				"A5D05C5A9FC675BBF6FC28C9",
 				"CA6649F9E72C795679B5FBB4",
 				"E663E1E1C06F7CB3A4D99092",
+				"8AC0BAEC846C8D307B69DC95",
+				"D5AC1B6C05D6AFF3159EEAB6",
+				"7D8DDD9CC9616FE607830C2D",
 				"6C3ABE2DBFDEFC41DAED6EA8",
 				"5BE07FBED9374A78E2950CC4",
 				"C63C66A2979449F3D528ED87",
@@ -1831,6 +2326,29 @@
 				"3D3DFED499EA796535E95508",
 				"08AF54FE1B9EFA272FAE4668",
 				"10BFF13D71F40CB314EC4089",
+				"E30AD26DC9A96CF66DDAC9DE",
+				"4E2A59B86D471B6205FE83A5",
+				"443D1C8818B40D8C58DC14AB",
+				"B07ED91C2E2DABE1F2808E97",
+				"6D179B001CCC0F930F1EBB8F",
+				"3C7B70BDF0664649E8E1870F",
+				"64225E29D7952626B1580C55",
+				"45ADD053916E83B911E4D631",
+				"BC43AB54CB781820A94C335E",
+				"69581293905E3B5148917BD2",
+				"04B76390EA21615C89807688",
+				"56A3B4182F73395940CEADEA",
+				"400D4B878CD23BE5C68D4B26",
+				"2C9C5C4EE57953CDE366A031",
+				"40160DB62131538D90375DC5",
+				"CE52BA09AAFD8BD8F8C989DA",
+				"9CA521252143439B13BA0B8B",
+				"24389BD157117462A84AA414",
+				"234946905122FCC10EB7F9C3",
+				"E63BD325BA79113D57002CFA",
+				"27D876DFF78C54213AB10762",
+				"6B226218F13B7FDE6F9D685E",
+				"20B66145C33B11C140EF113D",
 				"B698F49740C64950810EE196",
 				"44BF7EC1D5F3699231E4B76D",
 				"77886A277373109D1735631F",
@@ -1878,6 +2396,7 @@
 				"79E2B1B517AA29B67B13A43A",
 				"6065A98EF3FF3A369D48E462",
 				"E0CE06212681E4D2E107191B",
+				"E157E18372200A74C869127B",
 				"CD46D1B5886327BC36224DA4",
 				"EAF455AD1C6C80184EA71A96",
 				"457F13F4B55C74980AB41354",
@@ -1891,6 +2410,7 @@
 				"9282D29A8A1B888C86D38C6B",
 				"C1B90F3C0CAC7FC5A52F4672",
 				"D30BCE533A782B2FE82DE113",
+				"2348BA2E085E17857A10DA6B",
 				"0DE22F8761080494F6F03714",
 				"ECB8373A1E43BB4907E8DBE8",
 				"0919A4E5D79F6F825AF7AAC8",
@@ -1977,13 +2497,14 @@
 		"941798AECA264FECE6B7C45D" = {
 			"isa" = "XCBuildConfiguration";
 			"name" = "Debug";
+			"baseConfigurationReference" = "F8DC9396225C8C1E11D3D6FF";
 			"buildSettings" = {
 				"CLANG_ENABLE_MODULES" = "YES";
 				"CLANG_ENABLE_OBJC_ARC" = "YES";
 				"SDKROOT" = "iphoneos";
 				"IPHONEOS_DEPLOYMENT_TARGET" = "26.0";
 				"SWIFT_VERSION" = "5.0";
-				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "cn.xiaobao.ipados.prototype";
+				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "st.mtc.tschedule";
 				"MARKETING_VERSION" = "0.3";
 				"CURRENT_PROJECT_VERSION" = "3";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
@@ -2043,13 +2564,14 @@
 		"38F03FCBDACA10AAD4143C88" = {
 			"isa" = "XCBuildConfiguration";
 			"name" = "Release";
+			"baseConfigurationReference" = "F8DC9396225C8C1E11D3D6FF";
 			"buildSettings" = {
 				"CLANG_ENABLE_MODULES" = "YES";
 				"CLANG_ENABLE_OBJC_ARC" = "YES";
 				"SDKROOT" = "iphoneos";
 				"IPHONEOS_DEPLOYMENT_TARGET" = "26.0";
 				"SWIFT_VERSION" = "5.0";
-				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "cn.xiaobao.ipados.prototype";
+				"TSCHEDULE_APP_BUNDLE_IDENTIFIER" = "st.mtc.tschedule";
 				"MARKETING_VERSION" = "0.3";
 				"CURRENT_PROJECT_VERSION" = "3";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-O";

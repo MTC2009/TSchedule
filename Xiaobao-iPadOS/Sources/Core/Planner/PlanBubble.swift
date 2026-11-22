@@ -87,6 +87,15 @@ struct PlanBubble: Codable, Equatable, Identifiable, Sendable {
     var reusable: Bool
     private(set) var revisions: [Revision] = []
     private(set) var completedDays: Set<String> = []
+    // Absence means no exclusions in archives saved by earlier versions.
+    private var removedDays: Set<String>?
+
+    init(prototype: PersonalPlan, reusable: Bool) {
+        self.prototype = prototype
+        self.reusable = reusable
+    }
+
+    var silentDays: Set<String> { completedDays.union(removedDays ?? []) }
 
     var id: UUID { prototype.id }
     var latest: Revision? { revisions.last }
@@ -96,7 +105,7 @@ struct PlanBubble: Codable, Equatable, Identifiable, Sendable {
         prototype.isValid && !prototype.isCompleted &&
             revisions.allSatisfy { $0.isValid(for: id) } &&
             zip(revisions, revisions.dropFirst()).allSatisfy { $0.effectiveDay < $1.effectiveDay } &&
-            completedDays.allSatisfy { SchoolClock.dayDate($0) != nil }
+            silentDays.allSatisfy { SchoolClock.dayDate($0) != nil }
     }
 
     mutating func revise(recurrence: PlanRecurrence?, effectiveDay: String) {
@@ -108,17 +117,47 @@ struct PlanBubble: Codable, Equatable, Identifiable, Sendable {
     }
 
     func occurrence(on day: String, calendar: PublishedSchoolCalendar? = nil) -> PersonalPlan? {
-        guard let date = SchoolClock.dayDate(day), let rule = revisions.last(where: { $0.effectiveDay <= day })?.rule,
+        guard removedDays?.contains(day) != true, let date = SchoolClock.dayDate(day),
+              let rule = revisions.last(where: { $0.effectiveDay <= day })?.rule,
               rule.recurrence.matches(date, calendar: calendar) else { return nil }
         let plan = rule.plan
         return PersonalPlan(id: id, day: day, title: plan.title, time: plan.time,
                             isCompleted: completedDays.contains(day), color: plan.color, icon: plan.icon,
-                            reminder: plan.reminder)
+                            reminder: plan.reminder, courseKind: plan.courseKind)
     }
 
     func copy(on day: String, at time: PlanTime) -> PersonalPlan? {
         PersonalPlan(day: day, title: prototype.title, time: time,
-                     color: prototype.color, icon: prototype.icon, reminder: prototype.reminder)
+                     color: prototype.color, icon: prototype.icon, reminder: prototype.reminder, courseKind: prototype.courseKind)
+    }
+
+    /// A shelf bubble has no occurrence of its own. Bind destructive choices to the
+    /// first actual date on or after the selected day, and display that date before removal.
+    func nextOccurrence(from first: String, calendar: PublishedSchoolCalendar?) -> PersonalPlan? {
+        for (index, revision) in revisions.enumerated() {
+            let start = max(first, revision.effectiveDay)
+            let end = revisions.dropFirst(index + 1).first?.effectiveDay
+            guard let rule = revision.rule, end.map({ start < $0 }) ?? true else { continue }
+            switch rule.recurrence {
+            case .rotationDay(let day):
+                for row in calendar?.days ?? [] where row.date >= start && row.teachingDay == day {
+                    if let end, row.date >= end { break }
+                    if let item = occurrence(on: row.date, calendar: calendar) { return item }
+                }
+            case .weekday(let weekday):
+                let clock = SchoolClock.calendar
+                guard let initial = SchoolClock.dayDate(start) else { return nil }
+                let offset = (weekday - clock.component(.weekday, from: initial) + 7) % 7
+                var next = clock.date(byAdding: .day, value: offset, to: initial)
+                while let date = next {
+                    let key = SchoolClock.key(date)
+                    if let end, key >= end { break }
+                    if let item = occurrence(on: key, calendar: calendar) { return item }
+                    next = clock.date(byAdding: .day, value: 7, to: date)
+                }
+            }
+        }
+        return nil
     }
 
     mutating func reschedule(to destination: Date, at time: PlanTime, now: Date,
@@ -167,5 +206,10 @@ struct PlanBubble: Codable, Equatable, Identifiable, Sendable {
 
     mutating func setCompleted(_ completed: Bool, on day: String) {
         if completed { completedDays.insert(day) } else { completedDays.remove(day) }
+    }
+
+    mutating func excludeOccurrence(on day: String) {
+        if removedDays == nil { removedDays = [] }
+        removedDays?.insert(day)
     }
 }

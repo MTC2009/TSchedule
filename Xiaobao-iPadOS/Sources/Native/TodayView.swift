@@ -16,9 +16,7 @@ struct TodayView: View {
                     return (row, source.timeline(on: date, lessons: source.lessons(on: date)))
                 }
                 TodayTimetableView(timeline: model.provider.timeline(on: model.now, lessons: lessons),
-                                   nextSchoolDay: next, noClassNotice: calendar?.notices.first) { id in
-                    model.selectedLesson = lessons.first { $0.id == id }
-                }
+                                   nextSchoolDay: next, noClassNotice: calendar?.notices.first)
                 Text("XIAOBAO").tracking(3)
                     .font(.caption2).foregroundStyle(.secondary).padding(.horizontal, 4)
             }
@@ -30,21 +28,47 @@ struct TodayView: View {
 /// The timeline is the only overview. Its selected instant also drives the card above it.
 struct TodayTimetableView: View {
     @Environment(AppModel.self) private var model
+    /// Original enrollment timeline; never give a display-filtered timeline to ActivityKit.
     let timeline: LessonTimeline?
     let nextSchoolDay: NextSchoolDay?
     var noClassNotice: String? = nil
-    var openLesson: ((String) -> Void)? = nil
+    @State private var saved: (Read, [PersonalPlan])?
+
+    private struct Read: Hashable {
+        let scope: TimetablePlanScope?
+        let day: String
+        let publication: String?
+        let revision: UUID
+    }
+
+    private var read: Read {
+        .init(scope: TimetablePlanScope(model), day: SchoolClock.key(model.now),
+              publication: model.planRotationCalendar?.sourceSHA256, revision: model.planDisplayRevision)
+    }
 
     var body: some View {
+        let key = read, date = model.now
+        let plans = saved?.0 == key ? saved?.1 ?? [] : []
+        let school = PlannerSchoolSource(model: model, dates: [date]).schoolDay(on: date).school
+        let display = TimetablePresentation(on: date, school: school, plans: plans, settings: model.personalization)
+        let visible = display.timeline(original: timeline)
         let instant = model.timetableInstant
-        let focus = timeline?.focus(at: instant)
-        let recess = timeline?.recess(at: instant)
-        FocusLessonCard(timeline: timeline, focus: focus, recess: recess, instant: instant,
-                        nextSchoolDay: nextSchoolDay, noClassNotice: noClassNotice, openLesson: openLesson)
-        if let timeline, let bounds = timeline.bounds {
-            TimeLensView(timeline: timeline, bounds: bounds, instant: instant, focus: focus, recess: recess)
-            LessonActivityControl(timeline: timeline)
+        let focus = visible?.focus(at: instant)
+        let recess = visible?.recess(at: instant)
+        let hidden = timeline?.blocks.isEmpty == false || !plans.isEmpty || school.entries.contains { $0.kind.isReferenceOnly }
+        FocusLessonCard(timeline: visible, focus: focus, recess: recess, instant: instant,
+                        nextSchoolDay: nextSchoolDay, noClassNotice: noClassNotice, emptyIsFiltered: hidden)
+            .task(id: key) {
+                guard let scope = key.scope else { saved = nil; return }
+                let courses = try? await model.planStore.read(day: key.day, for: scope.owner, calendar: model.planRotationCalendar)
+                    .filter { $0.courseKind != nil }
+                guard !Task.isCancelled, read == key else { return }
+                saved = (key, courses ?? [])
+            }
+        if let visible, let bounds = visible.bounds {
+            TimeLensView(timeline: visible, bounds: bounds, instant: instant, focus: focus, recess: recess)
         }
+        if let timeline, timeline.bounds != nil { LessonActivityControl(timeline: timeline) }
     }
 }
 
@@ -110,7 +134,7 @@ private struct TimeLensView: View {
                     model.inspect(min(bounds.upperBound, max(bounds.lowerBound, minute + adjustment)))
                 }
             }.frame(height: 94)
-            Text(model.inspectedMinute == nil ? "现在 \(SchoolClock.time(minute))" : "所选时间 \(SchoolClock.time(minute))")
+            Text(model.inspectedMinute == nil ? String(localized: "现在 \(SchoolClock.time(minute))") : String(localized: "所选时间 \(SchoolClock.time(minute))"))
                 .font(.caption).foregroundStyle(.secondary)
         }.padding(22).background(.primary.opacity(0.035), in: .rect(cornerRadius: 30))
     }
@@ -173,16 +197,16 @@ private struct TimeLensView: View {
     private func spokenProgress(_ minute: Int) -> String {
         let time = SchoolClock.time(minute)
         if let recess {
-            return "\(time)，课间，\(restCountdown(after: recess.end, at: instant, in: timeline))"
+            return String(localized: "\(time)，课间，\(restCountdown(after: recess.end, at: instant, in: timeline))")
         }
-        guard let focus else { return "\(time)，今天的课程已结束" }
+        guard let focus else { return String(localized: "\(time)，今天的课程已结束") }
         if instant < focus.start {
-            if case .activity = focus { return "\(time)，接下来，\(focus.title)" }
-            return "\(time)，下一节，\(focus.title)"
+            if case .activity = focus { return String(localized: "\(time)，接下来，\(focus.title)") }
+            return String(localized: "\(time)，下一节，\(focus.title)")
         }
         let percent = Int(focus.elapsedFraction(at: instant) * 100)
-        let status = if case .freeblock = focus { "，Enjoy!" } else { "" }
-        return "\(time)，\(focus.title)\(status)，已过 \(percent)%"
+        let status = if case .freeblock = focus { String(localized: "，休息一下") } else { "" }
+        return String(localized: "\(time)，\(focus.title)\(status)，已过 \(percent)%")
     }
 }
 
@@ -194,13 +218,14 @@ private struct FocusLessonCard: View {
     let instant: Date
     let nextSchoolDay: NextSchoolDay?
     let noClassNotice: String?
-    let openLesson: ((String) -> Void)?
+    let emptyIsFiltered: Bool
 
     var body: some View {
         GlassCard {
             if let timeline {
                 if timeline.blocks.isEmpty {
-                    endOfDay("今天没有排课", symbol: "calendar", notice: noClassNotice)
+                    endOfDay(emptyIsFiltered ? String(localized: "没有可显示的安排") : String(localized: "今天没有排课"),
+                             symbol: "calendar", notice: noClassNotice)
                 } else {
                     // Measure each real alternative at the current width and text size.
                     // Only the active content is drawn, interactive or read by VoiceOver.
@@ -208,17 +233,18 @@ private struct FocusLessonCard: View {
                         ForEach(timeline.blocks) { block in
                             let card = content(for: block, in: timeline)
                             if recess != nil || block.id != focus?.id { card.hidden().accessibilityHidden(true) }
-                            else if let lesson = block.lesson, let openLesson {
-                                Button { openLesson(lesson.id) } label: { card }
-                                    .buttonStyle(.plain).accessibilityHint("查看课程详情")
+                            else if hasDetails(block) {
+                                Button { model.selectedLesson = TimetableDetail(block) } label: { card }
+                                    .buttonStyle(.plain).accessibilityHint("查看详情")
+                                    .accessibilityIdentifier("today-timetable-detail")
                             } else { card }
                         }
                         if let interval = recess ?? timeline.recesses.first {
-                            let card = periodCard(status: "课间 · \(restCountdown(after: interval.end, at: instant, in: timeline))",
-                                                  headline: "Enjoy!", title: "Break", interval: interval)
+                            let card = periodCard(status: String(localized: "课间 · \(restCountdown(after: interval.end, at: instant, in: timeline))"),
+                                                  location: nil, title: String(localized: "课间"), interval: interval)
                             if recess != nil { card } else { card.hidden().accessibilityHidden(true) }
                         }
-                        let finished = endOfDay("今天的课程已结束", symbol: "sunset")
+                        let finished = endOfDay(String(localized: "今天的课程已结束"), symbol: "sunset")
                         if focus == nil { finished } else { finished.hidden().accessibilityHidden(true) }
                     }
                 }
@@ -231,45 +257,49 @@ private struct FocusLessonCard: View {
     private func content(for block: LessonTimeline.Block, in timeline: LessonTimeline) -> some View {
         let active = instant >= block.start
         let minutes = minutesUntil(active ? block.end : block.start, from: instant)
-        let headline: String?
         let title: String
         let status: String
         switch block {
         case .lesson(let lesson):
-            headline = lesson.room
             title = lesson.name
-            status = active ? "上课中 · \(minutes) 分钟后下课" : "下一节 · \(minutes) 分钟后上课"
+            status = active ? String(localized: "上课中 · \(minutes) 分钟后下课") : String(localized: "下一节 · \(minutes) 分钟后上课")
         case .freeblock:
-            headline = "Enjoy!"
             title = block.title
-            status = active ? "空节中 · \(minutes) 分钟后结束" : "下一节 · \(minutes) 分钟后开始"
+            status = active ? String(localized: "空节中 · \(minutes) 分钟后结束") : String(localized: "下一节 · \(minutes) 分钟后开始")
+        case .reference(let period, _):
+            title = period.name
+            status = active ? String(localized: "\(minutes) 分钟后结束") : String(localized: "下一项 · \(minutes) 分钟后开始")
         case .activity(let activity, _):
-            headline = activity.location
-            title = activity.englishTitle
+            title = activity.detailTitle
             switch activity {
             case .assembly:
-                status = active ? "班会中 · \(minutes) 分钟后下课" : "下一节 · \(minutes) 分钟后开始"
+                status = active ? String(localized: "班会中 · \(minutes) 分钟后下课") : String(localized: "下一节 · \(minutes) 分钟后开始")
             case .lunch:
-                status = active ? "午餐中 · \(restCountdown(after: block.end, at: instant, in: timeline))"
-                                : "下一项 · \(minutes) 分钟后开始"
+                status = active ? String(localized: "午餐中 · \(restCountdown(after: block.end, at: instant, in: timeline))")
+                                : String(localized: "下一项 · \(minutes) 分钟后开始")
             }
         }
-        let opensDetail = block.lesson != nil && openLesson != nil
-        return periodCard(status: status, headline: headline, title: title,
+        let opensDetail = hasDetails(block)
+        return periodCard(status: status, location: block.location, title: title,
                           interval: DateInterval(start: block.start, end: block.end),
-                          headlineColor: block.lesson != nil && !opensDetail ? .primary : .accentColor,
-                          opensDetail: opensDetail)
+                          expectsLocation: block.lesson != nil,
+                          opensDetail: opensDetail, showReminder: block.lesson != nil && model.usesLocalTimetable)
     }
 
-    private func periodCard(status: String, headline: String?, title: String, interval: DateInterval,
-                            headlineColor: Color = .accentColor, opensDetail: Bool = false) -> some View {
+    private func hasDetails(_ block: LessonTimeline.Block) -> Bool {
+        if case .freeblock = block { return false }
+        return true
+    }
+
+    private func periodCard(status: String, location: String?, title: String, interval: DateInterval,
+                            expectsLocation: Bool = false, opensDetail: Bool = false, showReminder: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(status).font(.subheadline)
                 Spacer()
                 if opensDetail { Image(systemName: "chevron.right").font(.caption).accessibilityHidden(true) }
             }.foregroundStyle(.secondary)
-            if let headline, !headline.isEmpty {
+            if let location, !location.isEmpty {
                 let font = Font.system(size: 64, weight: .semibold, design: .rounded)
                 // A full-size line reserves the row. The name fits the available
                 // width without changing the measurements of the other three lines.
@@ -277,15 +307,15 @@ private struct FocusLessonCard: View {
                     .hidden().accessibilityHidden(true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .overlay(alignment: .leading) {
-                        Text(headline).font(font).foregroundStyle(headlineColor)
+                        Text(verbatim: location).font(font).foregroundStyle(Color.accentColor)
                             .minimumScaleFactor(0.45).lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-            } else { Text("地点未提供").foregroundStyle(.secondary) }
+            } else if expectsLocation { Text("地点未提供").foregroundStyle(.secondary) }
             Text(title).font(.title2.weight(.semibold))
             Text("\(schoolDateLabel(interval.start, format: "HH:mm")) – \(schoolDateLabel(interval.end, format: "HH:mm"))")
-                .monospacedDigit().foregroundStyle(.secondary)
-            if opensDetail, model.preferences.remindersEnabled {
+                .monospacedDigit().foregroundStyle(.primary)
+            if showReminder, model.preferences.remindersEnabled {
                 Label("课前提醒已开启", systemImage: "bell").font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -296,29 +326,34 @@ private struct FocusLessonCard: View {
         VStack(alignment: .leading, spacing: 16) {
             Label(title, systemImage: symbol).font(.title2.weight(.semibold))
             if let notice { Text(notice).font(.subheadline).foregroundStyle(.secondary) }
-            if let next = nextSchoolDay {
-                let date = schoolDateLabel(next.date)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("下一个上课日").font(.subheadline).foregroundStyle(.secondary)
-                    Text(verbatim: next.rotation.map { "\(date) · Day \($0)" } ?? date)
-                        .font(.headline)
-                    if next.firstLessons.count > 1 {
-                        Text("首节有多个课次同时开始，可在计划中查看。")
-                    } else if let lesson = next.firstLessons.first {
-                        Text(verbatim: "第一节：\(lesson.name) · \(lesson.room ?? "教室未提供")")
-                    } else {
-                        Text("第一节课尚未确认")
-                    }
+            nextClassPreview
+        }
+    }
+
+    @ViewBuilder private var nextClassPreview: some View {
+        if let next = nextSchoolDay {
+            let date = schoolDateLabel(next.date)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("下一个上课日").font(.subheadline).foregroundStyle(.secondary)
+                Text(verbatim: next.rotation.map { String(localized: "\(date) · Day \($0)") } ?? date)
+                    .font(.headline)
+                let first = next.firstLessons.filter { model.personalization.shows(TimetablePresentation.courseCategory(title: $0.name, start: $0.start)) }
+                if first.count > 1 {
+                    Text("首节有多个课次同时开始，可在计划中查看。")
+                } else if let lesson = first.first {
+                    Text(verbatim: String(localized: "第一节：\(lesson.name) · \(lesson.room ?? String(localized: "教室未提供"))"))
+                } else if next.firstLessons.isEmpty {
+                    Text("第一节课尚未确认")
                 }
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("today-next-school-day")
-                Button("查看当天计划", systemImage: "arrow.right") { model.openPlanner(on: next.date) }
-                    .buttonStyle(.glass)
-                    .accessibilityHint("打开\(date)的计划")
-                    .accessibilityIdentifier("today-next-school-day-plan")
-            } else {
-                Text("下一个上课日尚未确认").font(.subheadline).foregroundStyle(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("today-next-school-day")
+            Button("查看当天计划", systemImage: "arrow.right") { model.openPlanner(on: next.date) }
+                .buttonStyle(.glass)
+                .accessibilityHint("打开\(date)的计划")
+                .accessibilityIdentifier("today-next-school-day-plan")
+        } else {
+            Text("下一个上课日尚未确认").font(.subheadline).foregroundStyle(.secondary)
         }
     }
 }
@@ -329,12 +364,12 @@ private func minutesUntil(_ target: Date, from instant: Date) -> Int {
 
 private func restCountdown(after end: Date, at instant: Date, in timeline: LessonTimeline) -> String {
     if let next = timeline.nextInstructionStart(from: end) {
-        return "还有 \(minutesUntil(next, from: instant)) 分钟上课"
+        return String(localized: "还有 \(minutesUntil(next, from: instant)) 分钟上课")
     }
     let minutes = minutesUntil(end, from: instant)
     // A terminal Free Block has no class to count down to.
     if let next = timeline.focus(at: end), next.start == end, case .freeblock = next {
-        return "\(minutes) 分钟后进入空节"
+        return String(localized: "\(minutes) 分钟后进入空节")
     }
-    return "\(minutes) 分钟后结束"
+    return String(localized: "\(minutes) 分钟后结束")
 }

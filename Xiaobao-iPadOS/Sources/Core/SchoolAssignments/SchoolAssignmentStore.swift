@@ -21,6 +21,7 @@ import Observation
     private let directory: URL, defaults: UserDefaults
     private var index: Index?
     @ObservationIgnored private var contents: [UUID: [SavedAssignment]] = [:]
+    @ObservationIgnored private var materialBytes: Int?
     private(set) var reviewing: Bool
     private(set) var writeFailed = false
     var owner: String? { index?.owner }
@@ -35,6 +36,79 @@ import Observation
         self.directory = directory; self.defaults = defaults
         reviewing = defaults.bool(forKey: Key.review)
         restore()
+    }
+
+    struct MaterialKey: Hashable {
+        let registration: UUID, revision: UUID
+        let term, task: String
+        let feedbackReleased: Bool?
+    }
+    struct Copy: Codable {
+        let registration, revision: UUID
+        let checked: Date
+        let value: SchoolTaskMaterial
+        func isFresh(at now: Date) -> Bool { (0..<6*3600).contains(now.timeIntervalSince(checked)) }
+    }
+    private static let materialBudget = 32 * 1024 * 1024
+    private func materialFile(_ id: UUID) -> URL { directory.appendingPathComponent("material-" + id.uuidString + ".plist") }
+    private func isMaterialFile(_ name: String) -> Bool {
+        name.hasPrefix("material-") && name.hasSuffix(".plist") && UUID(uuidString: String(name.dropFirst(9).dropLast(6))) != nil
+    }
+    func containsTask(term id: String, task: String) -> Bool {
+        guard let term = terms[id] else { return false }
+        return rows(term)?.contains { $0.id == task } == true
+    }
+    func materialKeys(term id: String) -> [MaterialKey] {
+        guard let reg = registration, let term = terms[id], let entries = rows(term) else { return [] }
+        return entries.compactMap { row in row.materialID.map { MaterialKey(registration:reg, revision:$0, term:id, task:row.id, feedbackReleased:row.feedbackReleased) } }
+    }
+    func materialKey(term id: String, task: String) -> MaterialKey? {
+        guard let reg = registration, let term = terms[id],
+              let row = rows(term)?.first(where:{ $0.id == task }), let rev = row.materialID else { return nil }
+        return MaterialKey(registration:reg,revision:rev,term:id,task:task,feedbackReleased:row.feedbackReleased)
+    }
+    func material(for key: MaterialKey) -> Copy? {
+        guard materialKey(term:key.term, task:key.task) == key, let data = try? Data(contentsOf:materialFile(key.revision)),
+              data.count <= 2_000_000, let entry = try? PropertyListDecoder().decode(Copy.self, from:data),
+              entry.revision == key.revision, entry.registration == key.registration,
+              (try? entry.value.validate(feedbackReleased:key.feedbackReleased)) != nil else { return nil }
+        return entry
+    }
+    func materialIsRecent(_ key: MaterialKey, now: Date = Date()) -> Bool {
+        guard registration == key.registration,
+              let modified = try? materialFile(key.revision).resourceValues(forKeys:[.contentModificationDateKey]).contentModificationDate else { return false }
+        return (0..<6*3600).contains(now.timeIntervalSince(modified))
+    }
+    func saveMaterial(_ value: SchoolTaskMaterial, for key: MaterialKey, at now: Date = Date()) throws {
+        guard materialKey(term:key.term, task:key.task) == key else { throw CancellationError() }
+        try value.validate(feedbackReleased:key.feedbackReleased)
+        let destination = materialFile(key.revision)
+        let copy = Copy(registration:key.registration,revision:key.revision,checked:now,value:value)
+        let data = try PropertyListEncoder().encode(copy)
+        guard data.count <= 2_000_000 else { throw SchoolPortalIssue.format }
+        let previousSize = (try? destination.resourceValues(forKeys:[.fileSizeKey]).fileSize) ?? 0
+        try writeData(data, to:destination)
+        if let measured = materialBytes { materialBytes = measured + data.count - previousSize }
+        if materialBytes == nil || (materialBytes ?? 0) > Self.materialBudget { trimMaterialBudget() }
+    }
+    func removeMaterial(_ key: MaterialKey) {
+        guard registration == key.registration else { return }
+        try? FileManager.default.removeItem(at:materialFile(key.revision))
+    }
+    private func trimMaterialBudget() {
+        let keys: Set<URLResourceKey> = [.fileSizeKey, .contentModificationDateKey]
+        let files = (try? FileManager.default.contentsOfDirectory(at:directory,includingPropertiesForKeys:Array(keys))) ?? []
+        var total = 0
+        let ordered = files.compactMap { url -> (URL, Int, Date)? in
+            guard isMaterialFile(url.lastPathComponent), let meta = try? url.resourceValues(forKeys:keys), let size = meta.fileSize else { return nil }
+            total += size; return (url,size,meta.contentModificationDate ?? .distantPast)
+        }
+        defer { materialBytes = total }
+        guard total > Self.materialBudget else { return }
+        for (url,size,_) in ordered.sorted(by: { $0.2 < $1.2 }) {
+            if total <= Self.materialBudget { break }
+            do { try FileManager.default.removeItem(at:url); total -= size } catch { continue }
+        }
     }
 
     private var manifest: URL { directory.appendingPathComponent("index.plist") }
@@ -54,7 +128,7 @@ import Observation
     // revoked registration cannot load them even if the device was locked during logout.
     private func prune(keeping: Set<String>) {
         guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
-        for name in names where !keeping.contains(name) && (name == "index.plist" ||
+        for name in names where !keeping.contains(name) && (name == "index.plist" || (keeping.isEmpty && isMaterialFile(name)) ||
             (name.hasSuffix(".plist") && UUID(uuidString: String(name.dropLast(6))) != nil)) {
             try? FileManager.default.removeItem(at: directory.appendingPathComponent(name))
         }
@@ -70,13 +144,16 @@ import Observation
     }
     func forget() {
         defaults.removeObject(forKey: Key.registration)
-        index = nil; contents = [:]; writeFailed = false
+        index = nil; contents = [:]; writeFailed = false; materialBytes = nil
         reviewing = false; defaults.removeObject(forKey: Key.review)
         prune(keeping: [])
     }
 
     private func write<T: Encodable>(_ value: T, to destination: URL) throws {
-        let data = try PropertyListEncoder().encode(value)
+        try writeData(PropertyListEncoder().encode(value), to:destination)
+    }
+
+    private func writeData(_ data: Data, to destination: URL) throws {
         guard data.count <= 12_000_000 else { throw SchoolPortalIssue.format }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         #if os(iOS)
@@ -129,6 +206,10 @@ import Observation
         defaults.set(next.registration.uuidString, forKey: Key.registration)
         index = next; writeFailed = false
         if changed {
+            let live = Set(entries.compactMap(\.materialID))
+            for stale in (before ?? []).compactMap(\.materialID) where !live.contains(stale) {
+                try? FileManager.default.removeItem(at: materialFile(stale))
+            }
             contents[id] = entries
             if let old = prior?.fileID { contents[old] = nil; try? FileManager.default.removeItem(at: file(old)) }
         }

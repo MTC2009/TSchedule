@@ -34,11 +34,11 @@ struct PlannerMonthPicker: View {
                     if publication != nil { Text("主校区 · 高中部").font(.caption2).foregroundStyle(.secondary) }
                 }
                 Spacer(minLength: 4)
-                step(-1, title: "上个月", symbol: "chevron.left")
-                step(1, title: "下个月", symbol: "chevron.right")
+                step(-1, title: String(localized: "上个月"), symbol: "chevron.left")
+                step(1, title: String(localized: "下个月"), symbol: "chevron.right")
             }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 44), spacing: 0), count: 7), spacing: 0) {
-                ForEach(["周一", "周二", "周三", "周四", "周五", "周六", "周日"], id: \.self) {
+                ForEach([String(localized: "周一"), String(localized: "周二"), String(localized: "周三"), String(localized: "周四"), String(localized: "周五"), String(localized: "周六"), String(localized: "周日")], id: \.self) {
                     Text($0).font(.caption).foregroundStyle(.secondary).frame(minHeight: 26)
                 }
                 ForEach(Array(month.cells.enumerated()), id: \.offset) { _, date in
@@ -77,7 +77,7 @@ struct PlannerMonthPicker: View {
         let closed = day?.status == .noClass
         let event = day?.notices.isEmpty == false
         let dayNumber = SchoolClock.calendar.component(.day, from: date)
-        let details = (closed ? ["不上课"] : []) + (day?.notices ?? [])
+        let details = (closed ? [String(localized: "不上课")] : []) + (day?.notices ?? [])
         let surface: AnyShapeStyle = isSelected ? AnyShapeStyle(.fill.secondary) : AnyShapeStyle(.fill.tertiary)
         let ink: Color = day?.status == .weekend && !isSelected && !event ? .secondary : .primary
         return Button { select(date) } label: {
@@ -97,7 +97,7 @@ struct PlannerMonthPicker: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain).hoverEffect(.highlight)
-        .accessibilityLabel(([schoolDateLabel(date, format: "M月d日 EEEE")] + details).joined(separator: "，"))
+        .accessibilityLabel(([schoolDateLabel(date, format: "M月d日 EEEE")] + details).joined(separator: String(localized: "，")))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("planner-month-\(SchoolClock.key(date))")
     }

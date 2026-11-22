@@ -16,7 +16,7 @@
 | `PlannerPlanAnnotations.swift` | 绘制避开课名的无底计划标签，以及拥挤时带编号和图标的胶囊；点胶囊查看全部名称与时间。 |
 | `PlannerInboxView.swift` | 编辑专用的固定气泡架：待安排、可复用气泡、提醒状态和唯一加号；浏览不挂载也不占位。 |
 | `PlannerPlanCard.swift` | 时间轴与待安排共用的个人卡片：抓手、完成、编辑和点选落点。只有抓手接管拖动。此处集中定义计划页的连续圆角。 |
-| `PlanEditorView.swift` | 新建和编辑共用：气泡、按星期或轮转 Day 重复、提醒、颜色、图标及时间段划选／微调。只有「保存」才提交。 |
+| `PlanEditorView.swift` | 新建和编辑共用：气泡、按星期或轮转 Day 重复、提醒、颜色、图标及时间段划选／微调。草稿只有「保存」才提交；明确确认移除后按所选范围单独提交。 |
 
 输入：当前 `AppModel`、学校日期及账号、缓存或实时读取的学校安排、当天的本机计划。输出：一条可浏览的日程和独立的个人计划写入；学校资料不写回、不改变学校的提交或考勤状态。
 
@@ -24,7 +24,7 @@
 
 学校课表和个人计划按同一个日期加载，但个人计划不归属任何课程。学校卡片先画满原宽，上层保留全宽色带；重叠处增浓但不超过 28%，单条色带仍为 14%。图标与计划名避开课名和卡片上保留的附属文字。空间不足时保留图标；较密集时多个图标带编号共享一个玻璃胶囊，可在任一模式展开组内标题和时段，点单项进入那一条的表单。减少透明度时保留起止线，并让胶囊使用系统实色，不覆盖课名。
 
-日、周共用的学校卡片平时不重复写起止时间。浏览时，课程和考试点开仍进入已有详情；没有详情入口的时段（如班会、午餐、空节）点开后在原生浮层里显示准确时间。编辑时学校卡片保持不可打开，划选和落点优先。个人计划的时间和详情不受影响。
+日、周共用的学校卡片平时不重复写起止时间。浏览时，普通课程和有起止时间的学校条目复用原生详情弹窗；已有本机考试详情仍保留。仅一点时刻的事项继续用原生浮层。编辑时学校卡片保持不可打开，划选和落点优先。个人计划的时间和详情不受影响。
 
 依赖 `SchoolClock`、`CampusConnection`、`PlanStore`、`GlassCard` 与学校详情；向 `AppModel` 请求调度授权后的个人提醒。`RootView` 是页面消费者。继续用现有 `AppScreen`、程序天气和[设计系统](../../../../UI_DESIGN_SYSTEM.md)，无新主题。计划只在这台 iPad 可用。切日、换账户或取消拖动不会重写计划；仅支持当前页内拖放，不传数据给其他 App。
 
@@ -35,6 +35,26 @@
 测试：运行 `swift test --filter Planner` 和原生 Xcode 模拟器构建。除了比较增减个人计划前后的课程矩形，还要验证没有并行课程的学校卡片右缘等于时间轨道右缘，排除固定预留宽度。用跨课的有色计划检查色带经过课程文字；色带内点击仍去课程详情，点气泡去计划详情。走新建、划选、气泡复制、按日隔离、每周和个人提醒流程。横竖屏和大字号下保持时间、抓手和目标可见。资料账户的缓存与隔离沿用 `PlannerTests` 及原联调。
 
 ## Change History
+
+### 2026-11-22 — native-period-details / panel-stability
+Model: OpenAI Codex. Today 和 Planner 以同一课表条目填充现有详情弹窗；明确标出空缺的教师。真正后台、打开网页核对和换号保持隐私边界；临时系统遮盖不重置已显示的日期列和草稿。仍只有活动页允许编辑和学校读取。
+
+### 2026-11-22 — shared-meal-cards
+Model: OpenAI Codex. Breakfast, lunch and dinner reuse the named GlassCard; compact breakfast renders one line at its exact height. Browse time popover and editor gesture behavior are unchanged. Actual locations, when available, remain the card accessibility value.
+
+### 2026-11-22 — incomplete-publication / rotation-source
+Model: OpenAI Codex. A sampled date beyond the dated daytime roster now shows the shared timetable's source note in the existing day status or week header. Input: `PlannerSchoolSource.DayInput.usesDaytimeRotation` from the saved school day; no duplicate UI inference, new controls, or browse-time requests. The iPad `--annual` fixture checks both a late-only and an empty date.
+
+### 2026-11-22 — canonical-bells / named-school-cards / seasonal-pause
+Model: OpenAI Codex. 日、周的空节直接复用普通学校卡片、主文字色与相同字号；短事项直接显示名称，相邻名称点开查看明细，不再用菱形或裸计数代替。仍以实际时长布局，浏览可点开准确时间，编辑时不抢手势。接口仅限现有 Canvas 和短事项视图；无新控件入口。
+
+
+### 2026-11-22 — planner-campus-routine / midnight-disclosure
+Model: Codex. `PlannerSchoolSource` 把源校历、本机住宿显示选项和已确认学校日程传给日／周共用投影；`PlannerScheduleCanvas` 复用学校卡片和时间弹层，点击就寝的任一日均显示跨日完整时间。初始化滚动不定位到午夜的就寝续段。短于普通卡片的独立作息（如早餐）在既有标记旁显示名称，保留原时长和 44 pt 点击区域。未添加新页面、提醒或联网读取。回归：学年课表 iPad loopback 场景（`--annual`）。
+
+### 2026-11-21 — dated-removal / sheet-confirmation
+有提醒的安排在移除或撤销时先对照系统通知队列；不涉及提醒的操作在保存本机记录后即可返回，不等系统通知服务。
+Model: Codex · Changed: saved dated plans have a destructive confirmation in their existing editor. Weekday and rotation occurrences offer one date or that date and later. The active series shelf uses its next confirmed date (shown before removal); an undated reusable template is not a dated target. Reason: cancelling a plan should also cancel its upcoming alert, not move it to the inbox. Interfaces: local editor, store, undo/redo and existing notification reconciliation.
 
 ### 2026-11-21 — local-class-alerts / notification-suspension
 Model: Codex. 个人计划仍需明确设置开始时间和提醒。普通退后台或等待身份不会撤销已登记的通知；退出、手动账号复核或切号会清理。个人副标题不会出现在独立的校宝课前提醒。
@@ -162,3 +182,12 @@ Conversation Keywords: planner / schedule-entry / untimed-plans
 Reason: 复用原日程位置，把下一项、学校安排和个人计划放到同一天。  
 Changed: 本机和资料服务共用计划页。已有「今日」「课表」「我的任务」与校宝网页入口保留。  
 Affected interfaces: 原生 `AppTab.planner`；`SchoolWorkDetailView` 新增默认不变的 `allowsLocalCompletion` 参数。无学校写入。
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Localize calendar navigation, editing, removal scope, repetition, reminder options, timeline actions and VoiceOver; date displays use the interface language and school time zone. User-authored plan titles remain verbatim. [Language boundary and regression tests](../../Core/Localization/README.md).
+
+### 2026-11-22 — study-time-notice / shared-dates
+Model: OpenAI Codex. PlannerSchoolSource passes Day.studyTimePending to the existing portrait day note and landscape week headers. Both layouts keep the published notices and use the same shared schedule as Today. No new timetable query, control or student-specific rule.
+
+### 2026-11-22 — timetable-display / supplemental-courses
+Model: OpenAI Codex. TimetablePlanScope identifies the verified owner and session for both pages. The existing editor writes a timed, typed supplement through PlanStore; normal notes are unchanged. Editing can manage hidden personal courses. Hide-plans affects ordinary notes, not enrollments. Touch placement uses unfiltered occupancy; the editor continues warning about official conflicts. Test: --timetable-display.

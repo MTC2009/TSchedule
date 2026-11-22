@@ -23,7 +23,7 @@ struct OtherItemsGrid: View {
             }
             if visible.isEmpty {
                 StudentEmptyState(title: emptyTitle,
-                                  detail: records.isEmpty ? "" : "试试调整筛选项或搜索词。", symbol: symbol)
+                                  detail: records.isEmpty ? "" : String(localized: "试试调整筛选项或搜索词。"), symbol: symbol)
             } else {
                 GlassEffectContainer(spacing: 8) {
                     LazyVGrid(columns: [GridItem(typeSize.isAccessibilitySize ? .flexible() : .adaptive(minimum: 250),
@@ -48,9 +48,9 @@ struct OtherItemsGrid: View {
 
     private var title: String {
         switch section {
-        case .exams: "考试列表"
-        case .evaluations: "测评列表"
-        case .resources: "资料列表"
+        case .exams: String(localized: "考试列表")
+        case .evaluations: String(localized: "测评列表")
+        case .resources: String(localized: "资料列表")
         }
     }
 
@@ -63,12 +63,8 @@ struct OtherItemsGrid: View {
     }
 
     private var emptyTitle: String {
-        if !records.isEmpty { return isPartialPage ? "本页没有匹配的记录" : "没有匹配的记录" }
-        switch section {
-        case .exams: return "暂无考试"
-        case .evaluations: return "暂无测评"
-        case .resources: return "暂无资料"
-        }
+        if !records.isEmpty { return isPartialPage ? String(localized: "本页没有匹配的记录") : String(localized: "没有匹配的记录") }
+        return section.emptyTitle
     }
 
 }
@@ -116,7 +112,7 @@ private struct OtherItemCard: View {
 
     private var subtitle: String {
         if case .resource(let resource) = item.detail, let kind = resource.kindTitle {
-            return "\(item.courseTitle) · \(kind)"
+            return String(localized: "\(item.courseTitle) · \(kind)")
         }
         return item.courseTitle
     }
@@ -125,13 +121,13 @@ private struct OtherItemCard: View {
         switch item.detail {
         case .exam(let work):
             if let time = work.examTime(includeYear: false) {
-                field(time.label == "考试时间" ? time.value : "\(time.label) \(time.value)",
+                field(work.startsAt != nil ? time.value : "\(time.label) \(time.value)",
                       icon: "clock", font: .body.weight(.medium))
             }
             examRoomAndStatus(room: work.room, status: item.status(at: now)?.title)
         case .evaluation(let work):
             if let due = work.dueAt {
-                field("截止 \(otherItemsDate(due))", icon: "clock", font: .body.weight(.medium))
+                field(String(localized: "截止 \(otherItemsDate(due))"), icon: "clock", font: .body.weight(.medium))
             }
             if let status = item.status(at: now) { statusLabel(status.title) }
         case .resource(let resource):
@@ -139,7 +135,7 @@ private struct OtherItemCard: View {
                 field(schoolDateLabel(date, format: "M月d日"), icon: "calendar", font: .body.weight(.medium))
             }
             if let scope = resource.scopeTitle { field(scope, icon: "doc.text") }
-            if isBookmarked { field("已收藏", icon: "bookmark.fill") }
+            if isBookmarked { field(String(localized: "已收藏"), icon: "bookmark.fill") }
         }
     }
 

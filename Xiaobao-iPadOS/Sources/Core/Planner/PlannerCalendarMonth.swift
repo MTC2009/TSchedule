@@ -35,7 +35,7 @@ struct PlannerCalendarMonth {
         guard let publication, let daily = schoolDay(date) else { return [] }
         let day = SchoolClock.calendar.startOfDay(for: date)
         let closed = daily.status == .noClass
-        let titles = daily.notices.isEmpty && closed ? ["不上课"] : daily.notices
+        let titles = daily.notices.isEmpty && closed ? [String(localized: "不上课")] : daily.notices
         return titles.map { title in
             let first = edge(of: title, on: day, step: -1, publication: publication, closed: closed)
             let last = edge(of: title, on: day, step: 1, publication: publication, closed: closed)

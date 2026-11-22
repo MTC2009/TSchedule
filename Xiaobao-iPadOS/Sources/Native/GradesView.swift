@@ -24,8 +24,8 @@ struct GradeTrialSettings: View {
                         OfflineGradeLab(saved: saved).id(scope)
                     } else {
                         Text(!client.readSavedGrades && client.errors[.grades] == nil
-                             ? "正在读取本机成绩。"
-                             : "请先在 GPA 页获取成绩。试算只使用本机已保存的成绩。")
+                             ? String(localized: "正在读取本机成绩。")
+                             : String(localized: "请先在 GPA 页获取成绩。试算只使用本机已保存的成绩。"))
                             .foregroundStyle(.secondary)
                     }
                 } else if model.usesLocalTimetable {
@@ -111,7 +111,7 @@ private struct OfflineGradeLab: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Picker("预测科目", selection: Binding(get: { course.course_id }, set: { selected = $0 })) {
                         ForEach(courses, id: \.course_id) { row in
-                            Text(saved.roster.first { $0.course_id == row.course_id }?.name ?? "课程名称待载入").tag(row.course_id)
+                            Text(saved.roster.first { $0.course_id == row.course_id }?.name ?? String(localized: "课程名称待载入")).tag(row.course_id)
                         }
                     }
                     LabeledContent("预计考核分数", value: "\(Int(mark)) / 100")

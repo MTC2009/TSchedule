@@ -37,18 +37,18 @@ struct WeekTimetableDay: Identifiable {
 
     var notices: [String] {
         var notices = calendarDay?.notices ?? []
-        if hasUnreadableTimes { notices.insert("时间待核对", at: 0) }
+        if hasUnreadableTimes { notices.insert(String(localized: "时间待核对"), at: 0) }
         switch calendarDay?.status {
         case .noClass:
-            if timeline?.blocks.isEmpty == false { notices.insert("课表与校历待核对", at: 0) }
-            else if notices.isEmpty { notices = ["不上课"] }
+            if timeline?.blocks.isEmpty == false { notices.insert(String(localized: "课表与校历待核对"), at: 0) }
+            else if notices.isEmpty { notices = [String(localized: "不上课")] }
         case .weekend:
-            if notices.isEmpty { notices = ["周末"] }
+            if notices.isEmpty { notices = [String(localized: "周末")] }
         case .unpublished:
-            if timeline?.blocks.isEmpty != false { notices.insert("尚未公布", at: 0) }
+            if timeline?.blocks.isEmpty != false { notices.insert(String(localized: "尚未公布"), at: 0) }
         case nil:
-            if timeline == nil, notices.isEmpty { notices = ["未载入"] }
-            else if isConfirmedOff { notices = ["休息日"] }
+            if timeline == nil, notices.isEmpty { notices = [String(localized: "未载入")] }
+            else if isConfirmedOff { notices = [String(localized: "休息日")] }
         case .teaching: break
         }
         return notices

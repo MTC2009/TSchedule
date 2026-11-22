@@ -10,7 +10,7 @@ import Security
     private func check(_ status: OSStatus) throws {
         if status != errSecSuccess {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(status),
-                          userInfo: [NSLocalizedDescriptionKey: "暂时无法访问钥匙串，请解锁 iPad 后重试。"])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "暂时无法访问钥匙串，请解锁 iPad 后重试。")])
         }
     }
     func read() throws -> Data? {

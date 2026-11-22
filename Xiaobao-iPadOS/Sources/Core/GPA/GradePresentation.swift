@@ -1,7 +1,7 @@
 import Foundation
 
 struct GPASummary: Equatable {
-    enum Source: Equatable { case published, localEstimate(weighted: Bool), creditWeightedEstimate }
+    enum Source: Equatable { case published, localEstimate(weighted: Bool), creditWeightedEstimate, forecast }
     let value: Double
     let source: Source
 }
@@ -21,7 +21,7 @@ extension SavedCampusGrades {
         let names = Dictionary(roster.map { ($0.course_id, $0.name) }, uniquingKeysWith: { first, _ in first })
         return grades.courses.map { grade in
             let name = names[grade.course_id]?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let label = name.flatMap { $0.isEmpty || $0 == grade.course_id ? nil : $0 } ?? "课程名称待载入"
+            let label = name.flatMap { $0.isEmpty || $0 == grade.course_id ? nil : $0 } ?? String(localized: "课程名称待载入")
             return CourseGradeDetail(term: grades.term, name: label, grade: grade)
         }
     }
@@ -75,7 +75,14 @@ struct AssessmentResult: Identifiable {
     let percentage: Double?
 
     private var knownStatus: AssessmentStatus? { AssessmentStatus(rawValue: status) }
-    var statusTitle: String { knownStatus?.title ?? status }
+    var statusTitle: String {
+        switch status {
+        case "unpublished": String(localized: "未发布")
+        case "absent": String(localized: "缺考")
+        case "no_mark": String(localized: "未提供成绩")
+        default: knownStatus?.title ?? status
+        }
+    }
 
     func matches(query: String, status selected: AssessmentStatus?) -> Bool {
         (selected == nil || knownStatus == selected) &&
@@ -114,7 +121,7 @@ struct CourseGradeDetail: Identifiable {
     let className: String?
     let publishedGPA: Double?
     let firstPublishedAt: Date?
-    let categories: [String]
+    let forecastGroups: ForecastGroups
     let rows: [GradeBreakdownRow]
     let history: () -> [AssessmentPoint]
 
@@ -131,8 +138,14 @@ struct CourseGradeDetail: Identifiable {
         // Existing categories are labels, not published aggregate scores or weights.
         let sorted = report.assessments.sorted { ($0.date, $0.id) > ($1.date, $1.id) }
         let byCategory = Dictionary(grouping: sorted, by: \.category)
-        categories = byCategory.keys.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        let names = byCategory.keys.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+        forecastGroups = ForecastGroups(names.map { name in
+            let items = byCategory[name] ?? [], graded = items.filter { $0.status == .graded }
+            let marks = graded.map { item in item.earned.map { GradeMark.numeric(earned: $0, possible: item.possible) } }
+            return ForecastGroup(id: name, title: name, parentID: nil, weight: nil, published: nil, hasItems: true,
+                                 samples: .init(released: marks, excludesUnreleased: graded.count != items.count))
+        })
         var seen: Set<String> = []
         rows = sorted.compactMap { assessment in
             let category = assessment.category
@@ -146,17 +159,18 @@ struct CourseGradeDetail: Identifiable {
         history = { report.assessmentHistory }
     }
 
-    init(term: String, name: String, grade: CampusGrade, publishedRows: [GradeBreakdownRow]? = nil) {
+    init(term: String, name: String, grade: CampusGrade, publishedRows: [GradeBreakdownRow]? = nil,
+         forecastGroups: ForecastGroups = ForecastGroups(), numericBaseline: Double? = nil) {
         id = ID(term: term, course: grade.course_id)
         self.name = name
         total = GradeMark(score: grade.published_score, letter: grade.published_letter_grade)
-        totalPercentage = grade.published_score?.percentage
+        totalPercentage = grade.published_score?.percentage ?? numericBaseline
         teacher = nil
         credits = nil
         className = grade.class_name.flatMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
         publishedGPA = grade.published_gpa.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
         firstPublishedAt = grade.first_published_at.flatMap(campusInstant)
-        categories = []
+        self.forecastGroups = forecastGroups
         // The service currently supplies a flat breakdown. Titles are not a nesting contract.
         rows = publishedRows ?? grade.assessments.map { item in
             let graded = item.status == AssessmentStatus.graded.rawValue

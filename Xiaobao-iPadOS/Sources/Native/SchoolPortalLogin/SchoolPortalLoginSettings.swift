@@ -18,9 +18,9 @@ struct SchoolPortalLoginSettings: View {
     }
 
     private var status: String {
-        guard model.schoolLogin.registered else { return "未开启" }
-        guard let binding = model.schoolLogin.binding else { return "钥匙串暂不可用" }
-        return binding.paused ? "已暂停" : "已开启"
+        guard model.schoolLogin.registered else { return String(localized: "未开启") }
+        guard let binding = model.schoolLogin.binding else { return String(localized: "钥匙串暂不可用") }
+        return binding.paused ? String(localized: "已暂停") : String(localized: "已开启")
     }
 
     var body: some View {
@@ -38,7 +38,7 @@ struct SchoolPortalLoginSettings: View {
                         SecureField("当前校宝账号的密码", text: $password)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                             .accessibilityIdentifier("school-login-password")
-                        Button(work == nil ? "保存并开启" : "正在保存…") { enable(owner) }
+                        Button(work == nil ? String(localized: "保存并开启") : String(localized: "正在保存…")) { enable(owner) }
                             .disabled(password.isEmpty || work != nil)
                             .accessibilityIdentifier("school-login-enable")
                     }
@@ -60,7 +60,7 @@ struct SchoolPortalLoginSettings: View {
                 }
             } else {
                 LabeledContent("本机代登录", value: model.portal.webView.configuration.websiteDataStore.isPersistent
-                               ? "登录后可设置" : "临时会话不可用")
+                               ? String(localized: "登录后可设置") : String(localized: "临时会话不可用"))
             }
             if let message { Text(message).font(.footnote).foregroundStyle(.secondary) }
         }

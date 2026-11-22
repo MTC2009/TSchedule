@@ -27,3 +27,6 @@ Model: OpenAI Codex · Keywords: fixed-city-weather / manual-preview / freshness
 Changed: Added the city reader, explicit freshness states and isolated foreground scheduler.  
 Reason: Use an actual city input without transmitting school information or waking the GPU to fetch data.  
 Affected interfaces: Native module interfaces above and a single external HTTPS GET; no Rust API, database, deployment flag or app permission.
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. The bundled city’s display name follows the app language. The city identifier, coordinates, weather request and cached model sample are unchanged. [Language boundary and regression tests](../Localization/README.md).

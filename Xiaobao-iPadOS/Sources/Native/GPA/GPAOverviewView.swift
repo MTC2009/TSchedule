@@ -1,10 +1,16 @@
 import SwiftUI
 
+/// Presence means the course has saved what-ifs, even while its detail reloads.
+struct CourseForecastDisplay {
+    let percentage: Double?
+}
+
 struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
     let isCurrentTerm: Bool
     let summary: GPASummary?
     let unavailableMessage: String
     let courses: [CourseGradeDetail]
+    var forecasts: [CourseGradeDetail.ID: CourseForecastDisplay] = [:]
     // The live source reads details on first navigation; cached sources already have them.
     var courseDestination: ((CourseGradeDetail) -> AnyView)? = nil
     @ViewBuilder let termLabel: () -> TermLabel
@@ -22,7 +28,7 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
         if courses.isEmpty {
             overview
         } else {
-            overview.searchable(text: $search, placement: .toolbar, prompt: "搜索课程或考核")
+            overview.searchable(text: $search, placement: .toolbar, prompt: String(localized: "搜索课程或考核"))
         }
     }
 
@@ -31,7 +37,8 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
             VStack(alignment: .leading, spacing: 22) {
                 summaryCard
                 if !courses.isEmpty {
-                    CourseGradeList(courses: courses.filter { $0.matches(query: search, status: status) }, status: $status)
+                    CourseGradeList(courses: courses.filter { $0.matches(query: search, status: status) },
+                                    forecasts: forecasts, status: $status)
                 }
                 gradeStatus()
             }
@@ -43,7 +50,7 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
                 else { CourseGradesView(course: course) }
             } else {
                 StudentDetailSurface {
-                    StudentEmptyState(title: "课程成绩不可用", detail: "请返回查看当前可用的课程。")
+                    StudentEmptyState(title: String(localized: "课程成绩不可用"), detail: String(localized: "请返回查看当前可用的课程。"))
                 }.navigationTitle("课程成绩")
             }
         }
@@ -85,11 +92,13 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
 
     private var heading: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(isCurrentTerm ? "当前" : "学期").font(.title2.weight(.semibold))
+            Text(summary?.source == .forecast ? String(localized: "预测") :
+                    isCurrentTerm ? String(localized: "当前") : String(localized: "学期")).font(.title2.weight(.semibold))
             Text("GPA").font(.system(size: headingSize, weight: .bold, design: .rounded))
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isCurrentTerm ? "当前 GPA" : "学期 GPA")
+        .accessibilityLabel(summary?.source == .forecast ? String(localized: "预测 GPA") :
+                            isCurrentTerm ? String(localized: "当前 GPA") : String(localized: "学期 GPA"))
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier("gpa-heading")
     }
@@ -106,7 +115,7 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
         }
         .buttonStyle(.plain)
         .hoverEffect(.highlight)
-        .accessibilityLabel(isGPAHidden ? "显示 GPA" : "隐藏 GPA")
+        .accessibilityLabel(isGPAHidden ? String(localized: "显示 GPA") : String(localized: "隐藏 GPA"))
         .accessibilityIdentifier("gpa-visibility")
     }
 
@@ -118,7 +127,7 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.55)
-                .accessibilityLabel(isGPAHidden ? "GPA 已隐藏" : summary.formattedValue)
+                .accessibilityLabel(isGPAHidden ? String(localized: "GPA 已隐藏") : summary.formattedValue)
                 .accessibilityIdentifier("gpa-readout")
         } else {
             Text("暂无 GPA").font(.title2.weight(.semibold))
@@ -135,9 +144,10 @@ struct GPAOverviewView<TermLabel: View, GradeStatus: View>: View {
 private extension GPASummary {
     var sourceTitle: String {
         switch source {
-        case .published: "校方公布"
-        case .localEstimate(let weighted): weighted ? "试算 · AP 加权" : "试算 · 未加权"
-        case .creditWeightedEstimate: "估算 · 按学分加权"
+        case .published: String(localized: "校方公布")
+        case .localEstimate(let weighted): weighted ? String(localized: "试算 · AP 加权") : String(localized: "试算 · 未加权")
+        case .creditWeightedEstimate: String(localized: "估算 · 按学分加权")
+        case .forecast: String(localized: "本机试算 · OpenGCalc")
         }
     }
 

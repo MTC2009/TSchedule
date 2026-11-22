@@ -7,18 +7,28 @@ struct SavedAssignment: Codable, Equatable {
     let id, title, status: String
     let due, published, course, courseName, kind: String?
     let eligible: Bool
+    let detailReadable, feedbackReleased: Bool?
+    let materialID: UUID?
 
     init(_ row: SchoolPortalTasks.Row, preserving previous: Self?) {
         localID = previous?.localID ?? UUID()
         id = row.id; title = row.title; status = row.status
         due = row.due; published = row.published; course = row.course
         courseName = row.courseName; kind = row.kind
+        detailReadable = row.detailReadable; feedbackReleased = row.feedbackReleased
+        // Rotate the detail identity on a changed list row, including withdrawal of
+        // feedback. Deadline alert identity is intentionally stable across these edits.
+        let unchanged = previous.map { $0.title == row.title && $0.status == row.status && $0.due == row.due &&
+            $0.published == row.published && $0.course == row.course && $0.courseName == row.courseName &&
+            $0.kind == row.kind && $0.detailReadable == row.detailReadable && $0.feedbackReleased == row.feedbackReleased } == true
+        materialID = row.detailReadable == true ? ((unchanged ? previous?.materialID : nil) ?? UUID()) : nil
         eligible = row.deadlineEligible == true && status == "pending" && due != nil
     }
 
     var displayRow: SchoolPortalTasks.Row {
         .init(id: id, title: title, status: status, due: due, published: published, course: course,
-              courseName: courseName, kind: kind, grading: nil, score: nil, deadlineEligible: eligible)
+              courseName: courseName, kind: kind, grading: nil, score: nil, deadlineEligible: eligible,
+              detailReadable: detailReadable, feedbackReleased: feedbackReleased)
     }
 }
 

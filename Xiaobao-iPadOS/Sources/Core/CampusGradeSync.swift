@@ -5,10 +5,10 @@ enum CampusUpdatePolicy: String, Codable, CaseIterable, Sendable {
 
     var title: String {
         switch self {
-        case .manual: "仅手动"
-        case .onOpen: "每次打开 App"
-        case .everyTwoDays: "每两天打开时"
-        case .background: "允许后台检查（约两天）"
+        case .manual: String(localized: "仅手动")
+        case .onOpen: String(localized: "每次打开 App")
+        case .everyTwoDays: String(localized: "每两天打开时")
+        case .background: String(localized: "允许后台检查（约两天）")
         }
     }
 

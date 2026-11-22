@@ -36,7 +36,7 @@ struct AttendanceView: View {
                     } else {
                         GlassCard {
                             VStack(spacing: 16) {
-                                StudentEmptyState(title: "这个范围尚未载入", detail: "当前只有本学期的上课考勤汇总。", symbol: "calendar.badge.exclamationmark")
+                                StudentEmptyState(title: String(localized: "这个范围尚未载入"), detail: String(localized: "当前只有本学期的上课考勤汇总。"), symbol: "calendar.badge.exclamationmark")
                                 Button("查看本学期上课考勤", systemImage: "arrow.uturn.backward") {
                                     category = .classroom; period = .semester
                                     start = model.attendance.range.start; end = model.attendance.range.end
@@ -85,7 +85,7 @@ struct AttendanceView: View {
                     }
                 }
                 if rows.isEmpty, status != nil {
-                    StudentEmptyState(title: "没有匹配的课程", detail: "请选择其他考勤状态，或清除筛选。")
+                    StudentEmptyState(title: String(localized: "没有匹配的课程"), detail: String(localized: "请选择其他考勤状态，或清除筛选。"))
                 } else {
                     AttendanceCourseTable(rows: rows.map(AttendanceCourseRow.init(course:))) { row in
                         if let counts = row.counts {
@@ -200,27 +200,29 @@ struct AttendanceFilterBar: View {
     }
 
     private var typeChoices: some View {
-        AttendanceSegmentedControl(label: "考勤类型", options: AttendanceCategory.allCases,
+        AttendanceSegmentedControl(label: String(localized: "考勤类型"), options: AttendanceCategory.allCases,
                                    title: \.title, selection: category) { value in
             category = value
         }
-        .frame(width: categoryWidth, height: segmentControlHeight)
+        .frame(minWidth: categoryWidth)
+        .frame(height: segmentControlHeight)
     }
 
     private var shortcuts: some View {
-        AttendanceSegmentedControl(label: "快捷时段", options: AttendancePeriod.allCases.filter { $0 != .custom },
+        AttendanceSegmentedControl(label: String(localized: "快捷时段"), options: AttendancePeriod.allCases.filter { $0 != .custom },
                                    title: \.title, selection: period, widthsFollowTitles: true, select: selectPeriod)
-            .frame(width: shortcutsWidth, height: segmentControlHeight)
+            .frame(minWidth: shortcutsWidth)
+        .frame(height: segmentControlHeight)
     }
 
     private var dateRow: some View {
         HStack(spacing: 14) { startPicker; endPicker }.fixedSize(horizontal: true, vertical: false)
     }
 
-    private var startPicker: some View { datePicker("开始", selection: $start, id: "attendance-filter-start") }
-    private var endPicker: some View { datePicker("结束", selection: $end, id: "attendance-filter-end") }
+    private var startPicker: some View { datePicker(String(localized: "开始"), selection: $start, id: "attendance-filter-start") }
+    private var endPicker: some View { datePicker(String(localized: "结束"), selection: $end, id: "attendance-filter-end") }
 
-    private func datePicker(_ title: LocalizedStringKey, selection: Binding<Date>, id: String) -> some View {
+    private func datePicker(_ title: String, selection: Binding<Date>, id: String) -> some View {
         DatePicker(title, selection: selection, displayedComponents: .date)
             .datePickerStyle(.compact).fixedSize(horizontal: true, vertical: false)
             .accessibilityIdentifier(id)
@@ -246,6 +248,12 @@ private struct AttendanceSegmentedControl<Option: Equatable>: UIViewRepresentabl
             coordinator?.selectIndex?(control.selectedSegmentIndex)
         }, for: .valueChanged)
         return control
+    }
+
+    // Measure actual localized titles. The existing fitting/scroll layouts can then wrap the row
+    // rather than forcing longer English shortcuts into a width chosen for Chinese.
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UISegmentedControl, context: Context) -> CGSize? {
+        uiView.intrinsicContentSize
     }
 
     func updateUIView(_ control: UISegmentedControl, context: Context) {
@@ -279,7 +287,7 @@ struct AttendanceCourseDetailView: View {
                     HStack { Text(attendancePercent(course.counts.rate)).font(.system(size: 52, weight: .semibold, design: .rounded)).foregroundStyle(.blue); Spacer(); Text("共 \(course.counts.total) 次").foregroundStyle(.secondary) }
                     Text("\(schoolDateLabel(report.range.start, format: "yyyy.MM.dd")) — \(schoolDateLabel(report.range.end, format: "yyyy.MM.dd"))").font(.callout).foregroundStyle(.secondary)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 18) {
-                        ForEach(AttendanceStatus.allCases) { MetricValue(title: $0.title, value: "\(course.counts[$0]) 次", color: $0.color) }
+                        ForEach(AttendanceStatus.allCases) { MetricValue(title: $0.title, value: String(localized: "\(course.counts[$0]) 次"), color: $0.color) }
                     }
                 }
             }
@@ -292,13 +300,13 @@ struct AttendanceCourseDetailView: View {
                             ForEach(AttendanceStatus.allCases) { Text($0.title).tag($0.rawValue) }
                         }.pickerStyle(.menu)
                         let matching = records.filter { $0.courseID == course.id && (filter == "all" || $0.status.rawValue == filter) }.sorted { $0.date > $1.date }
-                        if matching.isEmpty { StudentEmptyState(title: "没有匹配的记录", detail: "此课程在所选范围与状态下没有考勤记录。") }
+                        if matching.isEmpty { StudentEmptyState(title: String(localized: "没有匹配的记录"), detail: String(localized: "此课程在所选范围与状态下没有考勤记录。")) }
                         ForEach(matching) { record in
                             HStack { VStack(alignment: .leading) { Text(schoolDateLabel(record.date, format: "M月d日 HH:mm")); if !record.note.isEmpty { Text(record.note).font(.caption).foregroundStyle(.secondary) } }; Spacer(); Text(record.status.title).foregroundStyle(record.status.color) }
                             Divider()
                         }
                     } else {
-                        StudentEmptyState(title: "逐次记录尚未载入", detail: "当前只有汇总，没有每次考勤的日期、节次或原因。", symbol: "list.bullet.clipboard")
+                        StudentEmptyState(title: String(localized: "逐次记录尚未载入"), detail: String(localized: "当前只有汇总，没有每次考勤的日期、节次或原因。"), symbol: "list.bullet.clipboard")
                     }
                 }
             }

@@ -1,5 +1,7 @@
 import XCTest
 
+private let fixtureOriginURL = "__FIXTURE_ORIGIN__"
+
 /// Built only by ipad-smoke.py in a separate fixture application and XCTest runner.
 @MainActor final class GradeEntryUITests: XCTestCase {
     func testNativeAttendanceAndExplicitGPARefresh() async throws {
@@ -30,6 +32,24 @@ import XCTest
         XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"school-attendance-records").firstMatch.waitForExistence(timeout:10))
         XCTAssertFalse(app.webViews.firstMatch.exists)
         tap("GPA"); expect(3.25)
+        checkGroupForecast(in: app)
+        tap("设置"); tap("GPA")
+        let edited = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "gpa-course-")).firstMatch
+        let showsForecast = NSPredicate { _, _ in edited.exists && (edited.value as? String)?.contains("87.5%") == true }
+        func expectForecast() {
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: showsForecast, object: nil)], timeout: 12), .completed)
+        }
+        expectForecast()
+        refresh.tap()
+        XCTAssertTrue(refresh.waitForExistence(timeout: 10))
+        let finished = NSPredicate { _, _ in refresh.exists && refresh.isEnabled && refresh.label.contains("刷新 GPA") }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: finished, object: nil)], timeout: 18), .completed)
+        expectForecast()
+        let restore = app.buttons["gpa-restore-actual"].firstMatch
+        XCTAssertTrue(restore.waitForExistence(timeout: 8)); restore.tap()
+        XCTAssertTrue(restore.waitForNonExistence(timeout: 6))
+        expect(3.25)
+        XCTAssertFalse((edited.value as? String)?.contains("预测成绩") == true)
         tap("我的考勤")
         let daily = app.buttons["日常"].firstMatch
         XCTAssertTrue(daily.waitForExistence(timeout:10)); daily.tap()
@@ -40,7 +60,90 @@ import XCTest
         retry.tap()
         XCTAssertTrue(app.staticTexts["暂无考勤记录"].waitForExistence(timeout:12))
         XCTAssertFalse(retry.exists); XCTAssertFalse(app.webViews.firstMatch.exists)
+
+        let origin = try XCTUnwrap(URL(string: fixtureOriginURL))
+        XCTAssertEqual(origin.host, "127.0.0.1")
+        var request = URLRequest(url: origin.appendingPathComponent("control/fail-grade-refresh"))
+        request.httpMethod = "POST"
+        let (_, reply) = try await URLSession.shared.data(for: request)
+        XCTAssertEqual((reply as? HTTPURLResponse)?.statusCode, 200)
+        tap("GPA"); expect(3.25); refresh.tap()
+        XCTAssertTrue(app.staticTexts["school-grade-sync-issue"].firstMatch.waitForExistence(timeout: 15))
+        expect(3.25)
+        app.terminate()
+        app.launchArguments.append("-GradeFixtureOffline")
+        app.launch()
+        tap("GPA"); expect(3.25)
+        XCTAssertTrue(app.staticTexts["当前未联网，显示上次保存的成绩。"].firstMatch.exists)
+        XCTAssertTrue(edited.waitForExistence(timeout: 6))
+        edited.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["course-published-total"].firstMatch.waitForExistence(timeout: 8))
+        // Atelier itself is a subtotal row; the group with released items has a disclosure.
+        let cachedGroup = app.descendants(matching: .any)["gpa-assessment-group-Atelier / Palette"].firstMatch
+        if !cachedGroup.exists { app.swipeUp() }
+        XCTAssertTrue(cachedGroup.waitForExistence(timeout: 6))
     }
+    private func checkGroupForecast(in app: XCUIApplication) {
+        func element(_ id: String) -> XCUIElement {
+            app.descendants(matching: .any).matching(identifier: id).firstMatch
+        }
+        let course = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "gpa-course-")).firstMatch
+        XCTAssertTrue(course.waitForExistence(timeout: 10), "Course tile"); course.tap()
+        let add = element("course-forecast-add")
+        XCTAssertTrue(add.waitForExistence(timeout: 12), "Course detail add"); add.tap()
+        let menu = app.buttons["course-forecast-category"], save = app.buttons["course-forecast-save"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 8), "Group menu"); XCTAssertFalse(save.isEnabled)
+        XCTAssertFalse(app.textFields["course-forecast-weight"].exists)
+        let mark = app.textFields["course-forecast-mark"]
+        mark.tap(); mark.typeText("75\n")
+        XCTAssertFalse(save.isEnabled, "An available group must be selected")
+        func share(_ expected: String, id: String = "course-forecast-group-share",
+                   file: StaticString = #filePath, line: UInt = #line) {
+            let row = element(id)
+            XCTAssertTrue(row.waitForExistence(timeout: 4), id, file: file, line: line)
+            XCTAssertEqual(row.value as? String, expected, id, file: file, line: line)
+        }
+        func selectGroup(_ title: String) {
+            menu.tap()
+            // A populated group's disclosure behind the sheet has the same spoken
+            // name; the picker options, unlike the disclosure, are menu cells.
+            let option = app.collectionViews.cells.buttons.matching(NSPredicate(
+                format: "label == %@ AND NOT (identifier BEGINSWITH %@)", title, "gpa-assessment-group-"
+            )).firstMatch
+            XCTAssertTrue(option.waitForExistence(timeout: 5)); option.tap()
+        }
+        selectGroup("Atelier"); share("64%"); XCTAssertFalse(save.isEnabled, "Parents aggregate their child groups")
+        selectGroup("Atelier / Palette")
+        share("25%"); share("16%", id: "course-forecast-course-share")
+        selectGroup("Critique")
+        share("36%")
+        XCTAssertTrue(save.isEnabled, "A numeric score and selected group enable saving")
+        save.tap()
+        XCTAssertTrue(menu.waitForNonExistence(timeout: 5), "Saving closes the active forecast editor")
+        let result = element("course-forecast-result")
+        XCTAssertTrue(result.waitForExistence(timeout: 6), "Calculated local forecast"); XCTAssertEqual(result.value as? String, "81.4%")
+        let draft = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "course-forecast-item-")).firstMatch
+        draft.tap(); XCTAssertTrue(menu.label.contains("Critique") || (menu.value as? String) == "Critique")
+        // Saving an existing value with the score field focused must take one tap, not
+        // one tap on a modal number pad and another on the actual toolbar button.
+        mark.tap(); save.tap()
+        XCTAssertTrue(menu.waitForNonExistence(timeout: 5), "A focused score does not intercept Save")
+        draft.tap()
+        app.buttons["course-forecast-remove"].tap()
+        XCTAssertTrue(result.waitForNonExistence(timeout: 6))
+        func addToGradedLeaf(_ text: String) {
+            add.tap(); XCTAssertTrue(menu.waitForExistence(timeout: 8))
+            selectGroup("Atelier / Palette")
+            mark.tap(); mark.typeText(text + "\n"); save.tap()
+            XCTAssertTrue(menu.waitForNonExistence(timeout: 6))
+        }
+        // Only the two released task percentages (including zero) are eligible.
+        // This leaf is nested; the other root is genuinely ungraded, not a zero.
+        addToGradedLeaf("100")
+        XCTAssertTrue(result.waitForExistence(timeout: 8)); XCTAssertEqual(result.value as? String, "90.0%")
+        addToGradedLeaf("20"); XCTAssertEqual(result.value as? String, "87.5%")
+    }
+
     func testOpeningGradesRenewsOnceWithoutPresentingAWebsite() async throws {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -60,7 +163,7 @@ import XCTest
         }
         // Only the test runner can release the fixture's first page or revoke its synthetic session.
         func control(_ mode: String) async throws {
-            let root = try XCTUnwrap(URL(string: "__FIXTURE_ORIGIN__"))
+            let root = try XCTUnwrap(URL(string: fixtureOriginURL))
             XCTAssertEqual(root.host, "127.0.0.1")
             var request = URLRequest(url: root.appendingPathComponent("control").appendingPathComponent(mode))
             request.httpMethod = "POST"

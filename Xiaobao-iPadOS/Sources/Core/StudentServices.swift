@@ -3,7 +3,9 @@ import Foundation
 public enum SchoolWorkKind: String, CaseIterable, Identifiable, Sendable {
     case task, exam, evaluation
     public var id: String { rawValue }
-    public var title: String { switch self { case .task: "我的任务"; case .exam: "我的考试"; case .evaluation: "我的测评" } }
+    /// Official web navigation labels are stable identifiers, not app display copy.
+    var portalSection: String { switch self { case .task: "我的任务"; case .exam: "我的考试"; case .evaluation: "我的测评" } }
+    public var title: String { switch self { case .task: String(localized: "我的任务"); case .exam: String(localized: "我的考试"); case .evaluation: String(localized: "我的测评") } }
     public var symbol: String { switch self { case .task: "checklist"; case .exam: "pencil.and.list.clipboard"; case .evaluation: "text.badge.checkmark" } }
 }
 
@@ -21,7 +23,7 @@ public struct SchoolWork: Identifiable, Sendable {
     // The demo explicitly assigns this exam to the entire lesson; overlapping
     // dates alone do not mean that a class was replaced.
     let inClassLessonID: String?
-    public var dateLabel: String { kind == .exam ? "考试时间" : "截止时间" }
+    public var dateLabel: String { kind == .exam ? String(localized: "考试时间") : String(localized: "截止时间") }
 
     init(id: String, kind: SchoolWorkKind, title: String, course: String, date: Date, end: Date?,
          location: String?, status: SchoolWorkStatus, detail: String, inClassLessonID: String? = nil) {

@@ -14,13 +14,13 @@ import UniformTypeIdentifiers
         guard args.count == 5,
               let width = Int(args[2]), let height = Int(args[3]),
               (320...1800).contains(width), (320...1800).contains(height),
-              ["pair", "catalog"].contains(args[4])
+              ["pair", "catalog", "seasonal", "study", "lighting", "sparrow","festive","reel","prints","contact-reel","impression-reel"].contains(args[4])
         else { throw ProbeError.arguments }
         let directory = URL(fileURLWithPath: args[1], isDirectory: true)
         guard let gpu = MTLCreateSystemDefaultDevice() else { throw ProbeError.unavailable }
         let library = try gpu.makeLibrary(URL: directory.appendingPathComponent("Sky.metallib"))
         let renderer = try VolumetricSky(device: gpu, library: library)
-        guard MemoryLayout<SkyUniforms>.stride == 176 else { throw ProbeError.render }
+        guard MemoryLayout<SkyUniforms>.stride == 240 else { throw ProbeError.render }
         let options = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: VolumetricSky.pixelFormat, width: width, height: height, mipmapped: false
         )
@@ -32,6 +32,11 @@ import UniformTypeIdentifiers
         pass.colorAttachments[0].loadAction = .dontCare
         pass.colorAttachments[0].storeAction = .store
 
+        if args[4] == "lighting" { try SeasonalLightProbe.run(renderer,target,pass); return }
+        if ["seasonal", "study", "sparrow","festive","reel","prints","contact-reel","impression-reel"].contains(args[4]) {
+            try SeasonalProbe.run(renderer:renderer,target:target,pass:pass,output:directory,mode:args[4])
+            return
+        }
         let samples: [(String, Weather, Int, Double)]
         if args[4] == "catalog" {
             samples = Weather.allCases.map { ($0.id, $0, 740, 0) }
@@ -70,7 +75,7 @@ import UniformTypeIdentifiers
         }
     }
 
-    private static func write(_ pixels: Data, width: Int, height: Int, to url: URL) throws {
+    static func write(_ pixels: Data, width: Int, height: Int, to url: URL) throws {
         let bitmap = CGBitmapInfo.byteOrder32Little.union(.init(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue))
         guard let space = CGColorSpace(name: CGColorSpace.sRGB),
               let provider = CGDataProvider(data: pixels as CFData),

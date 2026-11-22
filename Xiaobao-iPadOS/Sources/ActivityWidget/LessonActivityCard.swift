@@ -21,7 +21,7 @@ struct LessonActivityMinutes: View {
         // the remaining fraction of a minute so the last minute reads 1, not 0.
         // ActivityKit's stale date and the controller still use the real end.
         let style = SystemFormatStyle.DateOffset(to: endingAt.addingTimeInterval(59.999),
-            allowedFields: [.minute], maxFieldCount: 1, sign: .never).locale(Locale(identifier: "zh_CN"))
+            allowedFields: [.minute], maxFieldCount: 1, sign: .never).locale(AppLanguage.locale)
         Group {
             if let previewDate { Text(style.format(previewDate)) }
             else { Text(.currentDate, format: style) }
@@ -39,9 +39,9 @@ struct LessonActivityCard: View {
 
     private var countdownHeading: String {
         #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
-        if state.isDemo { return "演示 · 距离下课" }
+        if state.isDemo { return String(localized: "演示 · 距离下课") }
         #endif
-        return "距离下课"
+        return String(localized: "距离下课")
     }
 
     var body: some View {
@@ -64,22 +64,22 @@ struct LessonActivityCard: View {
                     .frame(width: typeSize.isAccessibilitySize ? 156 : 118, alignment: .leading)
 
                     VStack(alignment: .trailing, spacing: 5) {
-                        Text(verbatim: state.appearance?.nextHeading ?? "下一节课")
+                        Text(verbatim: state.appearance?.nextHeading ?? String(localized: "下一节课"))
                             .font(.caption.weight(.medium)).foregroundStyle(.secondary)
                             .lineLimit(1).truncationMode(.tail)
-                        Text(verbatim: state.nextLesson ?? "暂无下一节课")
+                        Text(verbatim: state.nextLesson ?? String(localized: "暂无下一节课"))
                             .font(.title2.weight(.semibold))
                             .lineLimit(1).truncationMode(.tail)
                             .multilineTextAlignment(.trailing)
                             .privacySensitive()
-                            .accessibilityHint(previewDate != nil || state.nextLesson == nil ? "" : "打开课表查看完整课名")
+                            .accessibilityHint(previewDate != nil || state.nextLesson == nil ? "" : String(localized: "打开课表查看完整课名"))
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             } else {
                 HStack(spacing: 6) {
                     TScheduleMark(size: 18)
-                    Text(previewDate == nil ? "课表活动已结束" : "暂无进行中的课程").font(.subheadline)
+                    Text(previewDate == nil ? String(localized: "课表活动已结束") : String(localized: "暂无进行中的课程")).font(.subheadline)
                     Spacer(minLength: 0)
                 }
             }

@@ -23,3 +23,6 @@ Changed: The user's foreground action supplies the local appearance, and the exi
 ### 2026-11-21 — One foreground lesson activity
 Model: Codex (GPT-6.2-sol) · Keywords: class-end / next-course / lock-screen  
 Changed: add one local start/stop control, bounded snapshot lifetime and a scoped native link. Reason: keep the Lock Screen useful without loading private school data in a widget or in the background. Affected interfaces: internal controller and a fixed navigation URL; no public HTTP API.
+
+### 2026-11-21 — bilingual UI / verbatim school data
+Model: Codex. Localize start/stop actions and availability errors. Course titles, custom headings, activity lifetime and the deep-link route are unchanged. [Language boundary and regression tests](../../Core/Localization/README.md).

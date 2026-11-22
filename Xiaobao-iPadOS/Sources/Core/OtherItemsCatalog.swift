@@ -40,7 +40,7 @@ struct OtherItem: Identifiable, Sendable {
         if let sourceCourseLabel { return sourceCourseLabel }
         let names = courses.compactMap(\.name)
         if !names.isEmpty { return names.joined(separator: " / ") }
-        return courses.isEmpty ? "未分科" : "课程名称待载入"
+        return courses.isEmpty ? String(localized: "未分科") : String(localized: "课程名称待载入")
     }
 
     private var work: Work? {
@@ -110,21 +110,21 @@ struct OtherItem: Identifiable, Sendable {
         if case .exam = detail {
             if work.isLocal {
                 let ended = work.sourceStatus != "pending" || (work.endsAt ?? work.startsAt).map { $0 < now } == true
-                return Status(title: ended ? "已结束" : "待考试", finished: ended)
+                return Status(title: ended ? String(localized: "已结束") : String(localized: "待考试"), finished: ended)
             }
             if work.sourceStatus == "pending", let end = work.endsAt, end < now {
-                return Status(title: "已结束", finished: true)
+                return Status(title: String(localized: "已结束"), finished: true)
             }
         }
         switch work.sourceStatus {
         case "pending":
-            let title = work.isLocal ? (work.dueAt.map { $0 < now } == true ? "已逾期" : "待完成") : "待处理"
+            let title = work.isLocal ? (work.dueAt.map { $0 < now } == true ? String(localized: "已逾期") : String(localized: "待完成")) : String(localized: "待处理")
             return Status(title: title, finished: false)
-        case "submitted": return Status(title: "已提交", finished: true)
-        case "completed": return Status(title: "已完成", finished: true)
-        case "graded": return Status(title: "已评分", finished: true)
-        case "missing": return Status(title: "未交", finished: false)
-        case "excused": return Status(title: "免交", finished: nil)
+        case "submitted": return Status(title: String(localized: "已提交"), finished: true)
+        case "completed": return Status(title: String(localized: "已完成"), finished: true)
+        case "graded": return Status(title: String(localized: "已评分"), finished: true)
+        case "missing": return Status(title: String(localized: "未交"), finished: false)
+        case "excused": return Status(title: String(localized: "免交"), finished: nil)
         default: return Status(title: work.sourceStatus, finished: nil)
         }
     }

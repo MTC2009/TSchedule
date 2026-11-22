@@ -38,18 +38,26 @@ struct CampusList<T: Decodable & Sendable>: Decodable, Sendable {
     var available_terms: [String]? = nil
 }
 struct CampusCourse: Codable, Identifiable, Sendable { let id, name: String; let teacher, room: String? }
-struct CampusLesson: Codable, Identifiable, Sendable { let id, course_id, start, end: String; let room: String? }
+struct CampusLesson: Codable, Identifiable, Sendable {
+    let id, course_id, start, end: String
+    let room: String?
+    var metadata: TimetableLessonMetadata? = nil
+}
 struct CampusSchedule: Decodable, Sendable {
     let date: String
     let day: Int?
     let lessons: [CampusLesson]
     let teaching_slots: [TeachingSlot]?
     let calendarDay: SchoolCalendarDay?
+    let hasConfirmedRoster: Bool
+    private let fixedCampusActivities: Bool
     private let includesCampusBells: Bool
 
     init(date: String, day: Int?, lessons: [CampusLesson], teaching_slots: [TeachingSlot]? = nil,
-         calendarDay: SchoolCalendarDay? = nil, includesCampusBells: Bool = true) {
+         calendarDay: SchoolCalendarDay? = nil, includesCampusBells: Bool = true,
+         fixedCampusActivities: Bool = false, hasConfirmedRoster: Bool = true) {
         self.date = date; self.day = day; self.lessons = lessons; self.teaching_slots = teaching_slots
+        self.hasConfirmedRoster = hasConfirmedRoster; self.fixedCampusActivities = fixedCampusActivities
         self.includesCampusBells = includesCampusBells
         self.calendarDay = calendarDay.flatMap { $0.date == date && $0.isValid(cycleLength: 255) ? $0 : nil }
     }
@@ -71,12 +79,13 @@ struct CampusSchedule: Decodable, Sendable {
         let periods: [LessonTimeline.Period] = lessons.compactMap { lesson in
             guard let start = campusInstant(lesson.start), let end = campusInstant(lesson.end) else { return nil }
             let title = courseName(lesson.course_id)
-            return .init(id: lesson.id, name: title, shortName: title, room: lesson.room, start: start, end: end)
+            return .init(id: lesson.id, name: title, shortName: title, room: lesson.room,
+                         start: start, end: end, metadata: lesson.metadata)
         }
         guard periods.count == lessons.count else { return nil } // An invalid read is not a free day.
         let schoolDay = calendarDay.map { $0.status == .teaching } ?? (day != nil)
         return LessonTimeline(on: dayStart, periods: periods, teachingSlots: schoolDay ? teaching_slots : nil,
-                              includesCampusActivities: schoolDay && includesCampusBells)
+                              includesCampusActivities: schoolDay && includesCampusBells, fixedCampusActivities: fixedCampusActivities)
     }
 }
 struct CampusEvent: Codable, Identifiable, Sendable { let id, title, start: String; let end, kind: String?; let all_day: Bool? }

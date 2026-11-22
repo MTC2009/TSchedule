@@ -12,6 +12,10 @@
   <sub>iPadOS 26+ · SwiftUI · Metal · 0.3 开发版</sub>
 </p>
 
+> **使用提示：** 目前不建议清澜山学校的同学安装澜图，或用它安排日常课业。澜图可能漏掉新作业，也可能仍显示旧的截止时间。请以校宝官方学生端和任课老师的通知为准。
+>
+> **Usage note:** We do not currently recommend that Tsinglan School students install TSchedule for iPadOS or use it for day-to-day schoolwork. The app may miss new assignments or show an outdated due date. Check the official school portal and your teachers’ announcements for the latest information.
+
 <p align="center">
   <a href="#快速开始">快速开始</a> ·
   <a href="docs/tschedule-promo/Meet-TSchedule.mp4?raw=1">观看 75 秒宣传片 · 转屏版</a> ·
@@ -23,8 +27,8 @@
 ## 在 iPad 上
 
 - **[今日](docs/tschedule-app-store/02-artwork/ipad-13-inch/01-today.png)** — 上课时看教室和下课倒计时；放学后或休息日，看下一个上课日的日期、轮转 Day 和已确认的首节课，点一下就到那天的计划。沿时间轴拖到下午，可以提前看下一节；天空的光线也跟着所选时刻变化。
-- **[计划](docs/tschedule-app-store/02-artwork/ipad-13-inch/02-planner.png)** — 竖屏看一天，宽屏看一周。把自己的安排放在学校课表旁，拖到合适的时段，或按星期、按学校轮转 Day 重复。轮转计划只排在校历确认的教学日。移动个人计划不会改动学校课程。
-- **[任务](docs/tschedule-app-store/02-artwork/ipad-13-inch/03-assignments.png)与[成绩](docs/tschedule-app-store/02-artwork/ipad-13-inch/04-gpa.png)** — 用学期下拉切换学校提供的记录，按课程和截止日期找作业，从课程总评点进每项考核。未公布的成绩不算作零分；个人试算也不会改写已公布成绩。
+- **[计划](docs/tschedule-app-store/02-artwork/ipad-13-inch/02-planner.png)** — 竖屏看一天，宽屏看一周。把自己的安排放在学校课表旁，拖到合适的时段，或按星期、按学校轮转 Day 重复。轮转计划只排在校历确认的教学日。移动个人计划不会改动学校课程。在计划编辑器选择课程类型并设定起止时间，即可把漏排的课补进「今日」和「计划」。两页共用「设置 → 课表显示」；隐藏 TSSA 时可保留同一时段的晚自习。
+- **[任务](docs/tschedule-app-store/02-artwork/ipad-13-inch/03-assignments.png)与[成绩](docs/tschedule-app-store/02-artwork/ipad-13-inch/04-gpa.png)** — 用学期下拉切换学校提供的记录，按课程和截止日期找作业，从课程总评点进每项考核。点课程详情「全部任务」旁的加号，可以往同一分组连续加入假设成绩，看课程总评和预测 GPA 会怎样变化。校宝模式的预测留在本机；「恢复真实成绩」只清除当前学期的预测，不改写校方成绩。
 - **[考勤](docs/tschedule-app-store/02-artwork/ipad-13-inch/05-attendance.png)** — 按课堂、日常或活动查看考勤，也可以点进一门课，核对具体记录。
 
 上课时还可以从「今日」开启**锁屏课表**。不用解锁 iPad，就能看见离下课还有几分钟、接下来上哪门课。
@@ -33,6 +37,8 @@
   <img src="docs/verification/student-interface/lesson-activity-minutes.png" width="540" alt="锁屏课表卡片：左侧显示距离下课的分钟数，右侧显示下一节课的名称。">
   <br><sub>iPadOS 实时活动。配图不含真实学生记录。</sub>
 </p>
+
+原生界面支持简体中文与英语，随 iPad 的 App 语言切换。课程名称、任务、评语等校宝资料以及个人计划均保留原文。
 
 ## 快速开始
 
@@ -51,11 +57,11 @@
 
 课表、任务、考勤、考试、测评和分享的资料目录来自当前登录的校宝账号。任务可带已公布的单项分数；当前学期的成绩总览在进入 GPA，或有有效会话且已显示本机「今日」时按需读取；历史学期仅按选择加载。缺少依据的课程和成绩不填充；作业提交仍在学校网页完成。
 
-首次登录会把可确认的六日轮转课表保存到本机。「今日」与「计划」共用；翻周、断网或重开不重抓课表，手动更新在「设置 → 更新课表」。确认退出或换号清除旧课表。「我的任务」在前台核对所选学期，保存最近一次完整的作业清单和时间；断网重开仍可看，无法确认不当作零项。清单受系统文件保护、不参与备份，不保存分数、答案或附件。成绩和考勤仍仅在会话内；校务资料不经开发者服务器中转。若主动开启锁屏课表，iPadOS 会在锁屏上显示课程摘要。详见[设备内读取说明](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md)与[可选的本机代登录](Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/README.md)。
+首次登录会把可确认的六日轮转课表保存到本机。「今日」与「计划」共用；翻周、断网或重开不重抓课表，手动更新在「设置 → 更新课表」。确认退出或换号清除旧课表。「我的任务」在前台核对所选学期，保存最近一次完整的作业清单和时间；断网重开仍可看，无法确认不当作零项。作业清单和已读取的详情按账号、学期受系统文件保护、不参与备份。App 开着时逐项补齐说明、本人的提交及已发布点评；不缓存分数或附件文件。附件仅在点选时下载，可保存到「文件」。已公布成绩的成功同步结果在本机受保护保存，不备份；断网或更新失败时继续显示旧值和同步时间。退出、换号或撤销对应读取权限后不再展示关联副本。考勤仍仅在会话内；校务资料不经开发者服务器中转。若主动开启锁屏课表，iPadOS 会在锁屏上显示课程摘要。详见[设备内读取说明](Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/README.md)与[可选的本机代登录](Xiaobao-iPadOS/Sources/Native/SchoolPortalLogin/README.md)。
 
 TSchedule 是独立学生项目，并非学校或校宝的官方客户端。界面与读取流程通过隔离测试；学校实际提供的资料以本人账号为准。
 
-在「设置 → 隐私」可离线阅读[隐私政策与使用条款（中英讨论稿）](docs/tschedule-app-store/04-web/README.md)。
+在「设置 → 隐私」可离线阅读[隐私政策与使用条款（中英讨论稿）](docs/tschedule-app-store/04-web/README.md)。[给老师的一页介绍](docs/tschedule-it-center-brief.md)用一张周计划画面说明它是什么；[IT 技术披露](docs/tschedule-it-technical-disclosure.md)列出文件结构、各类资料的读取与保留方式，以及验证依据。
 
 课程提醒默认关闭：在「设置 → 提醒」可选择上课时或提前通知。提醒根据本机已确认的课表安排，不显示课程名或教室。作业截止提醒也默认关闭：只为本学期明确待交且有准确截止时间的作业提前一小时提醒，标题默认隐藏。改期、提交或撤回要在下次完整同步后才会反映到通知。个人计划仍可单独设置提醒。
 

@@ -165,6 +165,10 @@ struct PlannerTimelineLayout {
         let marks: [Mark]
         var id: PlannerDay.TimedRow.ID { marks[0].id }
         var top: Double { marks[0].top }
+        var singleSchoolEntry: PlannerSchoolEntry? {
+            guard marks.count == 1, case .school(let entry) = marks[0].row else { return nil }
+            return entry
+        }
     }
 
     static let cardGap = 4.0
@@ -230,9 +234,10 @@ struct PlannerTimelineLayout {
             let bottom = row.end.map { scale.position(at: scale.minute($0, in: date)) } ?? top
             let duration = row.end.map { $0.timeIntervalSince(row.start) / 60 } ?? 0
             let height = scale.position(at: duration) - Self.cardGap
-            // Markers have a separate hit region next to the ruler. Neither a
-            // point nor a short interval makes a real event column narrower.
-            if height < minimumCardHeight {
+            // Meals keep the same card at their true duration, with compact ink
+            // when needed. Other short intervals retain their separate marker lane.
+            let meal = if case .school(let entry) = row { entry.isMeal } else { false }
+            if height < minimumCardHeight && (!meal || height <= 0) {
                 if let first = marks.first, top - first.top >= Self.markerTarget {
                     markGroups.append(MarkGroup(marks: marks))
                     marks.removeAll(keepingCapacity: true)

@@ -124,6 +124,27 @@ public struct Lesson: Identifiable, Hashable, Sendable {
     public var timeLabel: String { SchoolClock.time(startMinute) + " – " + SchoolClock.time(endMinute) }
 }
 
+/// Optional source display labels. These never affect a bell or the identity
+/// of a roster, and the archive can still decode periods saved without them.
+struct TimetableLessonMetadata: Codable, Equatable, Sendable {
+    var grade: String? = nil
+    var className: String? = nil
+    var teacher: String? = nil
+    var note: String? = nil
+
+    static func agreement(_ values: [Self?], combineHalves: Bool = false) -> Self? {
+        func same(_ field: KeyPath<Self, String?>) -> String? {
+            let present = values.compactMap { $0?[keyPath: field] }
+            guard combineHalves || present.count == values.count, let first = present.first,
+                  present.allSatisfy({ $0 == first }) else { return nil }
+            return first
+        }
+        let result = Self(grade: same(\.grade), className: same(\.className), teacher: same(\.teacher),
+                          note: combineHalves ? same(\.note) : nil)
+        return result.grade == nil && result.className == nil && result.teacher == nil && result.note == nil ? nil : result
+    }
+}
+
 /// Minutes since school midnight, as published in the school's bell schedule.
 struct TeachingSlot: Codable, Hashable, Sendable {
     let start, end: Int
@@ -132,11 +153,29 @@ struct TeachingSlot: Codable, Hashable, Sendable {
 /// The bundled campus day, independent of a student's subject assignments.
 /// The opening double period is uninterrupted. Unlisted gaps are not teaching slots.
 enum CampusBells {
-    static let teachingSlots: [TeachingSlot] = [
-        .init(start: 480, end: 560), .init(start: 610, end: 650),
-        .init(start: 660, end: 700), .init(start: 710, end: 750),
-        .init(start: 805, end: 845), .init(start: 855, end: 895), .init(start: 905, end: 945)
+    /// Confirmed profile of this publication; a calendar for another school, division or
+    /// year is not evidence that its students use these bells.
+    static func applies(to calendar: PublishedSchoolCalendar) -> Bool {
+        calendar.campus == "main" && calendar.division == "HS" && calendar.academicYear == "2026-2027"
+    }
+
+    static let openingDouble = TeachingSlot(start: 480, end: 560)
+    static let openingHalves: (first: TeachingSlot, second: TeachingSlot) = {
+        let middle = (openingDouble.start + openingDouble.end) / 2
+        return (.init(start: openingDouble.start, end: middle), .init(start: middle, end: openingDouble.end))
+    }()
+    static let beforeLunch = TeachingSlot(start: 710, end: 750)
+    static let dismissal = 15 * 60 + 45
+    static let teachingGroups: [[TeachingSlot]] = [
+        [openingDouble], [.init(start: 610, end: 650), .init(start: 660, end: 700)],
+        [beforeLunch, .init(start: 805, end: 845)], [.init(start: 855, end: 895), .init(start: 905, end: dismissal)]
     ]
+    static let teachingSlots = teachingGroups.flatMap { $0 }
+    static func isTeachingPeriod(start: Int, end: Int) -> Bool {
+        let slot = TeachingSlot(start: start, end: end)
+        return teachingSlots.contains(slot) || slot == openingHalves.first || slot == openingHalves.second
+    }
+
     /// Campus-wide time, not an enrollment or an empty instructional slot.
     enum Activity: CaseIterable, Hashable {
         case assembly, lunch
@@ -146,9 +185,9 @@ enum CampusBells {
             case .lunch: (12 * 60 + 30)..<(13 * 60 + 25)
             }
         }
-        var title: String { switch self { case .assembly: "班会"; case .lunch: "午餐" } }
-        var englishTitle: String { switch self { case .assembly: "Homeroom / School Assembly"; case .lunch: "Lunch" } }
-        var location: String { switch self { case .assembly: "Homeroom/Theater"; case .lunch: "Canteen" } }
+        var title: String { switch self { case .assembly: String(localized: "班会"); case .lunch: String(localized: "午餐") } }
+        var detailTitle: String { self == .assembly ? String(localized: "班会／集会") : title }
+        var location: String { switch self { case .assembly: String(localized: "班级教室／剧场"); case .lunch: String(localized: "食堂") } }
     }
 
     /// Breaks are the gaps in the campus bell schedule, not in a student's enrollment.
@@ -169,6 +208,7 @@ struct LessonTimeline {
         let id, name, shortName: String
         let room: String?
         let start, end: Date
+        var metadata: TimetableLessonMetadata? = nil
 
     }
 
@@ -176,21 +216,33 @@ struct LessonTimeline {
         case lesson(Period)
         case freeblock(DateInterval)
         case activity(CampusBells.Activity, DateInterval)
+        /// Locally displayed routine or personal course, with no portal lesson/detail ID.
+        case reference(Period, isCourse: Bool)
 
-        enum ID: Hashable { case lesson(String), freeblock(Date), activity(CampusBells.Activity, Date) }
+        enum ID: Hashable { case lesson(String), freeblock(Date), activity(CampusBells.Activity, Date), reference(String) }
         var id: ID {
             switch self {
             case .lesson(let p): .lesson(p.id)
             case .freeblock(let i): .freeblock(i.start)
             case .activity(let kind, let i): .activity(kind, i.start)
+            case .reference(let p, _): .reference(p.id)
             }
         }
         var title: String {
-            switch self { case .lesson(let p): p.name; case .freeblock: "Free Block"; case .activity(let kind, _): kind.title }
+            switch self { case .lesson(let p), .reference(let p, _): p.name; case .freeblock: String(localized: "空节"); case .activity(let kind, _): kind.title }
         }
+        var location: String? {
+            switch self {
+            case .lesson(let period), .reference(let period, _): period.room
+            case .activity(let kind, _): kind.location
+            case .freeblock: nil
+            }
+        }
+        var metadata: TimetableLessonMetadata? { lesson?.metadata }
         var lesson: Period? { if case .lesson(let p) = self { p } else { nil } }
-        var start: Date { switch self { case .lesson(let p): p.start; case .freeblock(let i), .activity(_, let i): i.start } }
-        var end: Date { switch self { case .lesson(let p): p.end; case .freeblock(let i), .activity(_, let i): i.end } }
+        var start: Date { switch self { case .lesson(let p), .reference(let p, _): p.start; case .freeblock(let i), .activity(_, let i): i.start } }
+        var end: Date { switch self { case .lesson(let p), .reference(let p, _): p.end; case .freeblock(let i), .activity(_, let i): i.end } }
+        var isCourse: Bool { switch self { case .lesson, .reference(_, true): true; default: false } }
 
         /// Time elapsed, not academic completion. A live clock and a scrub in either
         /// direction use the same half-open interval, regardless of the block's kind.
@@ -207,19 +259,27 @@ struct LessonTimeline {
     let dayStart: Date
     let bounds: ClosedRange<Int>?
 
-    init?(on date: Date, periods: [Period], teachingSlots: [TeachingSlot]? = nil, includesCampusActivities: Bool = false) {
+    init?(on date: Date, periods: [Period], teachingSlots: [TeachingSlot]? = nil, includesCampusActivities: Bool = false,
+          fixedCampusActivities: Bool = false) {
         let start = SchoolClock.calendar.startOfDay(for: date)
         guard let tomorrow = SchoolClock.calendar.date(byAdding: .day, value: 1, to: start),
               periods.allSatisfy({ $0.start >= start && $0.start < $0.end && $0.end <= tomorrow }) else { return nil }
-        dayStart = start
         let lessons = periods.sorted { $0.start < $1.start }
         let vacancies = Self.freeblocks(on: start, lessons: lessons, slots: teachingSlots)
         let instruction = vacancies.isEmpty ? lessons.map(Block.lesson)
             : (lessons.map(Block.lesson) + vacancies).sorted { $0.start < $1.start }
-        let resolved = includesCampusActivities ? Self.addingCampusActivities(to: instruction, on: start) : instruction
-        blocks = resolved
-        recesses = includesCampusActivities ? Self.recesses(between: resolved, on: start) : []
-        if let first = resolved.first, let lastEnd = resolved.map(\.end).max() {
+        let resolved = includesCampusActivities ? Self.addingCampusActivities(to: instruction, on: start, fixed: fixedCampusActivities) : instruction
+        self.init(on: start, resolved: resolved, includesRecesses: includesCampusActivities)
+    }
+
+    /// A visibility change cannot create a new vacant slot. Only the original
+    /// bell/roster initializer is allowed to derive vacancies and campus activities.
+    init(on date: Date, resolved: [Block], includesRecesses: Bool) {
+        let start = SchoolClock.calendar.startOfDay(for: date)
+        dayStart = start
+        blocks = resolved.sorted { $0.start < $1.start }
+        recesses = includesRecesses ? Self.recesses(between: blocks, on: start) : []
+        if let first = blocks.first, let lastEnd = blocks.map(\.end).max() {
             // Round only the drawing area to half hours. School instants remain exact.
             let lower = Int(floor(first.start.timeIntervalSince(start) / 1800)) * 30
             let upper = Int(ceil(lastEnd.timeIntervalSince(start) / 1800)) * 30
@@ -247,7 +307,16 @@ struct LessonTimeline {
         return recesses
     }
 
-    private static func addingCampusActivities(to instruction: [Block], on day: Date) -> [Block] {
+    private static func addingCampusActivities(to instruction: [Block], on day: Date, fixed: Bool) -> [Block] {
+        // The published campus bells do not depend on individual enrollment. An
+        // independent appointment can overlap lunch without shortening lunch for everyone.
+        if fixed {
+            let activities = CampusBells.Activity.allCases.map { kind in
+                Block.activity(kind, .init(start: SchoolClock.at(minute: kind.minutes.lowerBound, on: day),
+                                           end: SchoolClock.at(minute: kind.minutes.upperBound, on: day)))
+            }
+            return (instruction + activities).sorted { $0.start < $1.start }
+        }
         guard let first = instruction.first, let lastEnd = instruction.map(\.end).max() else { return instruction }
         var result = instruction
         for kind in CampusBells.Activity.allCases {
@@ -290,7 +359,12 @@ struct LessonTimeline {
         }
     }
 
-    func focus(at instant: Date) -> Block? { blocks.first { instant < $0.end } }
+    func focus(at instant: Date) -> Block? {
+        // A dated class can legitimately overlap the fixed campus lunch. Keep both
+        // on the timeline, but surface the student's actual lesson while it is running.
+        blocks.first { $0.isCourse && $0.start <= instant && instant < $0.end }
+            ?? blocks.first { instant < $0.end }
+    }
     func recess(at instant: Date) -> DateInterval? { recesses.first { $0.start <= instant && instant < $0.end } }
 
     /// A class meeting starts instruction, but a vacant teaching period does not.
@@ -298,8 +372,8 @@ struct LessonTimeline {
         blocks.first { block in
             guard block.start >= earliest else { return false }
             switch block {
-            case .lesson, .activity(.assembly, _): return true
-            case .freeblock, .activity(.lunch, _): return false
+            case .lesson, .activity(.assembly, _), .reference(_, true): return true
+            case .freeblock, .activity(.lunch, _), .reference(_, false): return false
             }
         }?.start
     }
@@ -310,7 +384,8 @@ struct LessonTimeline {
 extension LessonTimeline.Period {
     init(_ lesson: Lesson) {
         self.init(id: lesson.id, name: lesson.course.name, shortName: lesson.course.shortName,
-                  room: lesson.course.room, start: lesson.start, end: lesson.end)
+                  room: lesson.course.room, start: lesson.start, end: lesson.end,
+                  metadata: .init(teacher: lesson.course.teacher))
     }
 }
 
@@ -384,13 +459,13 @@ public struct Agenda: Sendable {
 
     public var label: String {
         switch status {
-        case .freeDay: "今天没有课程"
-        case .beforeSchool: "还有 \(remainingMinutes) 分钟，开始今天"
-        case .teaching: "上课中 · \(remainingMinutes) 分钟后下课"
-        case .recess: "课间 · \(remainingMinutes) 分钟后上课"
-        case .assembly: "\(CampusBells.Activity.assembly.title) · \(remainingMinutes) 分钟后上课"
-        case .lunch: "午餐 · \(remainingMinutes) 分钟后上课"
-        case .finished: "今天的课都结束了"
+        case .freeDay: String(localized: "今天没有课程")
+        case .beforeSchool: String(localized: "还有 \(remainingMinutes) 分钟，开始今天")
+        case .teaching: String(localized: "上课中 · \(remainingMinutes) 分钟后下课")
+        case .recess: String(localized: "课间 · \(remainingMinutes) 分钟后上课")
+        case .assembly: String(localized: "\(CampusBells.Activity.assembly.title) · \(remainingMinutes) 分钟后上课")
+        case .lunch: String(localized: "午餐 · \(remainingMinutes) 分钟后上课")
+        case .finished: String(localized: "今天的课都结束了")
         }
     }
 }

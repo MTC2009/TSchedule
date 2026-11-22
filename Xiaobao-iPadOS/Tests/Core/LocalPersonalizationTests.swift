@@ -3,6 +3,19 @@ import XCTest
 @testable import XiaobaoCore
 
 final class LocalPersonalizationTests: XCTestCase {
+    func testNewDisplayCategoriesRemainVisibleWhenReadingAnOlderDevicePreference() throws {
+        let bytes = Data(#"{"showsBoardingRoutine":true,"hiddenTimetableCategories":["lunch","futureOption"]}"#.utf8)
+        var settings = try JSONDecoder().decode(LocalPersonalization.self, from: bytes)
+        XCTAssertFalse(settings.shows(.lunch))
+        XCTAssertTrue(settings.shows(.dinner))
+        settings.setShown(false, for: .examCourse)
+        let saved = try JSONDecoder().decode(LocalPersonalization.self, from: JSONEncoder().encode(settings))
+        XCTAssertFalse(saved.shows(.examCourse))
+        XCTAssertTrue(saved.showsBoardingRoutine)
+        XCTAssertTrue(saved.shows(.schoolCourse))
+        XCTAssertTrue(try JSONDecoder().decode(LocalPersonalization.self, from: Data("{}".utf8)).shows(.lunch))
+    }
+
     func testLocalChoicesRoundTripAndBlankValuesRestoreDefaults() throws {
         var choices = LocalPersonalization()
         choices.setNickname("  Jun\n Park ")
@@ -28,6 +41,18 @@ final class LocalPersonalizationTests: XCTestCase {
         XCTAssertNil(restored.reminderSubtitle)
         XCTAssertEqual(restored.lessonActivity, .init(nextHeading: "On deck"))
         XCTAssertEqual(try JSONDecoder().decode(LocalPersonalization.self, from: Data("{}".utf8)), .init())
+    }
+
+    func testBoardingDisplayIsLocalAndOptInIncludingOlderPreferences() throws {
+        var old = try JSONDecoder().decode(LocalPersonalization.self, from: Data(#"{"nickname":"Sky"}"#.utf8))
+        XCTAssertFalse(old.showsBoardingRoutine)
+        old.showsBoardingRoutine = true
+        let restored = try JSONDecoder().decode(LocalPersonalization.self, from: JSONEncoder().encode(old))
+        XCTAssertTrue(restored.showsBoardingRoutine)
+        XCTAssertEqual(restored.nickname, "Sky")
+        XCTAssertEqual(restored.lessonActivity, .init())
+        let invalid = try JSONDecoder().decode(LocalPersonalization.self, from: Data(#"{"showsBoardingRoutine":"yes"}"#.utf8))
+        XCTAssertFalse(invalid.showsBoardingRoutine)
     }
 
     func testLongPastedTextIsBoundedWithoutSplittingGraphemes() throws {

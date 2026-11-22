@@ -1,4 +1,4 @@
-TSchedule is an independent, iPad-only student companion. Its current interface is in Simplified Chinese. It does not create a separate TSchedule account, sell access, or submit or edit school records.
+TSchedule is an independent, iPad-only student companion. The native app supports English and Simplified Chinese using the iPadOS app language setting. School-supplied content and the official Xiaobao website are not translated. It does not create a separate TSchedule account, sell access, or submit or edit school records.
 
 Live academic records require an existing student account on the supported school portal. Users connect through the school’s official web page inside the app. The authenticated session is used to read the current student’s authorized timetable, tasks, released grades, and attendance. The native app does not send those records or portal credentials to a developer-operated server.
 

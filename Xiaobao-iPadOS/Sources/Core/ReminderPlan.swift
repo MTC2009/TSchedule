@@ -25,16 +25,16 @@ public enum ReminderPlanner {
                 let fire = lesson.start.addingTimeInterval(-Double(lead * 60))
                 guard fire > now else { continue }
                 result.append(PlannedReminder(id: identifierPrefix + "lesson." + lesson.id,
-                    fireDate: fire, title: "Day \(lesson.day) · \(lesson.course.shortName)",
-                    body: "本机课表 · \(lead == 0 ? "现在上课" : "\(lead) 分钟后上课") · \(lesson.course.room) · \(lesson.timeLabel)",
+                    fireDate: fire, title: String(localized: "Day \(lesson.day) · \(lesson.course.shortName)"),
+                    body: String(localized: "本机课表 · \(lead == 0 ? String(localized: "现在上课") : String(localized: "\(lead) 分钟后上课")) · \(lesson.course.room) · \(lesson.timeLabel)"),
                     lessonID: lesson.id, schoolDate: date))
             }
             if let minute = morningMinute, (0..<1440).contains(minute) {
                 let fire = SchoolClock.at(minute: minute, on: date)
                 if fire > now {
                     result.append(PlannedReminder(id: identifierPrefix + "morning." + SchoolClock.key(date),
-                        fireDate: fire, title: "今天是 Day \(first.day)",
-                        body: "本机课表 · 第一节 \(first.course.name)，\(SchoolClock.time(first.startMinute)) · \(first.course.room)",
+                        fireDate: fire, title: String(localized: "今天是 Day \(first.day)"),
+                        body: String(localized: "本机课表 · 第一节 \(first.course.name)，\(SchoolClock.time(first.startMinute)) · \(first.course.room)"),
                         lessonID: first.id, schoolDate: date))
                 }
             }

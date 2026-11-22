@@ -16,6 +16,7 @@ struct PlanEditorDraft {
     var weekday: Int
     var rotationDay: Int?
     var reminder: PlanReminder?
+    var courseKind: SupplementalCourseKind?
 
     init(plan: PersonalPlan?, bubble: PlanBubble? = nil, on date: Date, now: Date, teachingDay: Int?) {
         title = plan?.title ?? ""
@@ -35,6 +36,7 @@ struct PlanEditorDraft {
         case nil: repeatMode = .none
         }
         reminder = plan?.reminder
+        courseKind = plan?.courseKind
     }
 
     var time: PlanTime? {
@@ -53,6 +55,7 @@ struct PlanEditorDraft {
     }
 
     var allowsSave: Bool {
+        if courseKind != nil && time?.endMinute == nil { return false }
         if repeatMode == .none { return !timed || time != nil }
         return time != nil && recurrence?.isValid == true
     }
@@ -74,6 +77,11 @@ struct PlanEditorView: View {
         let completed: Bool
         let toggle: () async throws -> Void
     }
+    struct Removal {
+        let plan: PersonalPlan
+        let recurring: Bool
+        let commit: (PlanStore.RemovalScope) async throws -> Void
+    }
 
     let date: Date
     let planID: UUID
@@ -86,15 +94,17 @@ struct PlanEditorView: View {
     let chooseRange: () -> Void
     let cancel: () -> Void
     var completion: Completion? = nil
+    var removal: Removal? = nil
     let save: (PersonalPlan) async throws -> Void
     @ScaledMetric(relativeTo: .body) private var swatchCell = 44.0
     @State private var saving = false
-    @State private var saveFailed = false
+    @State private var failureMessage: String?
+    @State private var confirmingRemoval = false
 
     private var plan: PersonalPlan? {
         guard draft.allowsSave else { return nil }
         return PersonalPlan(id: planID, day: SchoolClock.key(date), title: draft.title, time: draft.time,
-                            color: draft.color, icon: draft.icon, reminder: draft.reminder)
+                            color: draft.color, icon: draft.icon, reminder: draft.reminder, courseKind: draft.courseKind)
     }
 
     var body: some View {
@@ -106,6 +116,22 @@ struct PlanEditorView: View {
                     if draft.title.trimmingCharacters(in: .whitespacesAndNewlines).count > PersonalPlan.titleLimit {
                         Text("计划名称最多 \(PersonalPlan.titleLimit) 个字。").foregroundStyle(.secondary)
                     }
+                    Picker("安排类型", selection: $draft.courseKind) {
+                        Text("个人计划").tag(nil as SupplementalCourseKind?)
+                        ForEach(SupplementalCourseKind.allCases, id: \.self) { kind in
+                            Text(verbatim: kind.category.title).tag(Optional(kind))
+                        }
+                    }
+                    .accessibilityIdentifier("plan-course-kind")
+                    .onChange(of: draft.courseKind) { _, kind in
+                        guard kind != nil else { return }
+                        draft.timed = true
+                        if !draft.hasEnd { draft.suggestEnd(on: date); draft.hasEnd = true }
+                    }
+                    if draft.courseKind != nil {
+                        Text("补充课程会按所选时段显示在「今日」和「计划」，不会写入校宝。")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
                 Section {
                     Button("在课表上选时段", systemImage: "hand.draw", action: chooseRange)
@@ -114,6 +140,7 @@ struct PlanEditorView: View {
                         DatePicker("开始", selection: $draft.starts, displayedComponents: .hourAndMinute)
                             .accessibilityIdentifier("plan-start-time")
                         Toggle("设置结束时间", isOn: $draft.hasEnd)
+                            .disabled(draft.courseKind != nil)
                             .onChange(of: draft.hasEnd) { _, enabled in
                                 if enabled, draft.time == nil { draft.suggestEnd(on: date) }
                             }
@@ -129,7 +156,9 @@ struct PlanEditorView: View {
                         if let time = draft.time, !conflicts(time).isEmpty {
                             Label("与已知学校安排重叠，仍可保存。", systemImage: "exclamationmark.circle")
                         }
-                        Button("移回待安排") { draft.timed = false }
+                        if target == .create && draft.courseKind == nil {
+                            Button("不设置时间") { draft.timed = false }
+                        }
                     } else {
                         Button("按分钟设置时间") { draft.timed = true }
                     }
@@ -141,10 +170,31 @@ struct PlanEditorView: View {
                         Text("未定时间的计划留在当天的「待安排」。")
                     }
                 }
+                if let removal {
+                    Section {
+                        Button("移除计划", role: .destructive) { confirmingRemoval = true }
+                            .accessibilityIdentifier("plan-editor-remove")
+                            .confirmationDialog(removal.plan.title, isPresented: $confirmingRemoval, titleVisibility: .visible) {
+                                if removal.recurring {
+                                    Button("仅这次", role: .destructive) { remove(.onlyThis, using: removal) }
+                                    Button("这次及以后", role: .destructive) { remove(.thisAndLater, using: removal) }
+                                } else {
+                                    Button("确认移除", role: .destructive) { remove(.onlyThis, using: removal) }
+                                }
+                                Button("取消", role: .cancel) { }
+                            } message: {
+                                if removal.recurring {
+                                    Text("所选日期：\(removal.plan.day)。移除的安排将不再提醒，之前的记录不变。")
+                                } else {
+                                    Text("仅移除这条个人计划和它的提醒。")
+                                }
+                            }
+                    }
+                }
                 if case .plan = target {} else { repeatOptions }
                 if let completion {
                     Section {
-                        Button(completion.completed ? "取消本次完成" : "标记本次完成",
+                        Button(completion.completed ? String(localized: "取消本次完成") : String(localized: "标记本次完成"),
                                systemImage: completion.completed ? "checkmark.circle.fill" : "circle") {
                             perform(completion.toggle)
                         }
@@ -153,9 +203,9 @@ struct PlanEditorView: View {
                 }
                 reminderOptions
                 appearance
-                if saveFailed {
+                if let failureMessage {
                     Section {
-                        Label("没有保存，原有计划未改动。请重试。", systemImage: "exclamationmark.circle")
+                        Label(failureMessage, systemImage: "exclamationmark.circle")
                     }
                 }
             }
@@ -163,7 +213,7 @@ struct PlanEditorView: View {
             .onChange(of: draft.starts) { _, _ in
                 if !draft.hasEnd { draft.suggestEnd(on: date) }
             }
-            .navigationTitle(target == .create ? "新建计划" : "编辑计划")
+            .navigationTitle(target == .create ? String(localized: "新建计划") : String(localized: "编辑计划"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -186,14 +236,19 @@ struct PlanEditorView: View {
         .interactiveDismissDisabled(saving)
     }
 
-    private func perform(_ operation: @escaping () async throws -> Void) {
+    private func remove(_ scope: PlanStore.RemovalScope, using removal: Removal) {
+        perform(failure: String(localized: "移除未成功，请重新打开这条计划再试。")) { try await removal.commit(scope) }
+    }
+
+    private func perform(failure: String = String(localized: "没有保存，原有计划未改动。请重试。"),
+                         _ operation: @escaping () async throws -> Void) {
         guard !saving else { return }
         saving = true
-        saveFailed = false
+        failureMessage = nil
         Task {
             defer { saving = false }
             do { try await operation() }
-            catch { saveFailed = true }
+            catch { failureMessage = failure }
         }
     }
 
@@ -210,7 +265,7 @@ struct PlanEditorView: View {
             .accessibilityIdentifier("plan-repeat-mode")
             if draft.repeatMode == .weekday {
                 Picker("重复星期", selection: $draft.weekday) {
-                    ForEach(["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"].enumerated().map { ($0.offset + 1, $0.element) }, id: \.0) { day in
+                    ForEach([String(localized: "星期日"), String(localized: "星期一"), String(localized: "星期二"), String(localized: "星期三"), String(localized: "星期四"), String(localized: "星期五"), String(localized: "星期六")].enumerated().map { ($0.offset + 1, $0.element) }, id: \.0) { day in
                         Text(day.1).tag(day.0)
                     }
                 }
@@ -263,9 +318,9 @@ struct PlanEditorView: View {
 
     private func reminderLabel(_ reminder: PlanReminder) -> String {
         switch reminder {
-        case .atStart: "开始时"
-        case .oneHour: "提前 1 小时"
-        default: "提前 \(reminder.rawValue) 分钟"
+        case .atStart: String(localized: "开始时")
+        case .oneHour: String(localized: "提前 1 小时")
+        default: String(localized: "提前 \(reminder.rawValue) 分钟")
         }
     }
 
@@ -305,7 +360,7 @@ struct PlanEditorView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(color?.name ?? "默认颜色")
+        .accessibilityLabel(color?.name ?? String(localized: "默认颜色"))
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier("plan-color-\(color?.rawValue ?? "default")")
     }

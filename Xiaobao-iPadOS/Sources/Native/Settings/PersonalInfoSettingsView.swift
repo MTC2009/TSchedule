@@ -5,8 +5,17 @@ struct PersonalInfoSettingsView: View {
     @State private var nickname = ""
 
     var body: some View {
+        @Bindable var model = model
         SettingsForm {
             CampusConnectionSettings()
+            Section {
+                Toggle("住宿生", isOn: $model.personalization.showsBoardingRoutine)
+                    .accessibilityIdentifier("settings-boarding-routine")
+            } header: {
+                Text("课表")
+            } footer: {
+                Text("在「今日」和「计划」中补齐住校夜的作息。走读生自己参加的课程和晚自习也会显示。")
+            }
             Section {
                 TextField("显示昵称", text: $nickname, prompt: Text("未设置"))
                     .accessibilityIdentifier("settings-nickname")

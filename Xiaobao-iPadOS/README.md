@@ -18,6 +18,10 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
   CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES build
 ```
 
+## 界面语言
+
+支持简体中文和 English。默认随 iPad 的首选语言；也可以在系统「设置 → App → TSchedule → 语言」单独选择。切换界面语言不会改动课表、计划、账号或学校成绩。课程、作业、评语、课程分组、学校给出的学期名称和原校宝网页均保留原文。详见[本地化边界与测试](Sources/Core/Localization/README.md)。
+
 ## 天空与天气预览
 
 默认跟随东莞的市级天气，不申请设备定位，不需要校宝登录。点右上角「环境」就能看到来源和有效时刻。点「手动预览」并选中一种天气，即切到手动；重新打开「跟随东莞天气」即可恢复。冷启动使用缓存或更新失败时标为「上次天气」，超过 24 小时不再用它代表当地天气。
@@ -25,6 +29,8 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
 手动预览包含 35 种条件，分为晴空与云层、降雨、降雪与结冰、雷暴与强风、雾霾与沙尘。天空由本机 Metal 生成：云量、云体形状与光照逐帧计算，月亮和星空会被三维云层遮挡；没有背景照片、平移贴图或预渲染视频。降水等级改变密度和能见度，区间模式改变强度，阵雨与阵雪有疏密变化。冰雹、雨夹雪、冻雨、台风和扬沙有各自的粒子或风向；雾、霾和沙尘采用不同遮蔽和色调。自动模式仅使用数据源能区分的现象，不从风速或雨量猜测台风、预警等级。
 
 「跟随当前时间」单独控制光照。开启时天空按上海本地日期和时刻改变，季节会推移晨光和黄昏；这不是日出日落预报。关闭后可预览时段或拖动时刻，不会查询另一个时刻的天气。关闭环境动效、开启系统减少动态效果或低电量模式时，显示所选天气的静帧。设置保存在本机；旧「雨」「雪」手动选择分别对应中雨、中雪。
+
+正式版暂时不显示节日和节气装饰，保留上海时间、云层、天气与原有选择。未启用的美术及开发预览见[场景与交互清单](Sources/Native/Atmosphere/Seasonal/README.md)。
 
 效果代码见 [Atmosphere core](Sources/Core/Atmosphere/README.md) 和 [Atmosphere renderer](Sources/Native/Atmosphere/README.md)。本仓库的 [视觉规则](../UI_DESIGN_SYSTEM.md) 与 [色彩规则](../COLOR_SYSTEM.md) 将天气背景与业务文字、状态、控件分开。
 
@@ -34,8 +40,9 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
 
 1. 点侧栏「完整校宝」（或「设置 → 个人信息 → 校园资料 → 登录校宝」）。在学校自己的网页完成登录。
 2. 确认进入学校首页后点「完成」。第一次确认本人后，以附近实际教学周和对应高中校历保存本学年课表；之后两页读同一份本机文件。翻周、断网、重开不重读校宝；更新走「设置 → 更新课表」，不完整或失败不覆盖原表。校历未公布或课程未确认会明确标示。
-3. App 先显示当前栏目，课表不挡住前台任务、考勤摘要、考试、测评和资料目录的更新。只读取列表，不下载附件。「我的任务」和「GPA」共用校宝返回的学期选项；往期记录只在选择后读取。
-4. 本机「今日」已能显示时，有效的本人会话可顺便更新本学期已公布的成绩总览，不代登录、不读单科明细；打开「GPA」也按需读取。同一已核验会话和学期内，近期结果可复用 5 分钟；「刷新 GPA」始终向校宝取新值。任务、考勤和成绩在转后台时清空；课表跨进程保留，退出或确认换号清除。
+   主校区高中正常教学日按正式节次显示空节、班会与午餐；旧课表若把早上同一门连堂拆开，点一次「更新课表」可按原班级重新识别。计划另显示放学后的 Block 9/10 与晚餐。「设置 → 个人信息 → 住宿生」只影响这台设备的计划，不发送作息提醒。
+3. App 先显示当前栏目，课表不挡住前台任务、考勤摘要、考试、测评和资料目录的更新。当前学期或已选学期的作业在有效前台会话内逐项补齐详情；点开优先，附件只在点选后下载并导出。其他目录仍只读取列表。「我的任务」和「GPA」共用校宝返回的学期选项；往期记录只在选择后读取。
+4. 本机「今日」已能显示时，有效的本人会话可顺便更新本学期已公布的成绩总览，不代登录、不读单科明细；打开「GPA」也按需读取。同一已核验会话和学期内，近期结果可复用 5 分钟；「刷新 GPA」始终向校宝取新值。在线会话资料在转后台时清空；已成功同步的校方成绩与看过的课程细项可从受保护的本机档案恢复。本人手填的成绩预测另按账号和学期保存，「恢复真实成绩」只清当前学期；课表跨进程保留，退出或确认换号清除。
    若希望彻底关闭 App 后也能恢复登录，请在「设置 → 个人信息 → 校园资料」展开「本机代登录」。App 从已确认的校宝账号取得登录名，只需在 iPad 上输入密码并保存。旧版已绑定的设备可单独开启「打开 App 时恢复登录」，不必重新输入密码。凭据仅在个人设备的钥匙串内；验证码、密码不正确或身份变化不会触发连续尝试。
 5. 首次核对：选择同一周比较一节课的日期、起止和地点；同一学期比较一门课的总评、一个已发布项目及其分组权重。不需要回传个人数据。如果某项没有加载，可重试或点「校宝」在原网页核对，勿把网页源码、Cookie 或原始返回提交作问题报告。
 
@@ -51,7 +58,7 @@ xcodebuild -project Xiaobao.xcodeproj -scheme Xiaobao \
 - 昵称仅在这台 iPad 的设置中显示，不影响校宝账号。校园登录和本机代登录仍在「个人信息 → 校园资料」。
 - 实时活动优先用今日已读取的课表预览背景和小标题，没有进行中的课时显示空状态，保存后在下一次开启时生效。提醒的自定义副标题只用于本机个人计划及手动测试通知。
 - 「设置 → 提醒 → 课前提醒」默认关闭。开启后按本机已确认课表安排七天内的课程，可选上课时、提前 5、10 或 15 分钟。通知只显示距离上课的时间。个人计划需另设开始时间和提醒；无论哪种都不会为发通知向校宝抓资料。
-- 「设置 → 隐私」可离线阅读中英文隐私政策和使用与服务条款。App 与[发布用网页](../docs/tschedule-app-store/04-web/README.md)使用同一份正文；当前是讨论稿，公开邮箱已填，发布者、生效日期和 HTTPS 网址尚待确认。
+- 「设置 → 隐私」可离线阅读中英文隐私说明和使用与服务条款，也可主动打开[公开隐私政策](https://mantatche.com/tschedule/privacy/)。不要求登录校宝；离线条款仍是讨论稿，送审前要核对[网页与归档实际行为](../docs/tschedule-app-store/04-web/README.md)。
 
 ## 验证情况
 
@@ -77,6 +84,7 @@ swift test
 
 | 路径 | 内容 |
 | --- | --- |
+| `Config/Signing.xcconfig` | App 与锁屏扩展共用的本机 Team 配置入口；实际 Team 保存在 Git 忽略的 `Config/Signing.local.xcconfig` |
 | `Config/PrivacyInfo.xcprivacy` | [主 App 的 Required Reason API 清单](../docs/tschedule-app-store/05-build/app-privacy.md#required-reason-api)，由工程资源阶段打包 |
 | `Sources/Native/XiaobaoApp.swift` | App 入口、分组侧边栏、页面容器 |
 | `Sources/Native/GlassComponents.swift` | `.glassEffect()` 及可访问性回退 |
@@ -102,11 +110,37 @@ swift test
 | `Sources/Core` | 校历、成绩明细、考勤、学习事项、GPA、节日与提醒规划 |
 | `Tests/Core` | 业务边界测试 |
 
-新增 Swift 或 Metal 文件后执行 `python3 scripts/generate_project.py`，或者在 Xcode 中将新文件加入 Xiaobao Target。生成器只重建工程文件，不修改业务代码；若已经在 Xcode 中修改了签名 Team，重新生成后需再次选择。
+新增 Swift 或 Metal 文件后执行 `python3 scripts/generate_project.py`，或者在 Xcode 中将新文件加入 Xiaobao Target。生成器只重建工程文件，不修改业务代码。需要真机签名时，可以在 `Config/Signing.local.xcconfig` 设置 `DEVELOPMENT_TEAM`，两个目标都继承；重新生成工程不会改这个本机文件。正式 Bundle ID 为 `st.mtc.tschedule`，锁屏扩展共享前缀并追加 `.lesson-activity`。
 
-原生玻璃使用 Apple 的公开 API：[Applying Liquid Glass to custom views](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)、[Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass)。参考项目：[GiaoculatorS](https://github.com/Haoxuan1016/GiaoculatorS)。未复制该插件源码，也未宣称已经兼容其全部功能。
+原生玻璃使用 Apple 的公开 API：[Applying Liquid Glass to custom views](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)、[Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass)。课程详情的本地成绩预测参考 [OpenGCalc 的公开计算方法](https://github.com/Haoxuan1016/OpenGCalc/blob/7207ed6e5e8c48c6e2406cad7500105a99e2f25c/content.js#L2334-L2419)，以 Swift 实现；不运行浏览器插件，不读取或反推任何未发表的成绩。
 
 ## Change History
+
+### 2026-11-22 — canonical-bells / named-school-cards / seasonal-pause
+Model: OpenAI Codex. Today, Planner and lesson reminder projection share corrected campus bells, including for protected older timetable files. Native Planner uses regular cards for free blocks; weather remains on while seasonal decorations are paused. No backend, school API or account-setting changes.
+
+验证：256 项 Swift 测试全过（含本地 Rust 服务），32 项门户 JS 检查通过。iPadOS 27 模拟器横、竖屏检查课与空节尺寸、课前和午餐的准确起止、原有天气入口及隐藏的节气入口；断网冷启动沿用已存课表。普通 Metal 天空经过昼夜、动态与重复帧检查。使用原应用及扩展标识签名 Release，实体 iPad 覆盖安装后回读版本为 0.3 (5)。模拟器使用合成课程；未将真实课名、教室或账户资料写入测试。
+
+
+### 2026-11-22 — 正式节次 / 放学后选修 / 住宿作息
+Model: Codex. 修复学年课表只传课程、不传空节依据的问题；晨间连堂在班级标识尚可验证时归一。日／周计划复用同一学校日，加入选修占位与可选住校作息。接口变动限于本机课表、计划投影和显示偏好；无后端、权限、通知类别或环境变量变更。
+
+验证：251 项 Swift 测试（含本机合成服务联调）、32 项 JS 检查通过；iPadOS 27 模拟器实走日／周空节、已选与未选的选修课、本机开关、周五早餐和周日返校，断网重开不重读学校。短早餐原本只落成无字标记；回归现检查能按名称找到早餐按钮。Release 模拟器构建及双语包检查使用隔离工程和已能编译的背景模块；共享工作区的节日背景网格编译问题不在本次修改内。未访问真实账户或安装到实体 iPad。
+
+### 2026-11-22 — production-bundle-id / signed-local-archive
+- Model: Codex · Keywords: release-signing / live-activity-extension
+- Changed: 主 App 改用 `st.mtc.tschedule`；锁屏扩展用 `.lesson-activity` 后缀。两个目标自动签名并共用本机 Team。工程生成器保留签名配置；将遗漏的 `SeasonalSparrow.swift` 加入主目标的编译列表。
+- Reason: 在首次提交前确定 App 身份，生成实际发布者 Team 的本机 iPad Release 归档，不把本机 Team 配置写入版本库。
+- Affected interfaces: Xcode 构建标识和签名；未改自动登录、数据接口或部署。
+- Verification: 主 App 和内嵌扩展的 Apple Development 签名均通过校验；归档中隐私清单与源文件一致；工程生成结果匹配。未安装或上传。
+
+### 2026-11-21 — bilingual UI / source-language preservation
+Model: Codex. Registered both catalogs for iPad and the local activity extension, adopted the native per-app language choice and added two-language loopback simulator checks. School fields, persistent data and external interfaces do not depend on language.
+
+
+### 2026-11-21 — grouped forecasts / scoped plan removal
+Model: Codex · Grades: the course forecast uses the school’s published group directory and read-only weights, not a manually assigned task share. Planner: removal in the personal plan editor affects one date or, by explicit choice, that date and later repetitions. Both use existing local modules; no school write, API or deployment change. Details and test routes: [GPA](Sources/Native/GPA/README.md) and [Planner](Sources/Native/Planner/README.md).
+Verification: 232 Swift tests (including local Rust integration) and 27 JavaScript tests passed. The Release UI on iPad simulators 26.4.1 and 27.0 removed a single occurrence, stopped later occurrences, removed a separate one-off and restored it. On 26.4.1, course forecasts were added, edited and removed using published parent/child shares; the system delivered a personal and a class alert while the fixture was in the background. No real student account, device installation or physical lock-screen banner was part of this regression.
 
 ### 2026-11-21 — local-class-alerts / notification-suspension
 Model: Codex. Ordinary backgrounding no longer revokes queued personal reminders. Class alerts and personal plans share a bounded local system queue; manual review, sign-out and changed accounts clear pending and delivered content. No remote push, new endpoint or background fetch.
@@ -408,3 +442,9 @@ Affected interfaces: 环境面板的本机选择与光线预览；旧天气偏�
 
 ### 2026-11-22 — 本机作业与截止提醒
 Model: Codex · Keywords: assignment-cache / deadline-alerts / scope-isolation. 前台核对当前或选择的学期，只提交完整清单；[作业模块](Sources/Core/SchoolAssignments/README.md)单独保存不含成绩的摘要。现有提醒队列按类别分配名额、按新的截止时间改期或撤销；锁屏默认不显示作业标题。无新增服务端接口。
+
+### 2026-11-22 — foreground-task-materials / study-week
+Model: OpenAI Codex. The selected semester can populate the protected task detail cache while the app is open. Optional attachments are downloaded only on a tap and exported via Files; no new permission for GPA, automatic re-login, backend or database. Today/Planner use weekly rather than six-Day evidence for TSSA and published boarding returns. See the respective module contracts and isolated regression suites.
+
+### 2026-11-22 — timetable-display / supplemental-courses
+Model: OpenAI Codex. Student-facing changes: Settings → Timetable display applies to Today and Planner. In the existing plan editor, choose a course kind for a timed local supplement; notes remain Planner-only. Weekday and published rotation recurrences reuse the same protected account-scoped plan file. No service changes.

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CourseGradeList: View {
     let courses: [CourseGradeDetail]
+    var forecasts: [CourseGradeDetail.ID: CourseForecastDisplay] = [:]
     @Binding var status: AssessmentStatus?
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -21,7 +22,7 @@ struct CourseGradeList: View {
             .padding(.horizontal, 4)
             if courses.isEmpty {
                 GlassCard(padding: 22) {
-                    StudentEmptyState(title: "没有匹配的课程", detail: "可更换关键词或评分状态。")
+                    StudentEmptyState(title: String(localized: "没有匹配的课程"), detail: String(localized: "可更换关键词或评分状态。"))
                 }
             } else {
                 GlassEffectContainer(spacing: 8) {
@@ -56,7 +57,9 @@ struct CourseGradeList: View {
     }
 
     private func courseTile(_ course: CourseGradeDetail) -> some View {
-        let total = course.total?.displayText ?? "待公布"
+        let forecast = forecasts[course.id]
+        let total = forecast?.percentage.map { $0.formatted(.number.precision(.fractionLength(1))) + "%" } ??
+                    course.total?.displayText ?? String(localized: "待公布")
         return GlassCard(padding: 22) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top, spacing: 8) {
@@ -67,7 +70,7 @@ struct CourseGradeList: View {
                 }
                 Spacer(minLength: 12)
                 VStack(alignment: .leading, spacing: 3) {
-                    if course.total != nil {
+                    if course.total != nil || forecast?.percentage != nil {
                         ViewThatFits(in: .horizontal) {
                             Text(total).font(.system(.largeTitle, design: .rounded, weight: .semibold)).fixedSize()
                             Text(total).font(.title2.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
@@ -76,7 +79,11 @@ struct CourseGradeList: View {
                     } else {
                         Text(total).font(.title3.weight(.medium))
                     }
-                    Text("课程总评").font(.subheadline).foregroundStyle(.secondary)
+                    HStack(alignment: .lastTextBaseline) {
+                        Text("课程总评").font(.subheadline)
+                        Spacer(minLength: 3)
+                        if forecast != nil { Text("预测成绩").font(.caption) }
+                    }.foregroundStyle(.secondary)
                 }
             }
             .frame(minHeight: 144, alignment: .topLeading)
@@ -84,7 +91,8 @@ struct CourseGradeList: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(course.name)
-        .accessibilityValue("总评 \(total)")
+        .accessibilityValue(forecast?.percentage != nil ? String(localized: "预测成绩 \(total)") :
+            forecast != nil ? String(localized: "总评 \(total)，有已保存的预估任务") : String(localized: "总评 \(total)"))
     }
 }
 

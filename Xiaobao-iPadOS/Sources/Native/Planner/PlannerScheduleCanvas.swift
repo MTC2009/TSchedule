@@ -84,15 +84,24 @@ struct PlannerScheduleCanvas: View {
                 if case .school(let entry) = item.row {
                     let lane = laneFrame(item, width: width, left: left)
                     schoolTarget(entry) {
-                        schoolLabel(entry, emphasized: focus?.id == item.id, compact: compact || lane.width < 180)
+                        schoolLabel(entry, emphasized: focus?.id == item.id,
+                                    compact: compact || lane.width < 180, short: item.height < minimumHeight)
                     }
                     .frame(width: lane.width, height: item.height)
                     .position(x: lane.center, y: (item.top + item.bottom) / 2)
                 }
             }
-            PlannerTimelineMarks(day: day, groups: layout.school.markGroups,
+            PlannerTimelineMarks(groups: layout.school.markGroups,
                                  permitsOpening: opensSchool, canOpenSchool: canOpenSchool,
-                                 openSchool: openSchool)
+                                 openSchool: openSchool, timeLabel: schoolTime, trackWidth: width, left: left) { entry in
+                schoolTarget(entry) {
+                    Text(entry.title)
+                        .font(.caption.weight(.semibold)).lineLimit(2)
+                        .padding(.horizontal, 5)
+                        .background { recordLabel(entry.id) }
+                        .frame(minWidth: PlannerTimelineLayout.markerTarget, minHeight: PlannerTimelineLayout.markerTarget, alignment: .leading)
+                }
+            }
         }
     }
 
@@ -144,7 +153,11 @@ struct PlannerScheduleCanvas: View {
         let slots = layout.freeBlocks.map { block in
             labelFrames[block.entry.id] ?? CGRect(x: left, y: block.top, width: width, height: block.height)
         }
-        let marks = layout.school.markGroups.map { CGRect(x: 0, y: $0.top, width: target, height: target) }
+        let marks = layout.school.markGroups.map { group in
+            let badge = CGRect(x: left, y: group.top, width: width, height: target)
+            guard let entry = group.singleSchoolEntry else { return badge }
+            return badge.union(labelFrames[entry.id] ?? CGRect(x: 0, y: group.top, width: left + width, height: target))
+        }
         return cards + slots + marks
     }
 
@@ -238,21 +251,32 @@ struct PlannerScheduleCanvas: View {
     }
 
     private func canOpenSchool(_ entry: PlannerSchoolEntry) -> Bool {
-        schoolLesson(entry) != nil || schoolWork(entry) != nil
+        schoolWork(entry) != nil || entry.end != nil
     }
 
     private func openSchool(_ entry: PlannerSchoolEntry) {
-        if let lesson = schoolLesson(entry) { model.selectedLesson = lesson }
-        else if let item = schoolWork(entry) { selectedWorkID = item.id }
+        if let item = schoolWork(entry) { selectedWorkID = item.id; return }
+        guard let end = entry.end else { return }
+        let start = entry.start
+        let interval: DateInterval
+        if case .routine(.sleep, let night) = entry.id {
+            let minutes = PlannerCampusPeriod.sleep.minutes
+            interval = .init(start: SchoolClock.at(minute: minutes.lowerBound, on: night),
+                             end: SchoolClock.at(minute: minutes.upperBound, on: night))
+        } else { interval = .init(start: start, end: end) }
+        let metadata = entry.metadata ?? schoolLesson(entry).map { .init(teacher: $0.course.teacher) }
+        model.selectedLesson = TimetableDetail(title: schoolTitle(entry), start: interval.start, end: interval.end,
+                                               location: entry.location, metadata: metadata, isCourse: entry.kind == .lesson)
     }
 
-    private func schoolLabel(_ entry: PlannerSchoolEntry, emphasized: Bool, compact: Bool) -> some View {
-        let caption = [emphasized ? (focus?.isOngoing == true ? "进行中" : "接下来") : nil,
+    private func schoolLabel(_ entry: PlannerSchoolEntry, emphasized: Bool, compact: Bool, short: Bool = false) -> some View {
+        let caption = [emphasized ? (focus?.isOngoing == true ? String(localized: "进行中") : String(localized: "接下来")) : nil,
                        entry.kind.label, entry.location].compactMap { $0 }.joined(separator: " · ")
         return GlassCard(padding: 0, shape: PlannerCorners.card) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.title).font((self.compact ? Font.caption : .subheadline).weight(.semibold)).lineLimit(compact ? 2 : 1)
-                if !compact, !caption.isEmpty {
+                Text(entry.title).font((self.compact || short ? Font.caption : .subheadline).weight(.semibold))
+                    .lineLimit(compact && !short ? 2 : 1).minimumScaleFactor(short ? 0.8 : 1)
+                if !compact, !short, !caption.isEmpty {
                     Text(caption).font(.caption).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.86)
                 }
             }
@@ -266,14 +290,7 @@ struct PlannerScheduleCanvas: View {
     private func freeBlock(_ block: PlannerTimelineLayout.FreeBlock, width: CGFloat, left: CGFloat) -> some View {
         let minute = scale.minute(block.entry.start, in: day.date)
         return schoolTarget(block.entry) {
-            ZStack(alignment: .leading) {
-                PlannerCorners.card.strokeBorder(.fill.secondary, style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
-                Label(schoolTitle(block.entry), systemImage: "square.dashed")
-                    .font((compact ? Font.caption : .subheadline).weight(.semibold))
-                    .background { recordLabel(block.entry.id) }
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, compact ? 5 : 12)
-            }
+            schoolLabel(block.entry, emphasized: false, compact: compact || width < 180)
         }
         .frame(width: width, height: max(1, block.height - PlannerTimelineLayout.cardGap))
         .accessibilityIdentifier("planner-free-\(Int(minute))")
@@ -302,13 +319,19 @@ struct PlannerScheduleCanvas: View {
     }
 
     private func schoolTime(_ entry: PlannerSchoolEntry) -> String {
+        // Midnight clips the drawing, not the duration disclosed from either column.
+        if case .routine(.sleep, _) = entry.id {
+            let night = PlannerCampusPeriod.sleep.minutes
+            let start = SchoolClock.time(night.lowerBound), end = SchoolClock.time(night.upperBound - 1440)
+            return String(localized: "\(start) – 次日 \(end)")
+        }
         let start = SchoolClock.time(Int(scale.minute(entry.start, in: day.date)))
         guard let end = entry.end else { return start }
         return start + " – " + SchoolClock.time(Int(scale.minute(end, in: day.date)))
     }
 
     private func schoolTitle(_ entry: PlannerSchoolEntry) -> String {
-        entry.kind == .freeblock ? "空节" : entry.title
+        entry.kind == .freeblock ? String(localized: "空节") : entry.title
     }
 
     static func timeLabel(_ time: PlanTime) -> String {
@@ -332,14 +355,14 @@ private extension PlannerDay.Focus {
 private extension PlannerSchoolEntry.Kind {
     var label: String? {
         switch self {
-        case .lesson, .freeblock, .assembly, .lunch: nil
-        case .calendar: "校历"
-        case .activity: "学校活动"
-        case .exam: "考试开始"
-        case .taskDeadline: "任务截止"
-        case .examDeadline: "考试截止"
-        case .evaluationDeadline: "测评截止"
-        case .deadline: "截止"
+        case .lesson, .freeblock, .assembly, .lunch, .optionalBlock, .campusRoutine: nil
+        case .calendar: String(localized: "校历")
+        case .activity: String(localized: "学校活动")
+        case .exam: String(localized: "考试开始")
+        case .taskDeadline: String(localized: "任务截止")
+        case .examDeadline: String(localized: "考试截止")
+        case .evaluationDeadline: String(localized: "测评截止")
+        case .deadline: String(localized: "截止")
         }
     }
 }

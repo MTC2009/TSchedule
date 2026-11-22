@@ -3,6 +3,57 @@ import XCTest
 @testable import XiaobaoCore
 
 final class PlannerEditingTests: XCTestCase {
+    func testSilentPlanRemovalDoesNotWaitForUnrelatedNotifications() throws {
+        let day = SchoolClock.date(2032, 3, 16), key = SchoolClock.key(day)
+        let alarm = try makePlan(on: day, start: 825)
+        let note = try XCTUnwrap(PersonalPlan(day: key, title: "Label the drawers", time: nil))
+        let remaining = PlanStore.Schedule(plans: [alarm])
+        let both = PlanStore.Schedule(plans: [alarm, note])
+        XCTAssertFalse(PlanReminderPlanner.inputsChanged(from: both, to: remaining))
+        XCTAssertFalse(PlanReminderPlanner.inputsChanged(from: remaining, to: both))
+        XCTAssertTrue(PlanReminderPlanner.inputsChanged(from: remaining, to: .init()))
+
+        var repeated = PlanBubble(prototype: alarm, reusable: true)
+        repeated.revise(recurrence: .weekday(3), effectiveDay: key)
+        let before = PlanStore.Schedule(bubbles: [repeated])
+        let next = SchoolClock.key(after(7, day))
+        repeated.revise(recurrence: nil, effectiveDay: next)
+        let afterStop = PlanStore.Schedule(bubbles: [repeated])
+        XCTAssertTrue(PlanReminderPlanner.inputsChanged(from: before, to: afterStop))
+        XCTAssertTrue(PlanReminderPlanner.inputsChanged(from: afterStop, to: before))
+    }
+
+    @MainActor func testRemovingSavedPlanByIdentityIsDurableReversibleAndCancelsOnlyItsReminder() async throws {
+        let file = temporaryArchive(), store = PlanStore(file: file), session = UUID()
+        let day = SchoolClock.date(2034, 2, 13)
+        let keep = try makePlan(on: day, start: 565), remove = try makePlan(on: day, start: 565)
+        let other = PlanOwner.campus(origin: URL(string: "https://example.invalid")!, profile: "separate")
+        _ = try await store.create(remove, for: other)
+        _ = try await store.create(keep, for: .local)
+        _ = try await store.create(remove, for: .local)
+        do {
+            _ = try await store.apply(.remove(remove, .thisAndLater), for: .local, session: session)
+            XCTFail("A one-off record cannot be treated as a series")
+        } catch PlanStore.StoreError.invalidPlan {}
+        do {
+            let stale = try XCTUnwrap(remove.placing(at: nil))
+            _ = try await store.apply(.remove(stale, .onlyThis), for: .local, session: session)
+            XCTFail("A stale editor cannot remove a changed plan")
+        } catch PlanStore.StoreError.missingPlan {}
+        let new = try await store.apply(.remove(remove, .onlyThis), for: .local, session: session)
+        XCTAssertEqual(new.schedule.plans, [keep])
+        XCTAssertEqual(PlanReminderPlanner.make(now: day, schedule: new.schedule).map(\.id),
+                       [PlanReminderPlanner.identifierPrefix + "once." + keep.id.uuidString])
+        let reopened = PlanStore(file: file)
+        let survivor = try await reopened.readSchedule(for: .local), untouched = try await reopened.readSchedule(for: other)
+        XCTAssertEqual(survivor, new.schedule)
+        XCTAssertEqual(untouched.plans, [remove])
+        let undo = try await store.step(.undo, for: .local, session: session)
+        XCTAssertEqual(undo.schedule.plans, [keep, remove])
+        let redo = try await store.step(.redo, for: .local, session: session)
+        XCTAssertEqual(redo.schedule, new.schedule)
+    }
+
     @MainActor func testCreatingAndEditingHaveSeparateUndoSteps() async throws {
         let date = SchoolClock.date(2033, 2, 17)
         let original = try makePlan(on: date, start: 658)

@@ -8,6 +8,7 @@ import Observation
     private struct Archive: Codable { let version: Int, registration: UUID, timetable: SchoolTimetable }
     private let file: URL
     private let defaults: UserDefaults
+    private let publication: PublishedSchoolCalendar?
     private enum Key {
         static let registration = "tschedule.timetable.v1.registration"
         static let review = "tschedule.timetable.v1.review"
@@ -45,7 +46,8 @@ import Observation
         defaults.set(value, forKey: Key.lessonLead)
     }
 
-    init(file: URL, defaults: UserDefaults = .standard) {
+    init(file: URL, defaults: UserDefaults = .standard, publication: PublishedSchoolCalendar? = .bundledHS) {
+        self.publication = publication
         self.file = file; self.defaults = defaults
         review = defaults.bool(forKey: Key.review)
         optedInRegistration = defaults.string(forKey: Key.lessonOptIn)
@@ -71,13 +73,20 @@ import Observation
         } catch { return }
         guard data.count <= 4_000_000, let archive = try? PropertyListDecoder().decode(Archive.self, from: data),
               archive.version == 1, archive.registration.uuidString == id else { return }
-        saved = archive.timetable
+        var book = archive.timetable
+        if let publication { book.rebuildRotations(calendar: publication) }
+        saved = book
     }
 
     func reportUnverified(_ issue: SchoolPortalIssue?) {
         let needsLogin = issue.map { !$0.permitsIdentityRecheck } ?? false
-        message = (needsLogin ? "请先在完整校宝确认本人登录，再更新课表。" : "暂时无法确认校宝登录，请联网后重试。")
-            + (visible == nil ? "" : " 已保留上次的课表。")
+        message = (needsLogin ? String(localized: "请先在完整校宝确认本人登录，再更新课表。") : String(localized: "暂时无法确认校宝登录，请联网后重试。"))
+            + (visible == nil ? "" : String(localized: " 已保留上次的课表。"))
+    }
+
+    func reportOffline() {
+        message = visible == nil ? String(localized: "当前未联网，无法更新课表。") :
+                                  String(localized: "当前未联网，已保留上次的课表。")
     }
 
     func reviewAccount() {
@@ -110,7 +119,7 @@ import Observation
         defer { if ticket == id { busy = false; runningOwner = nil } }
         func valid() -> Bool { ticket == id && !Task.isCancelled && !review && current() }
         guard let calendar, (calendar.from...calendar.through).contains(SchoolClock.key(now)) else {
-            message = "还没有适用于当前学年的高中校历。" + (saved == nil ? "" : " 已保留上次的课表。")
+            message = String(localized: "还没有适用于当前学年的高中校历。") + (saved == nil ? "" : String(localized: " 已保留上次的课表。"))
             return // No school read occurred; a future matching publication can serve first use.
         }
         do {
@@ -122,7 +131,7 @@ import Observation
                 let week: SchoolPortalWeek
                 do { week = try await read(date) }
                 catch let issue as SchoolPortalIssue where (issue == .network || issue == .unavailable)
-                    && saved == nil && !next.dated.isEmpty {
+                    && saved == nil && next.hasSavedEvidence {
                     // A later week was unreachable. Keep already verified first-use evidence,
                     // explicitly marked partial. A replacement never patches a failed read.
                     interruptedFirstImport = true
@@ -130,11 +139,11 @@ import Observation
                 }
                 guard valid() else { return }
                 try next.absorb(week, calendar: calendar)
-                if next.rotations.count == 6 { break }
+                if next.rotations.count == 6 && !next.hasStudyEnrollment { break }
             }
             guard valid() else { return }
             guard next.canReplace(saved) else {
-                message = saved == nil ? "校宝还没有足够的课程资料。可稍后在设置中更新。" : "新资料不完整，已保留上次的课表。"
+                message = saved == nil ? String(localized: "校宝还没有足够的课程资料。可稍后在设置中更新。") : String(localized: "新资料不完整，已保留上次的课表。")
                 defaults.set(owner, forKey: Key.attempted)
                 return
             }
@@ -156,13 +165,13 @@ import Observation
             defaults.set(registration.uuidString, forKey: Key.registration)
             defaults.set(owner, forKey: Key.attempted)
             saved = next
-            if interruptedFirstImport { message = "部分教学周未能读取，已保留可以确认的日期。请在设置中更新。" }
-            else if next.rotations.count < 6 { message = "已保存能确认的课表；未确认的轮转日不会推算。" }
+            if interruptedFirstImport { message = String(localized: "部分教学周未能读取，已保留可以确认的日期。请在设置中更新。") }
+            else if next.rotations.count < 6 { message = String(localized: "已保存能确认的课表；未确认的轮转日不会推算。") }
         } catch {
             guard valid() else { return }
             defaults.set(owner, forKey: Key.attempted)
-            let reason = (error as? SchoolPortalIssue)?.message ?? "暂时无法保存课表。"
-            message = reason + (saved == nil ? " 请在设置中重试。" : " 已保留上次的课表。")
+            let reason = (error as? SchoolPortalIssue)?.message ?? String(localized: "暂时无法保存课表。")
+            message = reason + (saved == nil ? String(localized: " 请在设置中重试。") : String(localized: " 已保留上次的课表。"))
         }
     }
 }

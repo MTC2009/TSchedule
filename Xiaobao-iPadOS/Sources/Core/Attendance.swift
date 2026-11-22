@@ -18,13 +18,13 @@ public struct SchoolDateRange: Equatable, Sendable {
 public enum AttendanceCategory: String, CaseIterable, Identifiable, Sendable {
     case classroom, daily, activity
     public var id: String { rawValue }
-    public var title: String { switch self { case .classroom: "上课"; case .daily: "日常"; case .activity: "活动" } }
+    public var title: String { switch self { case .classroom: String(localized: "上课"); case .daily: String(localized: "日常"); case .activity: String(localized: "活动") } }
 }
 
 public enum AttendanceStatus: String, Codable, CaseIterable, Identifiable, Sendable {
     case present, late, early, absent
     public var id: String { rawValue }
-    public var title: String { switch self { case .present: "出勤"; case .late: "迟到"; case .early: "早退"; case .absent: "缺勤" } }
+    public var title: String { switch self { case .present: String(localized: "出勤"); case .late: String(localized: "迟到"); case .early: String(localized: "早退"); case .absent: String(localized: "缺勤") } }
 }
 
 public struct AttendanceCounts: Equatable, Sendable {
@@ -127,8 +127,8 @@ public enum AttendancePeriod: String, CaseIterable, Identifiable {
     case semester, month, lastMonth, week, today, custom
     public var id: String { rawValue }
     public var title: String {
-        switch self { case .semester: "本学期"; case .month: "本月"; case .lastMonth: "上月";
-        case .week: "本周"; case .today: "今日"; case .custom: "自定义" }
+        switch self { case .semester: String(localized: "本学期"); case .month: String(localized: "本月"); case .lastMonth: String(localized: "上月");
+        case .week: String(localized: "本周"); case .today: String(localized: "今日"); case .custom: String(localized: "自定义") }
     }
     public func range(now: Date, semester: SchoolDateRange) -> SchoolDateRange? {
         let calendar = SchoolClock.calendar

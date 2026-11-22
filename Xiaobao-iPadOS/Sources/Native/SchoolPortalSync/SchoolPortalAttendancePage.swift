@@ -24,7 +24,7 @@ struct SchoolPortalAttendancePage: View {
                     if let term = semester ?? book?.semester { filters(term) }
                     if let book {
                         if book.counts.native.total == 0 && book.courses.isEmpty && book.recordTotal == 0 {
-                            StudentEmptyState(title: "暂无考勤记录", detail: "校宝在所选时段没有这类考勤。")
+                            StudentEmptyState(title: String(localized: "暂无考勤记录"), detail: String(localized: "校宝在所选时段没有这类考勤。"))
                         } else {
                             if geometry.size.width > 1080 && !typeSize.isAccessibilitySize {
                                 HStack(alignment: .top, spacing: 20) {
@@ -118,7 +118,7 @@ private struct SchoolPortalAttendanceSubject: View {
             .task(id: key) { await store.loadAttendanceSubject(id, page: page) }
             .refreshable { await store.loadAttendanceSubject(id, page: page, force: true) }
         } else {
-            StudentEmptyState(title: "课程考勤不可用", detail: "请返回考勤页查看当前账号的记录。")
+            StudentEmptyState(title: String(localized: "课程考勤不可用"), detail: String(localized: "请返回考勤页查看当前账号的记录。"))
         }
     }
 }
@@ -144,7 +144,7 @@ private struct SchoolPortalAttendanceList: View {
                                 }
                             }
                         }
-                        if let excused = record.excused { Text(excused ? "已请假" : "未请假") }
+                        if let excused = record.excused { Text(excused ? String(localized: "已请假") : String(localized: "未请假")) }
                     }.font(.footnote).foregroundStyle(.secondary)
                 }.accessibilityElement(children: .combine)
             }

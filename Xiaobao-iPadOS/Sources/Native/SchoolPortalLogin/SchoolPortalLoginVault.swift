@@ -14,9 +14,9 @@ enum SchoolPortalEnrollmentError: Error, LocalizedError {
     case storage, invalid, identity
     var errorDescription: String? {
         switch self {
-        case .storage: "无法使用本机钥匙串。请确认 iPad 已设置锁屏密码，解锁后再试。"
-        case .invalid: "请输入有效的校宝密码。"
-        case .identity: "校宝未能确认当前学生的登录名，未保存密码。"
+        case .storage: String(localized: "无法使用本机钥匙串。请确认 iPad 已设置锁屏密码，解锁后再试。")
+        case .invalid: String(localized: "请输入有效的校宝密码。")
+        case .identity: String(localized: "校宝未能确认当前学生的登录名，未保存密码。")
         }
     }
 }

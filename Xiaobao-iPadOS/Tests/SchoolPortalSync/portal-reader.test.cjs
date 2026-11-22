@@ -268,3 +268,36 @@ test('overview lists project visible metadata, use the verified student, and nev
     assert.equal((await unavailable.run('resources',{},await unavailable.owner())).error,'unavailable');
     assert.ok(!unavailable.calls.includes('resources'));
 });
+
+test('only unnamed semesters carry display components; official labels never become interface keys',async()=>{
+    const h=harness({terms:()=>[{...term,name:'檐下的声音 / Échos'},
+        {id:54,isNow:false,year:2027,semester:3}]});
+    const owner=await h.owner(), value=(await h.run('terms',{},owner)).value;
+    assert.equal(value.terms[0].name,'檐下的声音 / Échos');
+    assert.equal(value.terms[0].semester,undefined);
+    assert.equal(value.terms[1].year,2027); assert.equal(value.terms[1].semester,3);
+    const labels=h.p.task({id:7,name:'取消',learningTaskState:2,subjectName:'Settings',
+                           learningTaskTypeName:'reading'});
+    assert.equal(labels.title,'取消'); assert.equal(labels.courseName,'Settings'); assert.equal(labels.kind,'reading');
+});
+
+test('only explicit complete pages can replace a saved list, including a genuine zero', async()=>{
+    for(const result of [{list:[]},{list:[],totalCount:"pending"},{list:[],totalCount:1},{list:[],totalCount:0,recordCount:2},
+        {list:[{id:1,name:"Batik"}],totalCount:0}]) {
+        const h=harness({tasks:()=>result}); assert.equal((await h.run('tasks',{},await h.owner())).error,'format');
+    }
+    const empty=harness({tasks:()=>({list:[],totalCount:0})});
+    assert.equal((await empty.run('tasks',{},await empty.owner())).value.rows.length,0);
+    const varying=harness({tasks:u=>({totalCount:u.searchParams.get('PageIndex')==='1'?3:2,
+        list:[{id:u.searchParams.get('PageIndex'),name:"Mask design",learningTaskState:2}]})});
+    assert.equal((await varying.run('tasks',{},await varying.owner())).error,'format');
+});
+
+test('deadline alerts require a precise time and positive outstanding state, never a guess',()=>{
+    const {p}=harness(), item={id:15,name:'Binding sketch',learningTaskState:2,endTime:'2030-03-10 18:00:00'};
+    assert.equal(p.task(item).deadlineEligible,true);
+    for(const fields of [{endTime:'2030-03-10'},{endTime:null},{isExempt:true},{isExempt:1},{isExempt:'unknown'},
+        {learningTaskState:4},{learningTaskState:3},{learningTaskState:11},{stuCommitTime:'2030-03-07 18:00:00'}]) {
+        assert.equal(p.task({...item,...fields}).deadlineEligible,false,JSON.stringify(fields));
+    }
+});

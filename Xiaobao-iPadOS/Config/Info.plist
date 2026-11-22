@@ -46,6 +46,8 @@
 	<string>连接你选择的 Xiaobao 服务，同步本机课表和学校资料。</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIPrefersShowingLanguageSettings</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -13,14 +13,14 @@ struct SchoolTermMenu: View {
                     model.selectAcademicTerm(value)
                     didSelect()
                 })) {
-                    ForEach(list.terms) { term in Text(verbatim: term.name).tag(term.id) }
+                    ForEach(list.terms) { term in Text(verbatim: term.displayName).tag(term.id) }
                 }
             } else if let issue = store.issues[.terms] {
                 Button("重试读取学期") { Task { await store.loadTerms() } }
                 Text(issue.message)
             } else { Text("正在读取学期") }
         } label: {
-            TaskFilterLabel(title: "学期", value: store.selectedTermTitle ?? store.tasks?.term ?? store.grades?.term ?? "本学期")
+            TaskFilterLabel(title: String(localized: "学期"), value: store.selectedTermTitle ?? store.tasks?.displayTerm ?? store.grades?.displayTerm ?? String(localized: "本学期"))
         }
         .buttonStyle(.plain).hoverEffect(.highlight)
         .accessibilityIdentifier("school-term-menu")

@@ -304,14 +304,15 @@ Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Core/Planner/PlanReminderPlann
 ## ReminderService
 
 Category: Frontend Infrastructure · Status: Active  
-Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/ReminderService.swift`, `ReminderService()`. Owns the notification delegate and one serial device queue. `SchoolPortal.swift` reports only the current main document’s response to `SchoolPortalPage.issue(at:foreground:loading:httpStatus:)` so an outage is not an account change. `syncDeviceReminders(plans:lessons:subtitle:)` shares capacity fairly between distinct personal and real-class namespaces; a nil personal snapshot is preserved, not cleared. Only an explicit opt-in may prompt. School requests contain timing only; personal content retains its own subtitle. `requireRemoval(includingPlans:)` persists and fences a privacy clear across termination. Legacy fixture requests are never used as real classes. See the [native app](Xiaobao-iPadOS/README.md).
+Path / entry: `<repo-root>/Xiaobao-iPadOS/Sources/Native/ReminderService.swift`, `ReminderService()`. Owns the notification delegate and one serial device queue. `SchoolPortal.swift` reports only the current main document’s response to `SchoolPortalPage.issue(at:foreground:loading:httpStatus:)` so an outage is not an account change. `syncDeviceReminders(plans:lessons:subtitle:assignments:)` shares capacity fairly among personal, real-class and assignment namespaces; a nil personal snapshot is preserved, not cleared. Only an explicit opt-in may prompt. Real-class requests contain timing only; assignment titles require a separate opt-in; personal content retains its own subtitle. `requireRemoval(includingPlans:)` persists and fences a privacy clear across termination. Legacy fixture requests are never used as real classes. See the [native app](Xiaobao-iPadOS/README.md).
 
 ### Consumers
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Native/AppModel.swift`, `AppModel+Reminders.swift` | Own and coordinate real class and personal reminders | classes = opted-in local registration; plans = verified owner or nil while waiting; subtitle = personal only | Preserve previously authorized requests on suspension; revoke at account boundaries |
-| `Xiaobao-iPadOS/Sources/Native/Settings/ReminderSettingsView.swift` | School opt-in, lead picker and registration status; explicit notification check | request options = system alert, sound and badge; test timing = five seconds; test subtitle = saved local choice | Retain timetable controls, test only on an explicit action |
+| `Xiaobao-iPadOS/Sources/Native/AppModel.swift`, `AppModel+Reminders.swift` | Coordinate class, personal and assignment reminders | classes = opted-in timetable; plans = verified owner or nil while waiting; assignments = current registered list; subtitle = personal only | Preserve authorized requests on suspension; revoke at account boundaries |
+| `Xiaobao-iPadOS/Sources/Native/SchoolPortalSync/SchoolAssignmentAccess.swift` | Request permission and fence removal of homework alerts | enabled / titles = explicit selections on this registration; clear = assignment namespace only | Removing data or hiding titles does not modify personal or class alerts |
+| `Xiaobao-iPadOS/Sources/Native/Settings/ReminderSettingsView.swift` | Class and assignment opt-ins, title privacy, lead picker and registration status; explicit notification check | request options = system alert, sound and badge; test timing = five seconds; test subtitle = saved local choice | Retain timetable controls, test only on an explicit action |
 | `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Observe lesson notification route | route = existing school detail payload | Preserve lesson navigation and refresh on account changes |
 | `Xiaobao-iPadOS/Sources/Native/Planner/PlannerView.swift` | Supply personal scheduling warnings to the Edit shelf | status = read-only planStatus | Distinguish a valid saved plan from a notification that was not registered |
 
@@ -576,7 +577,7 @@ Path / entry: `Xiaobao-iPadOS/Sources/Core/Tasks/`, `TaskRecord` (including `car
 
 | File | Usage | Parameters | Purpose |
 | --- | --- | --- | --- |
-| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift` | TaskRecord(campus:roster:) | row = verified current-term task; score = optional student-list release after consent; roster = explicit subject relation | Render real task cards without reading grade detail or allowing submission |
+| `Xiaobao-iPadOS/Sources/Core/SchoolPortalData/SchoolPortalData.swift` | TaskRecord(campus:roster:) | row = verified school task; work type = verbatim portal label; score = optional student-list release after consent; roster = explicit subject relation | Render real task cards without reading grade detail or allowing submission |
 | `Xiaobao-iPadOS/Sources/Core/CampusConnection.swift` | Authorized task query and current metadata marker | request = selected term/page; scope = authorized account; route is encoded by the task request | Share auth and preserve offline byte compatibility |
 | `Xiaobao-iPadOS/Sources/Native/Tasks/TasksView.swift` | Scope, term catalog, projection, and result sorting; supplies `TaskRecord.cardStage(at:)` to each tile | source = portal/cache/demo/selected term; preservingUndatedSourceOrder = model.school.selected; reader uses the captured scope; filters = view state; stage clock = model.now | Show the newest published assignments in one complete term; do not infer submission from a local flag |
 | `Xiaobao-iPadOS/Sources/Native/Tasks/TaskFilterBar.swift` | Options and editable filters | tasks = unfiltered selected term; filters = view binding; range uses school dates | Keep options available while other facets are selected |
@@ -931,3 +932,29 @@ Entry: `SchoolPortalPasswordEntry.swift`, bundled `PortalLogin.js`. Defaults: sh
 Entry: `SchoolPortalLoginSettings.swift`. Collapsed native enrollment/removal disclosure with a non-secret status; no parameters; depends on the current AppModel, school store and vault.
 - `Xiaobao-iPadOS/Sources/Native/CampusView.swift`: all defaults; single disclosure below school account status. No credential entry on the grade or attendance pages.
 - `Xiaobao-iPadOS/Tests/SchoolPortalSync/SettingsUITests.swift` and `GradeEntryUITests.swift`: verify disclosure and access via the native form; generated local test credential only for the explicit enrollment scenario.
+
+## Native display language
+
+Category: shared presentation utility · Status: Active. Entry: `Xiaobao-iPadOS/Sources/Core/Localization/AppLanguage.swift`. `locale` uses the bundle language and the device region; it does not change the time zone, identifiers or portal data. See the [module contract](Xiaobao-iPadOS/Sources/Core/Localization/README.md).
+
+### Consumers
+
+| File | Usage | Parameters / source | Purpose |
+| --- | --- | --- | --- |
+| `Xiaobao-iPadOS/Sources/Native/XiaobaoApp.swift` | Supply the SwiftUI environment locale | bundle selection; no explicit arguments | Match the native interface language |
+| `Xiaobao-iPadOS/Sources/Native/GlassComponents.swift` | Format a date for display | locale supplied by the bundle; date, format supplied by caller | Format the last successful task check without reinterpreting school time |
+
+## Protected assignment list and deadline candidates
+
+Category: Frontend device storage / projection · Status: Active. Path: `<repo-root>/Xiaobao-iPadOS/Sources/Core/SchoolAssignments/`. [Module](Xiaobao-iPadOS/Sources/Core/SchoolAssignments/README.md). `SchoolAssignmentStore` consumes a complete verified task list; never a grade, login grant or partial page. Defaults: current semester, alerts off, title off, one hour before a precise outstanding deadline. Local UUIDs are stable over edits. No cloud or new external API.
+
+### Consumers
+
+| File under Xiaobao-iPadOS | Usage · explicit inputs | Purpose |
+| --- | --- | --- |
+| `Sources/Native/AppModel.swift`, `XiaobaoApp.swift` | accept list=completed school response, owner=confirmed session, current=selected scope; restore/review/forget on device and account transitions | Archive only complete lists and fence old students |
+| `Sources/Native/SchoolPortalSync/SchoolAssignmentAccess.swift`, `SchoolPortalPages.swift` | registration + active identity/network state; current preference change or explicit clear | Decide whether an offline route is safe without granting network access |
+| `Sources/Native/Tasks/TasksView.swift` | snapshot + check time for the selected online or saved semester | Present stale versus confirmed records without inventing an empty list |
+| `Sources/Native/Settings/SettingsView.swift`, `ReminderSettingsView.swift` | explicit clear, opt-in, title preference; remaining defaults | Scope all settings to the existing registration |
+| `Sources/Native/AppModel+Reminders.swift`, `ReminderService.swift` | deadlines from the last complete current-semester snapshot; device clock, permission, queue budget; nil means unknown | Diff OS triggers and remove stale pending or delivered alerts without touching other namespaces |
+| `Tests/Core/SchoolAssignmentTests.swift`, `Tests/SchoolPortalSync/AssignmentQueueProbe.swift` | temporary directory / simulated owners / read-only observation of the OS queue | Regression and privacy checks without school data |

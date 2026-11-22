@@ -45,3 +45,6 @@ Changed: The GPA action enables optional task-list marks for the current verifie
 ### 2026-11-21
 Model: Codex · Keywords: schoolis-read / portal-epoch / published-grades  
 Changed: Added real-mode projections and identity-fenced reads. Reason: a demo session is not a Schoolis login. Affected interfaces: native-only `SchoolPortalRead` and `SchoolPortalStore`; no service route.
+
+### 2026-11-22 — Codex · complete-task-commit
+`onCompleteTasks` publishes only accepted owner/term reads; `onRevokeTasks` and `discardTaskLists` fence permission loss, account changes and outstanding callbacks. A malformed list cannot replace a prior disk snapshot.

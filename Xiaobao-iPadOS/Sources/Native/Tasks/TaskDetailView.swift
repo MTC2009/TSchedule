@@ -23,7 +23,7 @@ struct TaskDetailView: View {
                 }
                 if task.permitsLocalCompletion {
                     VStack(alignment: .leading, spacing: 8) {
-                        Button(completed ? "撤销本地完成" : "标记本地完成", systemImage: "checkmark.circle") {
+                        Button(completed ? String(localized: "撤销本地完成") : String(localized: "标记本地完成"), systemImage: "checkmark.circle") {
                             model.toggleDemoTask(task.id)
                         }.buttonStyle(.glass)
                         Text("只在此设备记录，不会提交任务。").font(.caption).foregroundStyle(.secondary)
@@ -44,7 +44,7 @@ struct TaskDetailView: View {
         GlassCard(padding: 20, shape: taskDetailShape) {
             VStack(alignment: .leading, spacing: 12) {
                 Text(task.title).font(.title2.weight(.semibold)).accessibilityAddTraits(.isHeader)
-                let metadata = [task.courseName, task.workType.map(TaskRecord.workTypeTitle), task.mode.map(TaskRecord.modeTitle)]
+                let metadata = [task.courseName, task.workTypeLabel, task.mode.map(TaskRecord.modeTitle)]
                     .compactMap { $0 }.joined(separator: " · ")
                 if !metadata.isEmpty { Text(metadata).font(.subheadline).foregroundStyle(.secondary) }
                 ViewThatFits(in: .horizontal) {
@@ -55,10 +55,10 @@ struct TaskDetailView: View {
                     Divider()
                     LazyVGrid(columns: [GridItem(typeSize.isAccessibilitySize ? .flexible() : .adaptive(minimum: 166),
                                                  spacing: 14, alignment: .leading)], alignment: .leading, spacing: 12) {
-                        if let teacher = task.teacher { metadataField("任课教师", value: teacher) }
-                        if let published = task.publishedAt { metadataField("发布时间", value: time(published)) }
-                        if let opens = task.opensAt { metadataField("开始时间", value: time(opens)) }
-                        if let due = task.dueAt { metadataField("截止时间", value: time(due)) }
+                        if let teacher = task.teacher { metadataField(String(localized: "任课教师"), value: teacher) }
+                        if let published = task.publishedAt { metadataField(String(localized: "发布时间"), value: time(published)) }
+                        if let opens = task.opensAt { metadataField(String(localized: "开始时间"), value: time(opens)) }
+                        if let due = task.dueAt { metadataField(String(localized: "截止时间"), value: time(due)) }
                     }
                 }
             }
@@ -85,12 +85,12 @@ struct TaskDetailView: View {
     }
 
     private var instructions: some View {
-        TaskMaterialSection(title: "任务内容", material: task.instructions, emptyText: "未提供任务说明。")
+        TaskMaterialSection(title: String(localized: "任务内容"), material: task.instructions, emptyText: String(localized: "未提供任务说明。"))
     }
 
     private var answer: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TaskMaterialSection(title: "我的回答", material: task.answer, emptyText: "未提供回答内容。")
+            TaskMaterialSection(title: String(localized: "我的回答"), material: task.answer, emptyText: String(localized: "未提供回答内容。"))
                 .accessibilityIdentifier("task-detail-answer")
             if let date = task.submittedAt {
                 Text("提交于 \(time(date))").font(.caption).foregroundStyle(.secondary)
@@ -120,7 +120,7 @@ struct TaskDetailView: View {
     private func score(_ mark: GradeMark, isEstimate: Bool) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(mark.displayText).font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
-            Text(isEstimate ? "预估分" : "任务成绩").font(.caption).foregroundStyle(.secondary)
+            Text(isEstimate ? String(localized: "预估分") : String(localized: "任务成绩")).font(.caption).foregroundStyle(.secondary)
             if isEstimate { Text("校方提供 · 非正式成绩").font(.caption2).foregroundStyle(.secondary) }
         }
         .accessibilityElement(children: .combine)
@@ -128,7 +128,7 @@ struct TaskDetailView: View {
     }
 
     private var feedback: some View {
-        TaskMaterialSection(title: "老师点评", material: task.feedback, emptyText: "未提供点评。")
+        TaskMaterialSection(title: String(localized: "老师点评"), material: task.feedback, emptyText: String(localized: "未提供点评。"))
             .accessibilityIdentifier("task-detail-feedback")
     }
 

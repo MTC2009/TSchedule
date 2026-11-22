@@ -99,7 +99,7 @@ async (op, args, expected, salt, p, generation) => {
             value=rows;
         } else if (op==="terms") {
             const {current,terms}=p.termDirectory(await read("/api/School/GetSchoolSemesters"));
-            value={current,terms:terms.map(({id,name})=>({id,name}))};
+            value={current,terms:terms.map(({id,name,year,semester})=>({id,name,year,semester}))};
         } else if (op==="week") {
             if (![args.from,args.to].every(x=>/^\d{4}-\d\d-\d\d$/.test(x)) ||
                 Date.parse(args.to)-Date.parse(args.from)!==6*86400000) fail("format");
@@ -119,7 +119,7 @@ async (op, args, expected, salt, p, generation) => {
                         gpaUnavailable=true;
                     }
                 }
-                value={term:term.name,termID:semesterId,gpa:p.num(gpa),gpaUnavailable,courses};
+                value={term:term.name,termLabel:{id:term.id,name:term.name,year:term.year,semester:term.semester},termID:semesterId,gpa:p.num(gpa),gpaUnavailable,courses};
             } else if (op==="attendance" || op==="attendanceSubject") {
                 const types={classroom:7,daily:1,activity:2}, page=args.page;
                 if(!Object.hasOwn(types,args.category) || !Number.isSafeInteger(page) || page<1 || page>1000000) fail("format");
@@ -161,20 +161,24 @@ async (op, args, expected, salt, p, generation) => {
                 for (let page=1;page<=64;++page) {
                     const data=await read("/api/LearningTask/GetList",{SemesterId:semesterId,SubjectId:"null",TypeId:"null",
                         Key:"",BeginTime:term.start,EndTime:term.end,PageSize:50,PageIndex:page,Mode:"null"});
-                    const list=p.array(data?.list), total=p.num(data.totalCount ?? data.total ?? data.recordCount);
-                    if (total!==null && (total<0 || !Number.isInteger(total) || (expectedTotal!==undefined && total!==expectedTotal))) fail("format");
-                    if (total!==null) expectedTotal=total;
+                    const list=p.array(data?.list);
+                    const counts=["totalCount","total","recordCount"].filter(k=>Object.hasOwn(data,k)).map(k=>p.num(data[k]));
+                    const total=counts[0];
+                    // An empty page without a credible total is not proof of zero tasks.
+                    if (!Number.isSafeInteger(total) || total<0 || total>3200 || counts.some(n=>n!==total) ||
+                        (expectedTotal!==undefined && total!==expectedTotal)) fail("format");
+                    expectedTotal=total;
                     for (const item of list) {
                         const id=p.id(item.id ?? item.learningTaskId);
                         if (!id || seen.has(id)) fail("format");
                         seen.add(id); const row=p.task(item,args.includeScores===true); if (row) rows.push(row);
                     }
-                    if (expectedTotal!==undefined && seen.size>expectedTotal) fail("format");
-                    if (expectedTotal!==undefined ? seen.size===expectedTotal : list.length===0) {complete=true;break;}
+                    if (seen.size>expectedTotal) fail("format");
+                    if (seen.size===expectedTotal) {complete=true;break;}
                     if (!list.length) fail("format");
                 }
                 if (!complete) fail("format");
-                value={term:term.name,rows};
+                value={term:term.name,termLabel:{id:term.id,name:term.name,year:term.year,semester:term.semester},rows};
             } else fail("format");
         }
         ready();

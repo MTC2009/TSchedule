@@ -17,6 +17,8 @@ enum SchoolPortalRead: Hashable {
     /// A confirmed identity (or an explicit mismatch), delivered before UI observation.
     /// Expiry, ordinary navigation and network errors are not an account switch.
     @ObservationIgnored var onAccountConfirmation: (@MainActor (String?) -> Void)?
+    @ObservationIgnored var onCompleteTasks: (@MainActor (SchoolPortalTasks, String, Bool) -> Void)?
+    @ObservationIgnored var onRevokeTasks: (@MainActor () -> Void)?
     private(set) var selected: Bool
     private(set) var owner: String?
     private(set) var epoch = UUID()
@@ -71,7 +73,7 @@ enum SchoolPortalRead: Hashable {
     // Selection is shared by Tasks and GPA; nil means the server's current term.
     @ObservationIgnored private var termCache: [String?: TermSnapshot] = [:]
     var selectedTermTitle: String? {
-        terms.flatMap { list in list.terms.first { $0.id == (selectedTermID ?? list.current) }?.name }
+        terms.flatMap { list in list.terms.first { $0.id == (selectedTermID ?? list.current) }?.displayName }
     }
     func loadTerms() async {
         guard terms == nil else { return }
@@ -109,6 +111,7 @@ enum SchoolPortalRead: Hashable {
     }
 
     func invalidate(_ reason: SchoolPortalIssue? = nil) {
+        if let reason, !reason.permitsIdentityRecheck || reason == .denied { onRevokeTasks?() }
         if reason == .changed { onAccountConfirmation?(nil) }
         if owner != nil { navigationEpoch = UUID() }
         manualReview = nil
@@ -267,6 +270,13 @@ enum SchoolPortalRead: Hashable {
                 invalidate(issue)
             } else {
                 clear(); issues[key] = issue
+                if issue == .denied {
+                    switch key {
+                    case .tasks, .archivedTasks, .terms:
+                        discardTaskLists(); onRevokeTasks?()
+                    default: break
+                    }
+                }
             }
         }
     }
@@ -460,13 +470,31 @@ enum SchoolPortalRead: Hashable {
     }
     func loadTasks(force: Bool = false) async {
         guard force || tasks == nil else { return }
+        guard let owner else { return }
+        let term = selectedTermID
         let includeScores = allowsTaskScores
         await load(SchoolPortalTasks.self, taskRead, sharedAcrossViews: true) { value in
             guard Set(value.rows.map(\.id)).count == value.rows.count,
                   value.rows.allSatisfy({ $0.score == nil || (includeScores && $0.grading == "graded") })
             else { throw SchoolPortalIssue.format }
+            if let label = value.termLabel, (term ?? self.terms?.current).map({ $0 != label.id }) == true {
+                throw SchoolPortalIssue.term
+            }
             if let before = self.tasks, before.rows != value.rows { self.gradesChecked = nil }
-            self.tasks = value
+            if self.tasks != value { self.tasks = value }
+            self.onCompleteTasks?(value, owner, term == nil)
         } clear: { self.tasks = nil }
+    }
+
+    /// Clearing a private disk copy also fences late reads and stale archive/website snapshots.
+    func discardTaskLists() {
+        tasks = nil; manualReview = nil
+        for key in pending {
+            switch key {
+            case .tasks, .archivedTasks: requests[key] = nil; pending.remove(key)
+            default: break
+            }
+        }
+        termCache = termCache.mapValues { .init(tasks: nil, grades: $0.grades, checked: $0.checked, allowsScores: $0.allowsScores) }
     }
 }

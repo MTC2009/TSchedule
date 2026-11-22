@@ -8,8 +8,8 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .today: "今日"; case .grades: "GPA"; case .attendance: "我的考勤"
-        case .tasks: "我的任务"; case .otherItems: "其余项目"; case .planner: "计划"; case .settings: "设置"
+        case .today: String(localized: "今日"); case .grades: "GPA"; case .attendance: String(localized: "我的考勤")
+        case .tasks: String(localized: "我的任务"); case .otherItems: String(localized: "其余项目"); case .planner: String(localized: "计划"); case .settings: String(localized: "设置")
         }
     }
     var symbol: String {
@@ -24,7 +24,8 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
         case .today, .planner: "我的日程"
         case .grades: "动态成绩"
         case .otherItems, .settings: nil
-        default: title
+        case .tasks: "我的任务"
+        case .attendance: "我的考勤"
         }
     }
 }
@@ -136,6 +137,7 @@ final class AppModel {
     let portal: PortalSession
     let school: SchoolPortalStore
     let timetable: SchoolTimetableStore
+    let assignments: SchoolAssignmentStore
     var timetableForeground = true
     var timetableCheckingSession = false
     let schoolLogin = SchoolPortalLoginVault()
@@ -182,6 +184,7 @@ final class AppModel {
         school = SchoolPortalStore(selected: source == .school,
                                    reader: { try await schoolReader.read($0, expected: $1) })
         let supportRoot = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        assignments = SchoolAssignmentStore(directory: supportRoot.appendingPathComponent("TScheduleAssignments-v1", isDirectory: true))
         timetable = SchoolTimetableStore(file: supportRoot.appendingPathComponent("TScheduleTimetable-v1", isDirectory: true)
             .appendingPathComponent("timetable.plist"))
         session.school = school
@@ -195,12 +198,25 @@ final class AppModel {
             .appendingPathComponent("plans.plist"))
         school.onAccountConfirmation = { [weak self] owner in
             guard let self else { return }
-            if let owner { self.confirmReminderOwner(owner); self.timetable.verified(owner) }
-            else { self.timetable.forget(); self.revokeAccountReminders() }
+            if let owner {
+                if self.assignments.hasRegistration && self.assignments.owner != owner { self.notifications.requireAssignmentRemoval() }
+                self.confirmReminderOwner(owner); self.timetable.verified(owner); self.assignments.verified(owner)
+            } else { self.timetable.forget(); self.assignments.forget(); self.revokeAccountReminders() }
+        }
+        school.onCompleteTasks = { [weak self] list, owner, current in
+            guard let self, self.school.owner == owner, self.portal.foreground,
+                  !self.portalPresented, !self.portal.manualSheet else { return }
+            if self.assignments.accept(list, owner: owner, current: current) {
+                Task { await self.refreshPlanReminders() }
+            } else if self.assignments.enabled { self.notifications.requireAssignmentRemoval() }
+        }
+        school.onRevokeTasks = { [weak self] in
+            guard let self, self.assignments.hasRegistration else { return }
+            self.notifications.requireAssignmentRemoval(); self.assignments.forget()
         }
         session.onForgetLogin = { [weak self] in
             guard let self else { return }
-            self.timetable.forget(); self.revokeAccountReminders()
+            self.timetable.forget(); self.assignments.forget(); self.revokeAccountReminders()
             self.lessonActivity.stop()
             try? self.schoolLogin.disable()
         }
@@ -211,6 +227,10 @@ final class AppModel {
         notifications.permitsPersonalDelivery = { [weak self] in
             guard let self else { return false }
             return self.reminderAccess != .revoked
+        }
+        notifications.permitsAssignmentDelivery = { [weak self] in
+            guard let self else { return false }
+            return self.canDisplaySavedAssignments && self.assignments.enabled && !self.assignments.writeFailed && self.reminderAccess != .revoked
         }
         #if DEBUG && TSCHEDULE_INTERNAL_FIXTURES
         notifications.permitsFixtureDelivery = { [weak self] in self?.usesLocalTimetable == true }
@@ -285,6 +305,7 @@ final class AppModel {
         setGradePageActive(false)
         let signInIssue = school.owner == nil ? school.identityIssue : nil
         timetable.reviewAccount()
+        assignments.reviewAccount()
         revokeAccountReminders()
         if school.selected {
             // An account can also be changed *inside* the website. Do not show a prior
@@ -302,6 +323,7 @@ final class AppModel {
 
     private func selectSource(_ source: CampusSource) {
         guard source != campusSource else { return }
+        if campusSource == .school { assignments.forget() }
         revokeAccountReminders()
         lessonActivity.stop()
         setGradePageActive(false)

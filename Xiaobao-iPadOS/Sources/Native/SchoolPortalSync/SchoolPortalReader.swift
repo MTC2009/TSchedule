@@ -57,12 +57,13 @@ final class SchoolPortalReader {
         let timeout: Duration? = switch request {
         case .identity: .seconds(8)
         case .week: .seconds(16)
+        case .tasks, .archivedTasks: .seconds(48)
         default: nil
         }
         do {
             if let timeout {
-                // A detached web document can suspend JS timers. A hung calendar read
-                // must not leave the sole manual update action permanently disabled.
+                // A detached web document can suspend its JS timers. Fail the native
+                // read as well; a late page cannot confirm a timed-out refresh.
                 value = try await withCheckedThrowingContinuation { continuation in
                     let wait = BoundedReply(continuation)
                     let deadline = Task {

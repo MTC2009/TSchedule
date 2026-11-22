@@ -405,3 +405,6 @@ Conversation Keywords: iPad-weather / sky-background / native-import
 Changed: 将原生 iPad 工程纳入工作区，扩展环境面板与共享背景，替换导入工程中基于原截图的本机考勤样例为合成汇总。  
 Reason: 可重复构建新的天气背景，同时避免把参考内容带到新的预览产物中。  
 Affected interfaces: 环境面板的本机选择与光线预览；旧天气偏好兼容。无 HTTP、数据库或环境变量变更。
+
+### 2026-11-22 — 本机作业与截止提醒
+Model: Codex · Keywords: assignment-cache / deadline-alerts / scope-isolation. 前台核对当前或选择的学期，只提交完整清单；[作业模块](Sources/Core/SchoolAssignments/README.md)单独保存不含成绩的摘要。现有提醒队列按类别分配名额、按新的截止时间改期或撤销；锁屏默认不显示作业标题。无新增服务端接口。

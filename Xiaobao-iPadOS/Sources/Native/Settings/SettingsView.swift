@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
+    @State private var confirmTaskClear = false
 
     var body: some View {
         SettingsForm {
@@ -27,16 +28,25 @@ struct SettingsView: View {
             }
             Section("账号与数据") {
                 if model.school.selected {
+                    if model.assignments.hasRegistration {
+                        Button("清除本机作业清单", role: .destructive) { confirmTaskClear = true }
+                            .accessibilityIdentifier("assignment-cache-clear")
+                            .confirmationDialog("清除本机作业清单？", isPresented: $confirmTaskClear) {
+                                Button("清除", role: .destructive) { model.clearSavedAssignments() }
+                                Button("取消", role: .cancel) {}
+                            } message: {
+                                Text("同时移除作业提醒，不影响校宝。下次完整同步后会重新保存清单。")
+                            }
+                    }
                     Button {
                         Task { await model.updateSchoolTimetable(manual: true) }
                     } label: {
-                        Label(model.timetable.busy || model.timetableCheckingSession ? "正在更新课表" : "更新课表", systemImage: "arrow.clockwise")
+                        Label(model.timetable.busy || model.timetableCheckingSession ? String(localized: "正在更新课表") : String(localized: "更新课表"), systemImage: "arrow.clockwise")
                     }
                     .disabled(model.timetable.busy || model.timetableCheckingSession)
                     .accessibilityIdentifier("settings-refresh-timetable")
                     if let book = model.localSchoolTimetable {
-                        Text("\(book.year) · 已确认 \(book.rotations.count)/6 个轮转日 · "
-                             + schoolDateLabel(book.savedAt, format: "M月d日 HH:mm") + " 更新")
+                        Text("\(book.year) · 已确认 \(book.rotations.count)/6 个轮转日 · 更新于 \(schoolDateLabel(book.savedAt, format: "M月d日 HH:mm"))")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     if let message = model.timetable.message {

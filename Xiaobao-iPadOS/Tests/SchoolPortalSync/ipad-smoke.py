@@ -26,6 +26,7 @@ class UIHandler(Handler):
     release_home = threading.Event()
     delegated = False
     account_boundary = False
+    assignments = None
     annual = None
     navigation = False
     overviews = set()
@@ -41,7 +42,14 @@ class UIHandler(Handler):
     expected = None
     submissions = []
 
+    def send_header(self, keyword, value):
+        # Only this disposable school session survives the test app's cold launch.
+        if self.assignments and keyword == "Set-Cookie" and value.startswith("fixture_device="):
+            value += "; Max-Age=1800"
+        super().send_header(keyword, value)
+
     def do_GET(self):
+        if self.assignments and self.assignments.handle(self): return
         if self.account_boundary and self.path == "/?fixture-maintenance=1":
             self.send_response(503); self.send_header("Content-Type", "text/html"); self.end_headers()
             self.wfile.write(b"<title>Unavailable</title>"); return
@@ -101,6 +109,7 @@ if(r.ok){location.replace('/Home')}else{button.disabled=false;button.textContent
         else: self.send_error(404)
 
     def do_POST(self):
+        if self.assignments and self.assignments.handle(self): return
         if self.annual and self.annual.post(self): return
         if self.account_boundary and self.path == "/api/v1/demo/sessions":
             info = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
@@ -203,6 +212,13 @@ def run(device, space, base, *, settings=False, planner_rotation=False, reminder
     replace(app/"Sources/Native/SchoolPortal.swift", 'if url.scheme == "https" ||',
             'if SchoolPortalPage.isOfficial(url) ||')
     shutil.copy2(tests/"GradeEntryUITests.swift", app/"GradeEntryUITests.swift")
+    if UIHandler.assignments:
+        shutil.copy2(tests/"AssignmentCacheUITests.swift", app/"AssignmentCacheUITests.swift")
+        replace(app/"AssignmentCacheUITests.swift", "__ASSIGNMENT_FIXTURE_ORIGIN__", base)
+        replace(app/"AssignmentCacheUITests.swift", "__ASSIGNMENT_LANGUAGE__", "en" if UIHandler.assignments.english else "zh-Hans")
+        with (app/"Sources/Native/AppModel.swift").open("a") as target:
+            target.write("\n"+(tests/"AssignmentQueueProbe.swift").read_text())
+        replace(app/"Sources/Native/XiaobaoApp.swift", "RootView()\n", "RootView().task { await model.inspectAssignmentQueue() }\n")
     if UIHandler.annual:
         shutil.copy2(tests/"AnnualTimetableUITests.swift", app/"AnnualTimetableUITests.swift")
         replace(app/"AnnualTimetableUITests.swift", "__ANNUAL_FIXTURE_ORIGIN__", base)
@@ -267,13 +283,15 @@ s.save_as('Xiaobao.xcodeproj', 'GradeEntryFixture')
 """
     fixture_id = ("cn.xiaobao.fixture.navigation" if UIHandler.navigation else "cn.xiaobao.fixture.boundary" if UIHandler.account_boundary else "cn.xiaobao.fixture.settings" if settings else
                   "cn.xiaobao.fixture.lesson-activity" if UIHandler.lesson_activity else "cn.xiaobao.fixture.grade-entry")
+    if UIHandler.assignments: fixture_id = "cn.xiaobao.fixture.tasks.r"+uuid.uuid4().hex[:12]
     if UIHandler.annual: fixture_id = "cn.xiaobao.fixture.annual.r"+uuid.uuid4().hex[:12]
     if UIHandler.delegated:
         # Each loopback port represents a different school origin. Never carry a previous
         # run's bound identity into it. The process restart inside one run keeps its Keychain.
         fixture_id = "cn.xiaobao.fixture.signin.r" + uuid.uuid4().hex[:12]
     subprocess.run(["ruby", "-e", spec, fixture_id, "unit" if UIHandler.account_boundary else "ui"], cwd=app, check=True)
-    test = ("AnnualTimetableUITests/testBackgroundRemindersAndPrivacyCleanup" if reminders else
+    test = ("AssignmentCacheUITests" if UIHandler.assignments else
+            "AnnualTimetableUITests/testBackgroundRemindersAndPrivacyCleanup" if reminders else
             "AnnualTimetableUITests/testPersonalPlanCanSwitchBetweenRotationAndWeekday" if planner_rotation else
             "AnnualTimetableUITests/testSavedYearDrivesTodayAndPlannerWhileLiveRecordsRefresh" if UIHandler.annual else
             "SchoolNavigationUITests/testListsAreWarmedTermsAreOnDemandAndSlowIdentityCanRetry" if UIHandler.navigation else
@@ -287,8 +305,12 @@ s.save_as('Xiaobao.xcodeproj', 'GradeEntryFixture')
                     "-configuration", "Debug" if UIHandler.account_boundary else "Release", "-destination", "id="+device, "-parallel-testing-enabled", "NO",
                     "-only-testing:GradeEntryUITests/"+test, "-collect-test-diagnostics", "never",
                     "-derivedDataPath", str(space/"DerivedData"), "COMPILER_INDEX_STORE_ENABLE=NO",
-                    "ONLY_ACTIVE_ARCH=YES", "CODE_SIGN_IDENTITY=-", "test"], cwd=app, timeout=390)
+                    # The assignment suite builds a clean app and cold-launches it five times.
+                    # Allow cold simulator startup without weakening any UI or queue assertion.
+                    "ONLY_ACTIVE_ARCH=YES", "CODE_SIGN_IDENTITY=-", "test"], cwd=app,
+                    timeout=720 if UIHandler.assignments else 390)
     if result.returncode:
+        if UIHandler.assignments: print("Assignment fixture:", sorted(UIHandler.assignments.passed), UIHandler.assignments.phase, UIHandler.assignments.state)
         if reminders: print("Synthetic notification transitions:", UIHandler.annual.transitions[-18:])
         print("Fixture counters: homes, login pages, grade generations, attendance reads, submission results:",
               UIHandler.homes, UIHandler.login_pages, UIHandler.grade_generations, UIHandler.attendance_reads, UIHandler.submissions)
@@ -303,6 +325,10 @@ s.save_as('Xiaobao.xcodeproj', 'GradeEntryFixture')
         result.check_returncode()
 
 
+    elif UIHandler.assignments and (dest := os.environ.get("TSCHEDULE_FIXTURE_RESULTS")):
+        for report in (space/"DerivedData/Logs/Test").glob("*.xcresult"):
+            shutil.copytree(report, Path(dest)/report.name)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("device", help="UUID of an available, dedicated iPad QA simulator")
@@ -316,7 +342,13 @@ if __name__ == "__main__":
     mode.add_argument("--navigation", action="store_true", help="Check the verified cache, terms, prefetched lists and bounded identity recovery")
     mode.add_argument("--account-boundary", action="store_true", help="Verify fixture logout, expiry and cold restart against isolated native stores")
     mode.add_argument("--reminders", action="store_true", help="Test real pending and delivered notifications in the isolated iPad app")
+    mode.add_argument("--assignments", action="store_true", help="Cold offline task cache, real rescheduled notifications and account isolation")
+    mode.add_argument("--assignments-en", action="store_true", help="Run the same cache and OS queue journey in English")
     args = parser.parse_args()
+    if args.assignments_en: args.assignments = True
+    if args.assignments:
+        from assignment_fixture import AssignmentFixture
+        UIHandler.assignments = AssignmentFixture(english=args.assignments_en); UIHandler.release_home.set()
     if args.reminders:
         from reminder_fixture import ReminderFixture
         UIHandler.annual = ReminderFixture(); UIHandler.release_home.set()
@@ -339,7 +371,11 @@ if __name__ == "__main__":
                 planner_rotation=args.planner_rotation, reminders=args.reminders)
         finally:
             server.shutdown()
-        if args.reminders:
+        if args.assignments:
+            assert UIHandler.assignments.passed == {"armed","archive-unread","archive-local","offline-verified","retimed","retained","named","removed","rearmed","held","isolated","other-offline"}
+            assert not UIHandler.submissions and not UIHandler.unexpected_posts
+            print("PASS: offline cold relaunch, same-ID retime, malformed list retained, withdrawal, named opt-in and protected account change; real OS queue, zero school writes")
+        elif args.reminders:
             assert UIHandler.annual.count == UIHandler.annual.baseline and not UIHandler.submissions
             print("PASS: system delivered both alerts in background; class opt-out preserved personal alerts; logout cleared both.")
         elif args.planner_rotation:

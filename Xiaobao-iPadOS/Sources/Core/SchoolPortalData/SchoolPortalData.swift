@@ -61,6 +61,8 @@ struct SchoolPortalGrades: Decodable {
         let mark: CampusScore?
         let items: [CampusAssessment]
     }
+    var displayTerm: String { termLabel?.displayName ?? term }
+    var termLabel: SchoolPortalTerms.Term? = nil
     let term, termID: String
     let gpa: Double?
     let gpaUnavailable: Bool?
@@ -97,17 +99,28 @@ struct SchoolPortalListItem: Decodable, Identifiable {
 }
 
 struct SchoolPortalTerms: Decodable {
-    struct Term: Decodable, Identifiable { let id, name: String }
+    struct Term: Codable, Equatable, Identifiable {
+        let id, name: String
+        var year: Int? = nil
+        var semester: Int? = nil
+        var displayName: String {
+            guard let year, (1...9999).contains(year), let semester, (1...32).contains(semester) else { return name }
+            return String(localized: "\(String(year))–\(String(year + 1)) 学年 · 第 \(semester) 学期")
+        }
+    }
     let current: String
     let terms: [Term]
 }
 
-struct SchoolPortalTasks: Decodable {
+struct SchoolPortalTasks: Decodable, Equatable {
     struct Row: Decodable, Equatable {
         let id, title, status: String
         let due, published, course, courseName, kind, grading: String?
         let score: CampusScore?
+        var deadlineEligible: Bool? = nil
     }
+    var displayTerm: String { termLabel?.displayName ?? term }
+    var termLabel: SchoolPortalTerms.Term? = nil
     let term: String
     let rows: [Row]
 
@@ -120,7 +133,9 @@ struct SchoolPortalTasks: Decodable {
                 work_type: row.kind, published_at: row.published, task: task)
             var roster: [String: CampusCourse] = [:]
             if let id = row.course, let name = row.courseName { roster[id] = .init(id: id, name: name, teacher: nil, room: nil) }
-            return TaskRecord(campus: work, roster: roster)
+            var record = TaskRecord(campus: work, roster: roster)
+            record.usesSchoolWorkType = true
+            return record
         }
     }
 }

@@ -67,17 +67,17 @@ extension AppModel {
     }
 
     func setSchoolReminders(_ enabled: Bool) async -> String? {
-        guard let id = timetable.reminderRegistration else { return "请先在设置中更新本机课表。" }
+        guard let id = timetable.reminderRegistration else { return String(localized: "请先在设置中更新本机课表。") }
         let epoch = school.epoch
         if enabled {
-            guard canEnableSchoolReminders else { return "请先确认校宝账号。" }
+            guard canEnableSchoolReminders else { return String(localized: "请先确认校宝账号。") }
             guard await notifications.requestPermission() else { return notifications.status }
             // The system permission sheet can leave the scene inactive for one more turn.
             // Recheck the registration and account fence, not the sheet's dismissal animation.
             guard school.selected, !portalPresented, !portal.manualSheet, reminderAccess != .revoked,
-                  school.epoch == epoch else { return "账号状态已改变，请重新开启。" }
+                  school.epoch == epoch else { return String(localized: "账号状态已改变，请重新开启。") }
         }
-        guard timetable.setLessonReminders(enabled, registration: id) else { return "课表已改变，请重试。" }
+        guard timetable.setLessonReminders(enabled, registration: id) else { return String(localized: "课表已改变，请重试。") }
         if !enabled { await notifications.requireRemoval(includingPlans: false).value }
         await refreshPlanReminders()
         return nil
@@ -110,7 +110,7 @@ extension AppModel {
             let snapshot = try? await planStore.readSchedule(for: owner)
             guard planReminderRead == ticket, reminderAccess == access else { return }
             plans = snapshot.map { PlanReminderPlanner.make(now: Date(), schedule: $0, calendar: planRotationCalendar) }
-        } else if localSchoolTimetable == nil {
+        } else if localSchoolTimetable == nil && !canDisplaySavedAssignments {
             await notifications.retryRemovalIfNeeded()
             return
         }
@@ -118,7 +118,9 @@ extension AppModel {
         if timetable.lessonRemindersEnabled, let book = localSchoolTimetable, let calendar = PublishedSchoolCalendar.bundledHS {
             lessons = book.lessonReminders(now: Date(), lead: timetable.lessonLead, calendar: calendar)
         } else { lessons = [] }
-        await notifications.syncDeviceReminders(plans: plans, lessons: lessons, subtitle: personalization.reminderSubtitle)
+        let due: [AssignmentDeadline]? = canDisplaySavedAssignments && !assignments.writeFailed
+            ? assignments.deadlines(at: .distantPast, currentTerm: school.terms?.current) : nil
+        await notifications.syncDeviceReminders(plans: plans, lessons: lessons, subtitle: personalization.reminderSubtitle, assignments: due)
     }
 
 }

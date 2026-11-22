@@ -13,18 +13,18 @@ enum SchoolPortalIssue: String, Error {
 
     var message: String {
         switch self {
-        case .notReady: "正在等待校宝页面就绪。"
-        case .login: "请在校宝中完成登录后再查看。"
-        case .interaction: "请打开校宝，在当前网页上完成登录。"
-        case .signInTimeout: "等待校宝登录结果超时。请打开校宝查看进度，不会自动重试。"
-        case .signInRejected: "校宝未接受这次登录。请打开校宝查看提示。"
-        case .expired: "此前的校宝登录已失效。"
-        case .changed: "当前校宝账号已改变，请确认账号后再查看。"
-        case .denied: "校宝未向当前账号开放这项资料。"
-        case .format: "校宝返回的格式无法识别，未将它当作空记录。"
-        case .network: "暂时无法连接校宝，请检查网络后重试。"
-        case .term: "暂时无法从校宝确认当前学期。"
-        case .unavailable: "当前页面未提供这项资料。"
+        case .notReady: String(localized: "正在等待校宝页面就绪。")
+        case .login: String(localized: "请在校宝中完成登录后再查看。")
+        case .interaction: String(localized: "请打开校宝，在当前网页上完成登录。")
+        case .signInTimeout: String(localized: "等待校宝登录结果超时。请打开校宝查看进度，不会自动重试。")
+        case .signInRejected: String(localized: "校宝未接受这次登录。请打开校宝查看提示。")
+        case .expired: String(localized: "此前的校宝登录已失效。")
+        case .changed: String(localized: "当前校宝账号已改变，请确认账号后再查看。")
+        case .denied: String(localized: "校宝未向当前账号开放这项资料。")
+        case .format: String(localized: "校宝返回的格式无法识别，未将它当作空记录。")
+        case .network: String(localized: "暂时无法连接校宝，请检查网络后重试。")
+        case .term: String(localized: "暂时无法从校宝确认当前学期。")
+        case .unavailable: String(localized: "当前页面未提供这项资料。")
         }
     }
 }

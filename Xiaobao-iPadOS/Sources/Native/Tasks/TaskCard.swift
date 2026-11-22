@@ -24,7 +24,7 @@ struct TaskCard: View {
                     Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary).accessibilityHidden(true)
                 }
-                let scope = [task.courseName, task.workType.map(TaskRecord.workTypeTitle)].compactMap { $0 }
+                let scope = [task.courseName, task.workTypeLabel].compactMap { $0 }
                 if !scope.isEmpty { Text(scope.joined(separator: " · ")).font(.subheadline) }
                 scoreAndMetadata
             }

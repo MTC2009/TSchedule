@@ -13,6 +13,8 @@ struct SchoolPortalPages: View {
             SchoolPortalToday()
         } else if tab == .planner, model.localSchoolTimetable != nil {
             PlannerView()
+        } else if tab == .tasks, model.canDisplaySavedAssignments {
+            TasksView()
         } else if school.owner == nil {
             if school.isRecoveringSession {
                 ProgressView("正在恢复校宝登录")
@@ -29,7 +31,7 @@ struct SchoolPortalPages: View {
             } else {
                 ContentUnavailableView {
                     Label("校宝登录", systemImage: "person.crop.circle")
-                } description: { Text(school.identityIssue?.message ?? "登录校宝后，在这里查看自己的校园资料。") }
+                } description: { Text(school.identityIssue?.message ?? String(localized: "登录校宝后，在这里查看自己的校园资料。")) }
                 actions: { Button("打开校宝登录") { model.openPortal() }.buttonStyle(.glass) }
             }
         } else {
@@ -53,7 +55,7 @@ private struct SchoolPortalToday: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 TodayRotationHeader(date: now, day: day?.calendarDay.teachingDay,
-                                    unpublished: day?.calendarDay.status == .unpublished, unknownDayTitle: day == nil || day?.hasDatedException == true ? "今日课表" : nil)
+                                    unpublished: day?.calendarDay.status == .unpublished, unknownDayTitle: day == nil || day?.hasDatedException == true ? String(localized: "今日课表") : nil)
                     .accessibilityIdentifier("verified-school-today")
                 if day?.hasDatedException == true {
                     Text("校历标为非教学日；下列是校宝当天单独列出的课次，不计入轮转。")
@@ -68,8 +70,8 @@ private struct SchoolPortalToday: View {
                 } else if model.timetable.busy && model.localSchoolTimetable == nil {
                     ProgressView("正在保存本学年课表")
                 } else {
-                    StudentEmptyState(title: "当天课表尚未确认",
-                                      detail: model.timetable.message ?? "可在设置中更新课表。未确认的课程不会按空课表显示。")
+                    StudentEmptyState(title: String(localized: "当天课表尚未确认"),
+                                      detail: model.timetable.message ?? String(localized: "可在设置中更新课表。未确认的课程不会按空课表显示。"))
                 }
             }.padding(24).frame(maxWidth: 1000).frame(maxWidth: .infinity)
         }

@@ -15,12 +15,12 @@ struct TaskFilterBar<TermControl: View>: View {
             VStack(alignment: .leading, spacing: 10) {
                 LazyVGrid(columns: [GridItem(typeSize.isAccessibilitySize ? .flexible() : .adaptive(minimum: 150),
                                             spacing: 8, alignment: .leading)], spacing: 8) {
-                    facet("课程", all: "全部课程", options: TaskFilters.courses(in: tasks), selection: $filters.course, id: "course")
-                    facet("任务类型", all: "全部类型", options: TaskFilters.workTypes(in: tasks), selection: $filters.workType, id: "type")
+                    facet(String(localized: "课程"), all: String(localized: "全部课程"), options: TaskFilters.courses(in: tasks), selection: $filters.course, id: "course")
+                    facet(String(localized: "任务类型"), all: String(localized: "全部类型"), options: TaskFilters.workTypes(in: tasks), selection: $filters.workType, id: "type")
                     submissionMenu
                     gradingMenu
                     deadlineButton
-                    facet("任务模式", all: "全部模式", options: TaskFilters.modes(in: tasks), selection: $filters.mode, id: "mode")
+                    facet(String(localized: "任务模式"), all: String(localized: "全部模式"), options: TaskFilters.modes(in: tasks), selection: $filters.mode, id: "mode")
                     termControl()
                 }
                 HStack(spacing: 8) {
@@ -61,7 +61,7 @@ struct TaskFilterBar<TermControl: View>: View {
                 ForEach(TaskSubmissionState.allCases) { state in Text(state.title).tag(Optional(state)) }
             }.pickerStyle(.inline)
         } label: {
-            TaskFilterLabel(title: "提交状态", value: filters.submission?.title ?? "全部")
+            TaskFilterLabel(title: String(localized: "提交状态"), value: filters.submission?.title ?? String(localized: "全部"))
         }
         .buttonStyle(.plain).hoverEffect(.highlight)
         .accessibilityIdentifier("task-filter-submission")
@@ -74,7 +74,7 @@ struct TaskFilterBar<TermControl: View>: View {
                 ForEach(TaskGradingState.allCases) { state in Text(state.title).tag(Optional(state)) }
             }.pickerStyle(.inline)
         } label: {
-            TaskFilterLabel(title: "批改状态", value: filters.grading?.title ?? "全部")
+            TaskFilterLabel(title: String(localized: "批改状态"), value: filters.grading?.title ?? String(localized: "全部"))
         }
         .buttonStyle(.plain).hoverEffect(.highlight)
         .accessibilityIdentifier("task-filter-grading")
@@ -84,8 +84,8 @@ struct TaskFilterBar<TermControl: View>: View {
         Button { editingDates = true } label: {
             let value = filters.deadlines.map {
                 schoolDateLabel($0.start, format: "M/d") + " – " + schoolDateLabel($0.end, format: "M/d")
-            } ?? "不限日期"
-            TaskFilterLabel(title: "截止日期", value: value, symbol: "calendar")
+            } ?? String(localized: "不限日期")
+            TaskFilterLabel(title: String(localized: "截止日期"), value: value, symbol: "calendar")
         }
         .buttonStyle(.plain).hoverEffect(.highlight)
         .accessibilityIdentifier("task-filter-dates")

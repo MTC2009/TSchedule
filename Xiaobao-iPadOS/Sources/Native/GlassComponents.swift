@@ -33,12 +33,20 @@ private struct NativeGlassSurface: ViewModifier {
 @MainActor private var schoolDateFormatters: [String: DateFormatter] = [:]
 
 @MainActor func schoolDateLabel(_ date: Date, format: String = "M月d日 EEEE") -> String {
-    if let saved = schoolDateFormatters[format] { return saved.string(from: date) }
+    let locale = AppLanguage.locale
+    let key = locale.identifier + "|" + format
+    if let saved = schoolDateFormatters[key] { return saved.string(from: date) }
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "zh_CN")
+    formatter.locale = locale
+    formatter.calendar = SchoolClock.calendar
     formatter.timeZone = SchoolClock.calendar.timeZone
-    formatter.dateFormat = format
-    schoolDateFormatters[format] = formatter
+    // The callers describe school time in Shanghai; date order and month/weekday names are UI.
+    let templates = ["M月d日 EEEE": "MMMMdEEEE", "M月d日": "MMMd", "yyyy年M月": "yMMMM",
+                     "yyyy年M月d日": "yMMMd", "yyyy年M月d日 HH:mm": "yMMMdjm", "M月d日 HH:mm": "MMMdjm",
+                     "EEE M/d": "MMMEd", "M/d": "Md", "yyyy.MM.dd": "yMd"]
+    if let template = templates[format] { formatter.setLocalizedDateFormatFromTemplate(template) }
+    else { formatter.dateFormat = format }
+    schoolDateFormatters[key] = formatter
     return formatter.string(from: date)
 }
 
@@ -60,7 +68,7 @@ struct LessonDetailView: View {
                     Label(lesson.course.teacher, systemImage: "person")
                     Divider()
                     Text(schoolDateLabel(lesson.date)).foregroundStyle(.secondary)
-                    Text(model.preferences.remindersEnabled ? (model.preferences.reminderLead == 0 ? "上课时提醒" : "提前 \(model.preferences.reminderLead) 分钟提醒") : "课前提醒未开启")
+                    Text(model.preferences.remindersEnabled ? (model.preferences.reminderLead == 0 ? String(localized: "上课时提醒") : String(localized: "提前 \(model.preferences.reminderLead) 分钟提醒")) : String(localized: "课前提醒未开启"))
                         .font(.callout).foregroundStyle(.secondary)
                     Button("查看提醒设置", systemImage: "bell") { dismiss(); model.tab = .settings }.buttonStyle(.glass)
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(30)

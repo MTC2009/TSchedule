@@ -1,0 +1,23 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to the Xiaobao service you choose to sync your timetable and school records on this iPad."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接你选择的校宝服务，同步本机课表和学校资料。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

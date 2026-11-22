@@ -40,6 +40,7 @@ source_types = {".swift": "sourcecode.swift", ".metal": "sourcecode.metal", ".h"
 shared_activity_sources = {
     "Sources/ActivityWidget/LessonActivityAttributes.swift",
     "Sources/ActivityWidget/LessonActivityCard.swift",
+    "Sources/Core/Localization/AppLanguage.swift",
     "Sources/Core/Personalization/LocalPersonalization.swift",
 }
 for folder in ["Core", "Native", "ActivityWidget"]:
@@ -66,6 +67,13 @@ calendar_build = add("HSCalendar:build", isa="PBXBuildFile", fileRef=calendar)
 policy = add("PolicyCopy", isa="PBXFileReference", lastKnownFileType="text.json",
              path="Resources/PolicyCopy.json", sourceTree="SOURCE_ROOT")
 policy_build = add("PolicyCopy:build", isa="PBXBuildFile", fileRef=policy)
+strings = add("Localizable", isa="PBXFileReference", lastKnownFileType="text.json.xcstrings",
+              path="Resources/Localizable.xcstrings", sourceTree="SOURCE_ROOT")
+usage_strings = add("InfoPlistStrings", isa="PBXFileReference", lastKnownFileType="text.json.xcstrings",
+                    path="Resources/InfoPlist.xcstrings", sourceTree="SOURCE_ROOT")
+strings_build = add("Localizable:build", isa="PBXBuildFile", fileRef=strings)
+widget_strings = add("Localizable:widget", isa="PBXBuildFile", fileRef=strings)
+usage_build = add("InfoPlistStrings:build", isa="PBXBuildFile", fileRef=usage_strings)
 privacy = add("PrivacyManifest", isa="PBXFileReference", lastKnownFileType="text.xml",
               path="Config/PrivacyInfo.xcprivacy", sourceTree="<group>")
 privacy_build = add("PrivacyManifest:build", isa="PBXBuildFile", fileRef=privacy)
@@ -82,15 +90,15 @@ product = add("Product", isa="PBXFileReference", explicitFileType="wrapper.appli
 widget_product = add("LessonActivityProduct", isa="PBXFileReference", explicitFileType="wrapper.app-extension",
                      includeInIndex=0, path="LessonActivityWidget.appex", sourceTree="BUILT_PRODUCTS_DIR")
 products = add("Products", isa="PBXGroup", children=[product, widget_product], name="Products", sourceTree="<group>")
-main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, policy, privacy, *portal_refs, info, widget_info, readme, products], sourceTree="<group>")
+main = add("Main", isa="PBXGroup", children=[sources, assets, calendar, policy, strings, usage_strings, privacy, *portal_refs, info, widget_info, readme, products], sourceTree="<group>")
 source_phase = add("Compile", isa="PBXSourcesBuildPhase", buildActionMask=2147483647, files=source_builds, runOnlyForDeploymentPostprocessing=0)
-resource_phase = add("Resources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647, files=[asset_build, calendar_build, policy_build, privacy_build, *portal_builds], runOnlyForDeploymentPostprocessing=0)
+resource_phase = add("Resources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647, files=[asset_build, calendar_build, policy_build, strings_build, usage_build, privacy_build, *portal_builds], runOnlyForDeploymentPostprocessing=0)
 framework_phase = add("Frameworks", isa="PBXFrameworksBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0)
 widget_source_phase = add("LessonActivityCompile", isa="PBXSourcesBuildPhase", buildActionMask=2147483647,
                           files=widget_builds, runOnlyForDeploymentPostprocessing=0)
 widget_asset = add("LessonActivityAssets:build", isa="PBXBuildFile", fileRef=assets)
 widget_resources = add("LessonActivityResources", isa="PBXResourcesBuildPhase", buildActionMask=2147483647,
-                       files=[widget_asset], runOnlyForDeploymentPostprocessing=0)
+                       files=[widget_asset, widget_strings], runOnlyForDeploymentPostprocessing=0)
 embedded = add("LessonActivityEmbed:build", isa="PBXBuildFile", fileRef=widget_product,
                settings={"ATTRIBUTES": ["RemoveHeadersOnCopy"]})
 embed_phase = add("EmbedFoundationExtensions", isa="PBXCopyFilesBuildPhase", buildActionMask=2147483647,

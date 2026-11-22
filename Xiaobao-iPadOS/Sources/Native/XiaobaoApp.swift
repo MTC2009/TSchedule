@@ -16,7 +16,7 @@ struct XiaobaoApp: App {
                 .onChange(of: model.portal.loading || model.school.isRecoveringSession || model.school.pending.contains(model.school.gradeRead)) {
                     _, busy in if !busy { model.startRequestedGradeRead() }
                 }
-                .environment(\.locale, Locale(identifier: "zh_CN"))
+                .environment(\.locale, AppLanguage.locale)
                 .environment(\.timeZone, SchoolClock.calendar.timeZone)
                 .preferredColorScheme(model.colorScheme)
                 .tint(.blue)
@@ -26,7 +26,7 @@ struct XiaobaoApp: App {
             model.cityWeather.setForeground(phase == .active)
             model.portal.foreground = phase == .active
             model.timetableForeground = phase == .active
-            if phase == .active { model.timetable.restore() }
+            if phase == .active { model.timetable.restore(); model.assignments.restore() }
             if phase == .background { model.timetable.cancel() }
             if model.school.selected {
                 if phase == .background {

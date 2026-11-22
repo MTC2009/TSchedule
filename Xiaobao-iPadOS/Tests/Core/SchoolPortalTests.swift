@@ -362,3 +362,21 @@ import XCTest
         XCTAssertFalse(task.permitsLocalCompletion); XCTAssertNil(task.mark)
     }
 }
+
+extension SchoolPortalTests {
+    func testPortalLabelsDoNotPassThroughTheAppVocabulary() throws {
+        let data = try bytes(["term":"档案馆", "rows":[["id":"w","title":"开卷 / Archive","course":"s","courseName":"设置",
+                            "kind":"reading","status":"pending"]]] as [String: Any])
+        let tasks = try JSONDecoder().decode(SchoolPortalTasks.self, from: data)
+        let record = try XCTUnwrap(tasks.records.first)
+        XCTAssertEqual(tasks.displayTerm, "档案馆")
+        XCTAssertEqual(record.title, "开卷 / Archive")
+        XCTAssertEqual(record.courseName, "设置")
+        XCTAssertEqual(record.workTypeLabel, "reading")
+        XCTAssertEqual(TaskFilters.workTypes(in: [record]).first?.title, "reading")
+        let supplied = SchoolPortalTerms.Term(id: "a", name: "期末 / Finals")
+        XCTAssertEqual(supplied.displayName, supplied.name)
+        let malformed = SchoolPortalTerms.Term(id: "b", name: "Archive", year: .max, semester: 2)
+        XCTAssertEqual(malformed.displayName, "Archive")
+    }
+}

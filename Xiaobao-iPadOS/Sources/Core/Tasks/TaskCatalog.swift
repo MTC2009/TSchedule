@@ -19,8 +19,8 @@ struct TaskTermDirectory: Equatable, Sendable {
         let parts = term.split(separator: "-")
         guard parts.count == 2, parts[0].count == 4, Int(parts[0]) != nil else { return term }
         switch parts[1] {
-        case "autumn": return "\(parts[0]) 秋季学期"
-        case "spring": return "\(parts[0]) 春季学期"
+        case "autumn": return String(localized: "\(parts[0]) 秋季学期")
+        case "spring": return String(localized: "\(parts[0]) 春季学期")
         default: return term
         }
     }

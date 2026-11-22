@@ -78,3 +78,6 @@ Reason: Make the corner treatment easier to see without taking attention away fr
 Affected interfaces: Task-card ribbon geometry only; colors, states, navigation and data are unchanged.
 
 Verification: The Xcode simulator build and iPad Air task UI test passed. The [portrait capture](../../../../docs/verification/student-interface/my-tasks-ribbon-shape.png) measured about 40° and 20 pt of visible ribbon, compared with 45° and 16 pt in the previous capture.
+
+### 2026-11-22 — Codex · assignment-last-confirmed
+TasksView presents the verified scope or its protected, score-free local snapshot with the check time and explicit stale state, manual retry and offline selection among saved semesters. Reset returns to the current semester even offline; the offline selection does not survive an account change. No additional task detail reads.

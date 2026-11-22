@@ -35,8 +35,12 @@
         const list=array(rows), active=list.filter(x=>x.isNow===true);
         if(active.length!==1 || list.length>128) throw Error("term");
         const terms=list.map(t=>{
-            const year=num(t.year), sem=num(t.semester);
-            return {id:code(t.id), name:year && sem ? year+"–"+(year+1)+" 学年 · 第 "+sem+" 学期" : title(t.name),
+            const year=num(t.year), sem=num(t.semester), supplied=str(t.name);
+            // A portal-provided label stays verbatim. Only synthesized names have formatting metadata.
+            const generated=!supplied && Number.isSafeInteger(year) && year>=1 && year<10000 &&
+                Number.isSafeInteger(sem) && sem>0 && sem<=32;
+            return {id:code(t.id), name:supplied ?? (generated ? year+"–"+(year+1)+" / "+sem : title(t.name)),
+                ...(generated ? {year,semester:sem} : {}),
                 start:str(t.startDate)?.slice(0,10), end:str(t.endDate)?.slice(0,10)};
         });
         if(new Set(terms.map(t=>t.id)).size!==terms.length) throw Error("term");
@@ -114,6 +118,8 @@
         // A marked offline task does not prove an online student submission.
         return {id:code(x.id ?? x.learningTaskId), title:title(x.name,x.learningTaskName),
             due:instant(x.endTime), published:instant(x.publishTime), course, courseName,
+            deadlineEligible:state===2 && !x.stuCommitTime && (x.isExempt==null || x.isExempt===false || x.isExempt===0) &&
+                /^\d{4}-\d\d-\d\d[T ]\d\d:\d\d/.test(str(x.endTime)??""),
             kind:str(x.learningTaskTypeName) ?? str(x.typeName),
             status:state===3 || instant(x.stuCommitTime) ? "submitted" : state===2 && !x.isExempt?"pending":"unavailable",
             grading:exempt?"excused":score?"graded":state===4 ? (sync===0 || sync===false?"graded_unpublished":"graded") :

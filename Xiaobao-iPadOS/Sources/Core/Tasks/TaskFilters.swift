@@ -59,15 +59,15 @@ struct TaskFilters: Equatable {
     }
 
     static func courses(in tasks: [TaskRecord]) -> [TaskFacetOption] {
-        options(tasks.map { (courseFacet($0), $0.courseName ?? "课程未提供") })
+        options(tasks.map { (courseFacet($0), $0.courseName ?? String(localized: "课程未提供")) })
     }
 
     static func workTypes(in tasks: [TaskRecord]) -> [TaskFacetOption] {
-        options(tasks.map { (facet($0.workType), $0.workType.map(TaskRecord.workTypeTitle) ?? "类型未提供") })
+        options(tasks.map { (facet($0.workType), $0.workTypeLabel ?? String(localized: "类型未提供")) })
     }
 
     static func modes(in tasks: [TaskRecord]) -> [TaskFacetOption] {
-        options(tasks.map { (facet($0.mode), $0.mode.map(TaskRecord.modeTitle) ?? "模式未提供") })
+        options(tasks.map { (facet($0.mode), $0.mode.map(TaskRecord.modeTitle) ?? String(localized: "模式未提供")) })
     }
 
     private static func courseFacet(_ task: TaskRecord) -> TaskFacetValue {

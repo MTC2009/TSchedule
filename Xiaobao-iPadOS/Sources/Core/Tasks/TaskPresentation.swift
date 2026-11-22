@@ -32,12 +32,12 @@ enum TaskSubmissionState: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .pending: "待提交"
-        case .overdue: "逾期未交"
-        case .submitted: "已提交"
-        case .completed: "已完成"
-        case .localCompletion: "本地完成"
-        case .unavailable: "提交状态未提供"
+        case .pending: String(localized: "待提交")
+        case .overdue: String(localized: "逾期未交")
+        case .submitted: String(localized: "已提交")
+        case .completed: String(localized: "已完成")
+        case .localCompletion: String(localized: "本地完成")
+        case .unavailable: String(localized: "提交状态未提供")
         }
     }
 }
@@ -48,13 +48,13 @@ enum TaskGradingState: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .graded: "已批改"
-        case .gradedUnpublished: "已批改，待发布"
-        case .pending: "未批改"
-        case .inProgress: "批改中"
-        case .missing: "缺交"
-        case .excused: "免评"
-        case .unavailable: "批改状态未提供"
+        case .graded: String(localized: "已批改")
+        case .gradedUnpublished: String(localized: "已批改，待发布")
+        case .pending: String(localized: "未批改")
+        case .inProgress: String(localized: "批改中")
+        case .missing: String(localized: "缺交")
+        case .excused: String(localized: "免评")
+        case .unavailable: String(localized: "批改状态未提供")
         }
     }
 }
@@ -80,6 +80,9 @@ struct TaskRecord: Identifiable, Sendable {
     let answer: Material?
     let submittedAt: Date?
     let feedback: Material?
+    // Only fixtures use app-defined type codes. School-supplied category names are verbatim.
+    var usesSchoolWorkType = false
+    var workTypeLabel: String? { usesSchoolWorkType ? workType : workType.map(Self.workTypeTitle) }
     var isLocalDemo = false
     var releasedEstimate: GradeMark? = nil
 
@@ -111,19 +114,19 @@ struct TaskRecord: Identifiable, Sendable {
 
     static func workTypeTitle(_ key: String) -> String {
         switch key {
-        case "practice": "练习"
-        case "reading": "阅读记录"
-        case "reflection": "学习回顾"
-        case "checkpoint": "小测"
-        case "lab_report": "实验报告"
+        case "practice": String(localized: "练习")
+        case "reading": String(localized: "阅读记录")
+        case "reflection": String(localized: "学习回顾")
+        case "checkpoint": String(localized: "小测")
+        case "lab_report": String(localized: "实验报告")
         default: key
         }
     }
 
     static func modeTitle(_ key: String) -> String {
         switch key {
-        case "online": "线上"
-        case "offline": "线下"
+        case "online": String(localized: "线上")
+        case "offline": String(localized: "线下")
         default: key
         }
     }
